@@ -8,5 +8,6 @@ public class ClienteRequest {
     private String telefono;
     private String email;
     private String direccion;
+    private boolean esReferido;
 
 }

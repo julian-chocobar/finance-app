@@ -8,10 +8,12 @@ import org.springframework.stereotype.Service;
 
 import com.thames.finance_app.dtos.ClienteRequest;
 import com.thames.finance_app.dtos.ClienteResponse;
+import com.thames.finance_app.exceptions.BusinessException;
 import com.thames.finance_app.mappers.ClienteMapper;
 import com.thames.finance_app.models.Cliente;
 import com.thames.finance_app.models.CuentaCorriente;
 import com.thames.finance_app.repositories.ClienteRepository;
+import com.thames.finance_app.repositories.OperacionRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -20,10 +22,12 @@ import jakarta.transaction.Transactional;
 public class ClienteService {
 	
 	private final ClienteRepository clienteRepository;
+	private final OperacionRepository operacionRepository;
 	private final ClienteMapper clienteMapper;
 	
-	public ClienteService (ClienteRepository clienteRepository, ClienteMapper clienteMapper) {
+	public ClienteService (ClienteRepository clienteRepository, OperacionRepository operacionRepository, ClienteMapper clienteMapper) {
 		this.clienteRepository = clienteRepository;
+		this.operacionRepository = operacionRepository;
 		this.clienteMapper = clienteMapper;
 	}
 	
@@ -35,23 +39,29 @@ public class ClienteService {
 	}
 	
 	public List<ClienteResponse> obtenerTodosClientes(){
-		List<Cliente> clientes = clienteRepository.findAllClientes();
+		List<Cliente> clientes = clienteRepository.findByEsReferidoFalse();
 		return clientes.stream()
 				.map(clienteMapper::toResponse)
 				.collect(Collectors.toList());	
 	}
 	
 	public List<ClienteResponse> obtenerTodosReferidos(){
-		List<Cliente> referidos = clienteRepository.findAllReferidos();
+		List<Cliente> referidos = clienteRepository.findByEsReferidoTrue();
 		return referidos.stream()
 				.map(clienteMapper::toResponse)
 				.collect(Collectors.toList());	
 	}
 	
-	public ClienteResponse obtenerPorID(Long id) {
-		Cliente cliente = clienteRepository.findById(id)
+	public ClienteResponse obtenerClientePorID(Long id) {
+		Cliente cliente = clienteRepository.findByIdAndEsReferidoFalse(id)
 				.orElseThrow( () -> new EntityNotFoundException("Cliente con id: " + id + " no encontrado"));
 		return clienteMapper.toResponse(cliente);	
+	}
+	
+	public ClienteResponse obtenerReferidoPorID(Long id) {
+		Cliente referidos = clienteRepository.findByIdAndEsReferidoTrue(id)
+				.orElseThrow( () -> new EntityNotFoundException("Cliente con id: " + id + " no encontrado"));
+		return clienteMapper.toResponse(referidos);
 	}
 	
 	@Transactional
@@ -74,19 +84,51 @@ public class ClienteService {
 	}
 	
 	@Transactional
-	public ClienteResponse actualizarCliente(Long id, ClienteRequest clienteRequest) {
-		Cliente clienteExistente = clienteRepository.findById(id)
-				.orElseThrow(() -> new EntityNotFoundException("Cliente con id: " + id + " no encontrado"));
+	public ClienteResponse crearReferido(ClienteRequest clienteRequest) {
+		Cliente cliente = clienteMapper.toEntityReferido(clienteRequest);
 		
-		 clienteMapper.updateEntity(clienteExistente, clienteRequest);
-	        clienteExistente = clienteRepository.save(clienteExistente);
-	        return clienteMapper.toResponse(clienteExistente);		
+		CuentaCorriente cuentaCorriente = CuentaCorriente.builder()
+	            .saldoPeso(BigDecimal.ZERO)
+	            .saldoDolar(BigDecimal.ZERO)
+	            .saldoReal(BigDecimal.ZERO)
+	            .saldoCrypto(BigDecimal.ZERO)
+	            .saldoEuro(BigDecimal.ZERO)
+	            .cliente(cliente) // Relacionar con el cliente
+	            .build();
+		
+		 cliente.setCuentaCorriente(cuentaCorriente);
+		
+		Cliente savedCliente = clienteRepository.save(cliente);
+		return clienteMapper.toResponse(savedCliente);	
+	}
+	
+	
+	@Transactional
+	public ClienteResponse actualizarCliente(Long id, ClienteRequest clienteRequest) {
+	    Cliente cliente = clienteRepository.findById(id)
+	        .orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado"));
+
+	    // Evitar cambiar esReferido en una actualización
+	    if (cliente.isEsReferido() != clienteRequest.isEsReferido()) {
+	        throw new BusinessException("No se puede cambiar el estado de referenciado de un cliente.");
+	    }
+
+	    cliente.setNombre(clienteRequest.getNombre());
+	    cliente.setTelefono(clienteRequest.getTelefono());
+	    clienteRepository.save(cliente);
+
+	    return clienteMapper.toResponse(cliente);
 	}
 	
 	public void eliminarCliente(Long id) {
-        Cliente cliente = clienteRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado"));
-        clienteRepository.delete(cliente);
-    }
+	    Cliente cliente = clienteRepository.findById(id)
+	        .orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado"));
+
+	    if (!operacionRepository.findByCuentaCorriente_ClienteId(id).isEmpty()) {
+	        throw new BusinessException("No se puede eliminar un cliente con operaciones registradas.");
+	    }
+
+	    clienteRepository.delete(cliente);
+	}
 
 }
