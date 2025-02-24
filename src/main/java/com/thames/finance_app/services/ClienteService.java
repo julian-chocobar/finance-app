@@ -17,19 +17,16 @@ import com.thames.finance_app.repositories.OperacionRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class ClienteService {
 	
 	private final ClienteRepository clienteRepository;
 	private final OperacionRepository operacionRepository;
 	private final ClienteMapper clienteMapper;
 	
-	public ClienteService (ClienteRepository clienteRepository, OperacionRepository operacionRepository, ClienteMapper clienteMapper) {
-		this.clienteRepository = clienteRepository;
-		this.operacionRepository = operacionRepository;
-		this.clienteMapper = clienteMapper;
-	}
 	
 	public List<ClienteResponse> obtenerTodos(){
 		List<Cliente> clientes = clienteRepository.findAll();
@@ -74,7 +71,7 @@ public class ClienteService {
 	            .saldoReal(BigDecimal.ZERO)
 	            .saldoCrypto(BigDecimal.ZERO)
 	            .saldoEuro(BigDecimal.ZERO)
-	            .cliente(cliente) // Relacionar con el cliente
+	            .cliente(cliente) 
 	            .build();
 		
 		 cliente.setCuentaCorriente(cuentaCorriente);
@@ -93,7 +90,7 @@ public class ClienteService {
 	            .saldoReal(BigDecimal.ZERO)
 	            .saldoCrypto(BigDecimal.ZERO)
 	            .saldoEuro(BigDecimal.ZERO)
-	            .cliente(cliente) // Relacionar con el cliente
+	            .cliente(cliente) 
 	            .build();
 		
 		 cliente.setCuentaCorriente(cuentaCorriente);
@@ -108,7 +105,6 @@ public class ClienteService {
 	    Cliente cliente = clienteRepository.findById(id)
 	        .orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado"));
 
-	    // Evitar cambiar esReferido en una actualización
 	    if (cliente.isEsReferido() != clienteRequest.isEsReferido()) {
 	        throw new BusinessException("No se puede cambiar el estado de referenciado de un cliente.");
 	    }

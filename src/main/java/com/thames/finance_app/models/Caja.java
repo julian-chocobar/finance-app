@@ -46,7 +46,5 @@ public class Caja {
 	
 	@Enumerated(EnumType.STRING)
 	private Moneda moneda;
-	
-	
 
 }
