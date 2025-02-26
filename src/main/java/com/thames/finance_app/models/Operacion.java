@@ -51,7 +51,7 @@ public class Operacion {
 	private TipoOperacion tipo;
 	
 	@ManyToOne
-    @JoinColumn(name = "cuenta_corriente_id", nullable = true)
+    @JoinColumn(name = "cuenta_corriente_id", nullable = false)
     private CuentaCorriente cuentaCorriente; 
 	
 	@Enumerated(EnumType.STRING)

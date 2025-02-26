@@ -37,34 +37,56 @@ public class MovimientoCtaCteService {
         Caja caja = cajaRepository.findByMoneda(moneda)
                 .orElseThrow(() -> new BusinessException("No existe una caja para la moneda " + moneda));
 
+        validarSaldoParaEgreso(cuenta, tipo, moneda, monto);
+
         MovimientoCtaCte movimiento = MovimientoCtaCte.builder()
-        								.cuentaCorriente(cuenta)
-								        .tipo(tipo)
-								        .moneda(moneda)
-								        .monto(monto)
-								        .descripcion(descripcion)
-								        .build();
+                .cuentaCorriente(cuenta)
+                .tipo(tipo)
+                .moneda(moneda)
+                .monto(monto)
+                .descripcion(descripcion)
+                .build();
+
         actualizarSaldos(cuenta, caja, tipo, moneda, monto);
+
         cuentaCorrienteRepository.save(cuenta);
         cajaRepository.save(caja);
         movimientoCtaCteRepository.save(movimiento);
-        return movimiento;   
+
+        return movimiento;
     }
-        
+
     private void actualizarSaldos(CuentaCorriente cuenta, Caja caja, TipoMovimiento tipo, Moneda moneda, BigDecimal monto) {
-        BigDecimal saldoActual = obtenerSaldoPorMoneda(cuenta, moneda);
-        
         if (tipo == TipoMovimiento.INGRESO) {
-            actualizarSaldoPorMoneda(cuenta, moneda, saldoActual.add(monto));
-            caja.setSaldoReal(caja.getSaldoReal().add(monto));
-            caja.setSaldoDisponible(caja.getSaldoDisponible().add(monto));
+            modificarSaldos(cuenta, caja, moneda, monto, true);
         } else if (tipo == TipoMovimiento.EGRESO) {
-            actualizarSaldoPorMoneda(cuenta, moneda, saldoActual.subtract(monto));
-            caja.setSaldoReal(caja.getSaldoReal().subtract(monto));
-            caja.setSaldoDisponible(caja.getSaldoDisponible().subtract(monto));
+            modificarSaldos(cuenta, caja, moneda, monto, false);
         }
     }
-    
+
+    private void modificarSaldos(CuentaCorriente cuenta, Caja caja, Moneda moneda, BigDecimal monto, boolean esIngreso) {
+        BigDecimal saldoCuenta = obtenerSaldoPorMoneda(cuenta, moneda);
+        BigDecimal saldoCajaReal = caja.getSaldoReal();
+        BigDecimal saldoCajaDisponible = caja.getSaldoDisponible();
+
+        BigDecimal nuevoSaldoCuenta = esIngreso ? saldoCuenta.add(monto) : saldoCuenta.subtract(monto);
+        BigDecimal nuevoSaldoCajaReal = esIngreso ? saldoCajaReal.add(monto) : saldoCajaReal.subtract(monto);
+        BigDecimal nuevoSaldoCajaDisponible = esIngreso ? saldoCajaDisponible.add(monto) : saldoCajaDisponible.subtract(monto);
+
+        actualizarSaldoPorMoneda(cuenta, moneda, nuevoSaldoCuenta);
+        caja.setSaldoReal(nuevoSaldoCajaReal);
+        caja.setSaldoDisponible(nuevoSaldoCajaDisponible);
+    }
+
+    private void validarSaldoParaEgreso(CuentaCorriente cuenta, TipoMovimiento tipo, Moneda moneda, BigDecimal monto) {
+        if (tipo == TipoMovimiento.EGRESO) {
+            BigDecimal saldoActual = obtenerSaldoPorMoneda(cuenta, moneda);
+            if (saldoActual.compareTo(monto) < 0) {
+                throw new BusinessException("Saldo insuficiente en " + moneda);
+            }
+        }
+    }
+
     private BigDecimal obtenerSaldoPorMoneda(CuentaCorriente cuenta, Moneda moneda) {
         return switch (moneda) {
             case PESO -> cuenta.getSaldoPeso();
@@ -72,7 +94,6 @@ public class MovimientoCtaCteService {
             case EURO -> cuenta.getSaldoEuro();
             case REAL -> cuenta.getSaldoReal();
             case CRYPTO -> cuenta.getSaldoCrypto();
-            default -> throw new BusinessException("Moneda no soportada: " + moneda);
         };
     }
 
@@ -83,7 +104,6 @@ public class MovimientoCtaCteService {
             case EURO -> cuenta.setSaldoEuro(nuevoSaldo);
             case REAL -> cuenta.setSaldoReal(nuevoSaldo);
             case CRYPTO -> cuenta.setSaldoCrypto(nuevoSaldo);
-            default -> throw new BusinessException("Moneda no soportada: " + moneda);
         }
     }
 	

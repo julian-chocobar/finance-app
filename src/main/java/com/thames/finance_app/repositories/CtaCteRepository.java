@@ -14,4 +14,6 @@ public interface CtaCteRepository extends JpaRepository<CuentaCorriente, Long> {
     Optional<CuentaCorriente> findByClienteId(Long clienteId);
 
     boolean existsByCliente(Cliente cliente);
+
+	boolean existsByClienteId(Long l);
 }
