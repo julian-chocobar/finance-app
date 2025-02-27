@@ -38,6 +38,12 @@ public class CtaCteService {
                 .orElseThrow(() -> new BusinessException("Cuenta Corriente no encontrada"));
         return ctaCteMapper.toResponse(cuenta);
     }
+    
+    public CuentaCorriente obtenerPorId(Long cuentaId) {
+        CuentaCorriente cuenta = ctaCteRepository.findById(cuentaId)
+                .orElseThrow(() -> new BusinessException("Cuenta Corriente no encontrada"));
+        return cuenta;
+    }
 
     public CtaCteResponse obtenerCuentaPorClienteId(Long clienteId) {
         CuentaCorriente cuenta = ctaCteRepository.findByClienteId(clienteId)

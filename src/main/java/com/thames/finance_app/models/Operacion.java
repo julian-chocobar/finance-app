@@ -55,14 +55,14 @@ public class Operacion {
     private CuentaCorriente cuentaCorriente; 
 	
 	@Enumerated(EnumType.STRING)
-	private Moneda monedaOrigen;
+	private Moneda monedaOrigen;  	// USD, PESO, EURO, REAL, CRYPTO
 	
 	private BigDecimal montoOrigen;
 	
 	private BigDecimal montoOrigenEjecutado;
 	
 	@Enumerated(EnumType.STRING)
-	private Moneda monedaConversion;
+	private Moneda monedaConversion;  
 	
 	private BigDecimal montoConversion;
 	
@@ -71,12 +71,12 @@ public class Operacion {
 	private BigDecimal tipoCambio;
 	
 	@Enumerated(EnumType.STRING)
-	private EstadoOperacion estado;
+	private EstadoOperacion estado; //COMPLETA, PARCIAL, CANCELADA
 	
 	private BigDecimal saldoResultante;
 	
 	@Enumerated(EnumType.STRING)
-	private TipoEntrega tipoEntrega;
+	private TipoEntrega tipoEntrega;  //	TRANSFERENCIA, OFICINA, DELIVERY, BANCO
 	
 	@ManyToOne
 	@JoinColumn(name = "cuenta_corriente_referido_id", nullable = true) // Puede ser null si no hay referido
