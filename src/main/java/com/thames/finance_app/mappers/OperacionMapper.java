@@ -9,6 +9,8 @@ import com.thames.finance_app.dtos.OperacionRequest;
 import com.thames.finance_app.dtos.OperacionResponse;
 import com.thames.finance_app.models.CuentaCorriente;
 import com.thames.finance_app.models.Liquidador;
+import com.thames.finance_app.models.MovimientoCaja;
+import com.thames.finance_app.models.MovimientoCtaCte;
 import com.thames.finance_app.models.Operacion;
 
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OperacionMapper {
     
+	public MovimientoCaja toMovimientoCaja() {
+		
+	}
+	
+	public MovimientoCtaCte toMovimientoCtaCte() {
+		
+	}
+	
 	public OperacionResponse toResponse(Operacion operacion) {
         return OperacionResponse.builder()
                 .id(operacion.getId())
@@ -100,6 +110,7 @@ public class OperacionMapper {
 	    operacion.setLiquidador(liquidador);
 	    operacion.setMontoLiquidador(request.getMontoLiquidador() != null ? request.getMontoLiquidador() : null);
 	}
+
 
 
 }

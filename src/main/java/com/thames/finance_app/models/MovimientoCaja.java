@@ -3,7 +3,6 @@ package com.thames.finance_app.models;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import com.thames.finance_app.enums.Moneda;
 import com.thames.finance_app.enums.TipoMovimiento;
 
 import jakarta.persistence.Column;
@@ -26,47 +25,41 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "movimientos_cta_cte")
+@Table(name = "movimientos_caja")
 @Setter
 @Getter
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MovimientoCtaCte {
-	
+public class MovimientoCaja {
 	@Id
 	@GeneratedValue(
 			strategy = GenerationType.SEQUENCE,
-			generator = "movimientos_cta_cte_generator")
+			generator = "movimientos_caja_generator")
 	@SequenceGenerator (
-			name = "movimientos_cta_cte_generator",
-			sequenceName = "movimientos_cta_cte_sequence",
+			name = "movimientos_caja_generator",
+			sequenceName = "movimientos_caja_sequence",
 			allocationSize = 1)
 	private Long id;
 	
 	private LocalDateTime fecha;
 	
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TipoMovimiento tipoMovimiento;
-	 
+	@Enumerated(EnumType.STRING)
+	private TipoMovimiento tipoMovimiento;
+	
 	@ManyToOne
-    @JoinColumn(name = "cuenta_corriente_id", nullable = true)
-    private CuentaCorriente cuentaCorriente; 
+    @JoinColumn(name = "caja_id", nullable = true)
+    private Caja caja;
 	
 	@OneToOne
     @JoinColumn(name = "operacion_id", nullable = true)
     private Operacion operacion;
 	
-	@Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Moneda moneda; 
-
-    @Column(nullable = false, precision = 19, scale = 2)
-    private BigDecimal monto;
-
+	private BigDecimal monto;
+	
     @Column(length = 255)
     private String comentarios;
+
 
 }

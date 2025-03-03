@@ -69,11 +69,12 @@ public class OperacionService {
 
         operacion = operacionRepository.save(operacion);
         actualizarSaldoReferido(operacion);
+        actualizarSaldosCajas(operacion);
        
-        if (cuentaCliente.getOperaciones() == null) {
-            cuentaCliente.setOperaciones(new ArrayList<>());
+        if (cuentaCliente.getMovimientos() == null) {
+            cuentaCliente.setMovimientos(new ArrayList<>());
         }
-        cuentaCliente.getOperaciones().add(operacion);
+        cuentaCliente.getMovimientos().add(operacion);
         return operacionMapper.toResponse(operacion);
     }
     
@@ -94,14 +95,22 @@ public class OperacionService {
         }
         return BigDecimal.ZERO;
     }
+
+    private void actualizarSaldosCajas(Operacion operacion) {
+    	//Identifica las cajas afectadas según monedaOrigen y monedaDestino.
+    	
+    	//Llama a CajaService.actualizarSaldoReal() para reflejar el compromiso de fondos.
+    	
+    	//Llama a CajaService.actualizarSaldoDisponible() cuando la operación se ejecuta.
+    }
     
-//    private BigDecimal calcularGananciaReferido(OperacionRequest request) {
-//        if (request.getPuntosReferido() == null || request.getCuentaCorrienteReferidoId() == null) {
-//            return BigDecimal.ZERO;
-//        }
-//        return request.getMontoOrigen().multiply(BigDecimal.valueOf(request.getPuntosReferido()));
-//    }
- 
+    public void confirmarEjecucionOperacion(Long operacionId, BigDecimal montoOrigenEjecutado, BigDecimal montoConversionEjecutado) {
+    	//Marca la operacion como ejecutada
+    	
+    	//Ajusta los saldos disponibles
+    }
+    
+    
     public OperacionResponse obtenerOperacion(Long id) {
         Optional<Operacion> operacion = operacionRepository.findById(id);
         return operacion.map(operacionMapper::toResponse)

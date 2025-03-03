@@ -1,15 +1,18 @@
 package com.thames.finance_app.models;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import com.thames.finance_app.enums.Moneda;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -46,5 +49,8 @@ public class Caja {
 	
 	@Enumerated(EnumType.STRING)
 	private Moneda moneda;
+	
+	@OneToMany(mappedBy = "caja", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MovimientoCaja> movimientos;
 
 }

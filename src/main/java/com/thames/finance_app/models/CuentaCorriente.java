@@ -57,8 +57,8 @@ public class CuentaCorriente {
 	
 	private BigDecimal saldoEuros;
 	
-	@OneToMany(mappedBy = "cuentaCorriente", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Operacion> operaciones;
+//	@OneToMany(mappedBy = "cuentaCorriente", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<Operacion> operaciones;
 	
 	@OneToMany(mappedBy = "cuentaCorriente", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MovimientoCtaCte> movimientos;
