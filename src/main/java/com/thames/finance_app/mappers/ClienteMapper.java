@@ -42,10 +42,10 @@ public class ClienteMapper {
                 .email(cliente.getEmail())
                 .direccion(cliente.getDireccion())
                 .cuentaCorrienteId(cuenta != null ? cuenta.getId() : null)
-                .saldoPeso(cuenta != null ? cuenta.getSaldoPeso() : BigDecimal.ZERO)
-                .saldoDolar(cuenta != null ? cuenta.getSaldoDolar() : BigDecimal.ZERO)
-                .saldoEuro(cuenta != null ? cuenta.getSaldoEuro() : BigDecimal.ZERO)
-                .saldoReal(cuenta != null ? cuenta.getSaldoReal() : BigDecimal.ZERO)
+                .saldoPeso(cuenta != null ? cuenta.getSaldoPesos() : BigDecimal.ZERO)
+                .saldoDolar(cuenta != null ? cuenta.getSaldoDolares() : BigDecimal.ZERO)
+                .saldoEuro(cuenta != null ? cuenta.getSaldoEuros() : BigDecimal.ZERO)
+                .saldoReal(cuenta != null ? cuenta.getSaldoReales() : BigDecimal.ZERO)
                 .saldoCrypto(cuenta != null ? cuenta.getSaldoCrypto() : BigDecimal.ZERO)
                 .build();
     }

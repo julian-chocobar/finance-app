@@ -8,11 +8,13 @@ import org.springframework.stereotype.Service;
 
 import com.thames.finance_app.dtos.ClienteRequest;
 import com.thames.finance_app.dtos.ClienteResponse;
+import com.thames.finance_app.enums.Moneda;
 import com.thames.finance_app.exceptions.BusinessException;
 import com.thames.finance_app.mappers.ClienteMapper;
 import com.thames.finance_app.models.Cliente;
 import com.thames.finance_app.models.CuentaCorriente;
 import com.thames.finance_app.repositories.ClienteRepository;
+import com.thames.finance_app.repositories.CtaCteRepository;
 import com.thames.finance_app.repositories.OperacionRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -24,10 +26,11 @@ import lombok.RequiredArgsConstructor;
 public class ClienteService {
 	
 	private final ClienteRepository clienteRepository;
+	private final CtaCteRepository ctaCteRepository;
+	private final CtaCteService ctaCteService;
 	private final OperacionRepository operacionRepository;
 	private final ClienteMapper clienteMapper;
-	
-	
+
 	public List<ClienteResponse> obtenerTodos(){
 		List<Cliente> clientes = clienteRepository.findAll();
 		return clientes.stream()
@@ -66,11 +69,11 @@ public class ClienteService {
 		Cliente cliente = clienteMapper.toEntity(clienteRequest);
 		
 		CuentaCorriente cuentaCorriente = CuentaCorriente.builder()
-	            .saldoPeso(BigDecimal.ZERO)
-	            .saldoDolar(BigDecimal.ZERO)
-	            .saldoReal(BigDecimal.ZERO)
+	            .saldoPesos(BigDecimal.ZERO)
+	            .saldoDolares(BigDecimal.ZERO)
+	            .saldoReales(BigDecimal.ZERO)
 	            .saldoCrypto(BigDecimal.ZERO)
-	            .saldoEuro(BigDecimal.ZERO)
+	            .saldoEuros(BigDecimal.ZERO)
 	            .cliente(cliente) 
 	            .build();
 		
@@ -85,11 +88,11 @@ public class ClienteService {
 		Cliente cliente = clienteMapper.toEntityReferido(clienteRequest);
 		
 		CuentaCorriente cuentaCorriente = CuentaCorriente.builder()
-	            .saldoPeso(BigDecimal.ZERO)
-	            .saldoDolar(BigDecimal.ZERO)
-	            .saldoReal(BigDecimal.ZERO)
+	            .saldoPesos(BigDecimal.ZERO)
+	            .saldoDolares(BigDecimal.ZERO)
+	            .saldoReales(BigDecimal.ZERO)
 	            .saldoCrypto(BigDecimal.ZERO)
-	            .saldoEuro(BigDecimal.ZERO)
+	            .saldoEuros(BigDecimal.ZERO)
 	            .cliente(cliente) 
 	            .build();
 		
@@ -97,6 +100,13 @@ public class ClienteService {
 		
 		Cliente savedCliente = clienteRepository.save(cliente);
 		return clienteMapper.toResponse(savedCliente);	
+	}
+	
+	public BigDecimal obtenerSaldoReferido(Long referidoId, Moneda moneda) {
+	    CuentaCorriente cuenta = ctaCteRepository.findByClienteId(referidoId)
+	        .orElseThrow(() -> new BusinessException("Cuenta corriente del referido no encontrada"));
+	    
+	    return ctaCteService.obtenerSaldoPorMoneda(cuenta, moneda);
 	}
 	
 	
@@ -120,9 +130,10 @@ public class ClienteService {
 	    Cliente cliente = clienteRepository.findById(id)
 	        .orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado"));
 
-	    if (!operacionRepository.findByCuentaCorriente_ClienteId(id).isEmpty()) {
-	        throw new BusinessException("No se puede eliminar un cliente con operaciones registradas.");
-	    }
+	   if (operacionRepository.existsByCuentaCorrienteId(cliente.getCuentaCorriente().getId())){
+		   throw new BusinessException("No se puede eliminar un cliente con operaciones registradas.");
+	   }
+	    
 
 	    clienteRepository.delete(cliente);
 	}

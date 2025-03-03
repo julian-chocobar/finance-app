@@ -89,20 +89,20 @@ public class MovimientoCtaCteService {
 
     private BigDecimal obtenerSaldoPorMoneda(CuentaCorriente cuenta, Moneda moneda) {
         return switch (moneda) {
-            case PESO -> cuenta.getSaldoPeso();
-            case USD -> cuenta.getSaldoDolar();
-            case EURO -> cuenta.getSaldoEuro();
-            case REAL -> cuenta.getSaldoReal();
+            case PESO -> cuenta.getSaldoPesos();
+            case USD -> cuenta.getSaldoDolares();
+            case EURO -> cuenta.getSaldoEuros();
+            case REAL -> cuenta.getSaldoReales();
             case CRYPTO -> cuenta.getSaldoCrypto();
         };
     }
 
     private void actualizarSaldoPorMoneda(CuentaCorriente cuenta, Moneda moneda, BigDecimal nuevoSaldo) {
         switch (moneda) {
-            case PESO -> cuenta.setSaldoPeso(nuevoSaldo);
-            case USD -> cuenta.setSaldoDolar(nuevoSaldo);
-            case EURO -> cuenta.setSaldoEuro(nuevoSaldo);
-            case REAL -> cuenta.setSaldoReal(nuevoSaldo);
+            case PESO -> cuenta.setSaldoPesos(nuevoSaldo);
+            case USD -> cuenta.setSaldoDolares(nuevoSaldo);
+            case EURO -> cuenta.setSaldoEuros(nuevoSaldo);
+            case REAL -> cuenta.setSaldoReales(nuevoSaldo);
             case CRYPTO -> cuenta.setSaldoCrypto(nuevoSaldo);
         }
     }

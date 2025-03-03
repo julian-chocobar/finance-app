@@ -38,6 +38,9 @@ public class OperacionResponse {
     private BigDecimal saldoResultante;
     private TipoEntrega tipoEntrega;
     private Long cuentaCorrienteReferidoId;
+    private BigDecimal puntosReferido;
+    private BigDecimal gananciaReferido;
+    private Moneda monedaReferido;
     private Long liquidadorId;
     private BigDecimal montoLiquidador;
 }

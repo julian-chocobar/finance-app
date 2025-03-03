@@ -36,7 +36,7 @@ public class CtaCteController {
     
     @GetMapping("/{id}")
     public ResponseEntity<CtaCteResponse> obtenerCuentaCorriente(@PathVariable Long id) {
-        CtaCteResponse response = ctaCteService.obtenerCuentaPorId(id);
+        CtaCteResponse response = ctaCteService.obtenerResponsePorId(id);
         return ResponseEntity.ok(response);
     }
     

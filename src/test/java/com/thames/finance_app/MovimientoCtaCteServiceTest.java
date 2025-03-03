@@ -51,7 +51,7 @@ class MovimientoCtaCteServiceTest {
     void setUp() {
         cuenta = new CuentaCorriente();
         cuenta.setId(1L);
-        cuenta.setSaldoPeso(BigDecimal.valueOf(1000)); // Saldo inicial
+        cuenta.setSaldoPesos(BigDecimal.valueOf(1000)); // Saldo inicial
 
         caja = new Caja();
         caja.setId(1L);
@@ -71,7 +71,7 @@ class MovimientoCtaCteServiceTest {
         MovimientoCtaCte movimiento = movimientoCtaCteService.registrarMovimiento(1L, TipoMovimiento.INGRESO, Moneda.PESO, monto, "Depósito");
 
         // Then
-        assertEquals(BigDecimal.valueOf(1500), cuenta.getSaldoPeso()); // 1000 + 500
+        assertEquals(BigDecimal.valueOf(1500), cuenta.getSaldoPesos()); // 1000 + 500
         assertEquals(BigDecimal.valueOf(5500), caja.getSaldoReal());  // 5000 + 500
         assertEquals(BigDecimal.valueOf(5500), caja.getSaldoDisponible());  // 5000 + 500
 
@@ -91,7 +91,7 @@ class MovimientoCtaCteServiceTest {
         MovimientoCtaCte movimiento = movimientoCtaCteService.registrarMovimiento(1L, TipoMovimiento.EGRESO, Moneda.PESO, monto, "Pago");
 
         // Then
-        assertEquals(BigDecimal.valueOf(800), cuenta.getSaldoPeso()); // 1000 - 200
+        assertEquals(BigDecimal.valueOf(800), cuenta.getSaldoPesos()); // 1000 - 200
         assertEquals(BigDecimal.valueOf(4800), caja.getSaldoReal());  // 5000 - 200
         assertEquals(BigDecimal.valueOf(4800), caja.getSaldoDisponible());  // 5000 - 200
 

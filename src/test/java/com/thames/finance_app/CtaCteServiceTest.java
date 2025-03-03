@@ -72,8 +72,8 @@ class CtaCteServiceTest {
         when(cuentaCorrienteRepository.save(any(CuentaCorriente.class)))
                 .thenAnswer(invocation -> {
                     CuentaCorriente saved = invocation.getArgument(0);
-                    assertEquals(BigDecimal.ZERO, saved.getSaldoDolar(), "El saldo en dólares debe ser 0");
-                    assertEquals(BigDecimal.ZERO, saved.getSaldoPeso(), "El saldo en pesos debe ser 0");
+                    assertEquals(BigDecimal.ZERO, saved.getSaldoDolares(), "El saldo en dólares debe ser 0");
+                    assertEquals(BigDecimal.ZERO, saved.getSaldoPesos(), "El saldo en pesos debe ser 0");
                     return saved;
                 });
 

@@ -73,14 +73,19 @@ public class Operacion {
 	@Enumerated(EnumType.STRING)
 	private EstadoOperacion estado; //COMPLETA, PARCIAL, CANCELADA
 	
-	private BigDecimal saldoResultante;
-	
 	@Enumerated(EnumType.STRING)
 	private TipoEntrega tipoEntrega;  //	TRANSFERENCIA, OFICINA, DELIVERY, BANCO
 	
 	@ManyToOne
 	@JoinColumn(name = "cuenta_corriente_referido_id", nullable = true) // Puede ser null si no hay referido
 	private CuentaCorriente cuentaCorrienteReferido; 
+	
+	private BigDecimal puntosReferido;
+	
+	@Enumerated(EnumType.STRING)
+	private Moneda monedaReferido; 
+	
+	private BigDecimal gananciaReferido;
 	
 	@ManyToOne
 	private Liquidador liquidador;

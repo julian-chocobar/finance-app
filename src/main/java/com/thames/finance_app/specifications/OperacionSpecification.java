@@ -1,4 +1,4 @@
-package com.thames.finance_app.repositories.specifications;
+package com.thames.finance_app.specifications;
 
 import org.springframework.data.jpa.domain.Specification;
 

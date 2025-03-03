@@ -8,17 +8,14 @@ import com.thames.finance_app.dtos.OperacionResponse;
 import com.thames.finance_app.enums.Moneda;
 import com.thames.finance_app.enums.TipoOperacion;
 import com.thames.finance_app.models.Operacion;
-import com.thames.finance_app.repositories.specifications.OperacionSpecification;
 import com.thames.finance_app.services.OperacionService;
+import com.thames.finance_app.specifications.OperacionSpecification;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,10 +28,9 @@ import org.springframework.data.jpa.domain.Specification;
 public class OperacionController {
 
     private final OperacionService operacionService;
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
     @PostMapping
-    public ResponseEntity<OperacionResponse> crearOperacion(@RequestBody OperacionRequest request) {
+    public ResponseEntity<OperacionResponse> crearOperacion(@Valid @RequestBody OperacionRequest request) {
         OperacionResponse response = operacionService.crearOperacion(request);
         return ResponseEntity.ok(response);
     }
@@ -46,7 +42,7 @@ public class OperacionController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<OperacionResponse> actualizarOperacion(@PathVariable Long id, @RequestBody OperacionRequest request) {
+    public ResponseEntity<OperacionResponse> actualizarOperacion(@Valid @PathVariable Long id, @RequestBody OperacionRequest request) {
         OperacionResponse response = operacionService.actualizarOperacion(id, request);
         return ResponseEntity.ok(response);
     }
@@ -56,6 +52,7 @@ public class OperacionController {
         operacionService.eliminarOperacion(id);
         return ResponseEntity.noContent().build();
     }
+    
 
     public ResponseEntity<Page<OperacionResponse>> listarOperaciones(
             @RequestParam(required = false) String fechaInicio,
@@ -67,8 +64,8 @@ public class OperacionController {
             Pageable pageable) {
 
         // Parsear los parámetros
-        LocalDateTime fechaInicioParsed = parsearFecha(fechaInicio);
-        LocalDateTime fechaFinParsed = parsearFecha(fechaFin);
+        LocalDateTime fechaInicioParsed = operacionService.parsearFecha(fechaInicio);
+        LocalDateTime fechaFinParsed = operacionService.parsearFecha(fechaFin);
         BigDecimal montoParsed = (monto != null) ? new BigDecimal(monto) : null;
         Moneda monedaParsed = (moneda != null) ? Moneda.valueOf(moneda) : null;
         TipoOperacion tipoParsed = (tipo != null) ? TipoOperacion.valueOf(tipo) : null;
@@ -89,13 +86,5 @@ public class OperacionController {
         return ResponseEntity.ok(operaciones);
     }
 
-    // Método auxiliar para convertir String a LocalDateTime con formato dd-MM-yyyy
-    private LocalDateTime parsearFecha(String fecha) {
-    	try {
-    		return (fecha != null) ? LocalDateTime.of(LocalDate.parse(fecha, FORMATTER), LocalTime.MIN) : null;
-    	} catch (DateTimeParseException e) {
-    	    throw new IllegalArgumentException("Formato de fecha incorrecto. Usa dd-MM-yyyy");
-    	}
-    }
 }
 

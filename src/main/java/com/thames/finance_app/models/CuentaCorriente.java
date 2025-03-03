@@ -3,6 +3,8 @@ package com.thames.finance_app.models;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.thames.finance_app.enums.Moneda;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -45,20 +47,42 @@ public class CuentaCorriente {
     @JoinColumn(name = "cliente_id")
 	private Cliente cliente;
 	
-	private BigDecimal saldoPeso;
+	private BigDecimal saldoPesos;
 	
-	private BigDecimal saldoDolar;
+	private BigDecimal saldoDolares;
 	
-	private BigDecimal saldoReal;
+	private BigDecimal saldoReales;
 	
 	private BigDecimal saldoCrypto;
 	
-	private BigDecimal saldoEuro;
+	private BigDecimal saldoEuros;
 	
 	@OneToMany(mappedBy = "cuentaCorriente", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Operacion> operaciones;
 	
 	@OneToMany(mappedBy = "cuentaCorriente", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MovimientoCtaCte> movimientos;
+
+    public BigDecimal getSaldoPorMoneda(Moneda moneda) {
+        return switch (moneda) {
+            case PESO -> saldoPesos;
+            case USD -> saldoDolares;
+            case REAL -> saldoReales;
+            case EURO -> saldoEuros;
+            case CRYPTO -> saldoCrypto;
+		default -> throw new IllegalArgumentException("Unexpected value: " + moneda);
+        };
+    }
+
+    public void setSaldoPorMoneda(Moneda moneda, BigDecimal nuevoSaldo) {
+        switch (moneda) {
+            case PESO -> saldoPesos = nuevoSaldo;
+            case USD -> saldoDolares = nuevoSaldo;
+            case REAL -> saldoReales = nuevoSaldo;
+            case EURO -> saldoEuros= nuevoSaldo;
+            case CRYPTO -> saldoCrypto =nuevoSaldo;
+		default -> throw new IllegalArgumentException("Unexpected value: " + moneda);
+        }
+    }
 
 }

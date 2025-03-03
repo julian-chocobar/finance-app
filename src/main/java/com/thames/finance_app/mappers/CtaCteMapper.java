@@ -21,10 +21,10 @@ public class CtaCteMapper {
         return CtaCteResponse.builder()
                 .id(cuenta.getId())
                 .clienteId(cuenta.getCliente().getId())
-                .saldoPeso(cuenta.getSaldoPeso())
-                .saldoDolar(cuenta.getSaldoDolar())
-                .saldoEuro(cuenta.getSaldoEuro())
-                .saldoReal(cuenta.getSaldoReal())
+                .saldoPeso(cuenta.getSaldoPesos())
+                .saldoDolar(cuenta.getSaldoDolares())
+                .saldoEuro(cuenta.getSaldoEuros())
+                .saldoReal(cuenta.getSaldoReales())
                 .saldoCrypto(cuenta.getSaldoCrypto())
                 .build();
     }
@@ -34,10 +34,10 @@ public class CtaCteMapper {
                 .id(cuentaCorriente.getId())
                 .clienteId(cuentaCorriente.getCliente().getId())
                 .saldoPorMoneda(Map.of(
-                        Moneda.PESO, cuentaCorriente.getSaldoPeso(),
-                        Moneda.USD, cuentaCorriente.getSaldoDolar(),
-                        Moneda.EURO, cuentaCorriente.getSaldoEuro(),
-                        Moneda.REAL, cuentaCorriente.getSaldoReal(),
+                        Moneda.PESO, cuentaCorriente.getSaldoPesos(),
+                        Moneda.USD, cuentaCorriente.getSaldoDolares(),
+                        Moneda.EURO, cuentaCorriente.getSaldoEuros(),
+                        Moneda.REAL, cuentaCorriente.getSaldoReales(),
                         Moneda.CRYPTO, cuentaCorriente.getSaldoCrypto()
                 ))
                 .movimientos(movimientos.getContent().stream()
@@ -62,10 +62,10 @@ public class CtaCteMapper {
     public CuentaCorriente toEntity(CtaCteRequest request, Cliente cliente) {
         return CuentaCorriente.builder()
                 .cliente(cliente)
-                .saldoPeso(BigDecimal.ZERO)
-                .saldoDolar(BigDecimal.ZERO)
-                .saldoEuro(BigDecimal.ZERO)
-                .saldoReal(BigDecimal.ZERO)
+                .saldoPesos(BigDecimal.ZERO)
+                .saldoDolares(BigDecimal.ZERO)
+                .saldoEuros(BigDecimal.ZERO)
+                .saldoReales(BigDecimal.ZERO)
                 .saldoCrypto(BigDecimal.ZERO)
                 .build();
     }

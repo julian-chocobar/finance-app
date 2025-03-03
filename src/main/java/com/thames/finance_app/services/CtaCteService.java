@@ -33,13 +33,13 @@ public class CtaCteService {
     private MovimientoCtaCteRepository movimientoCtaCteRepository;
     private final CtaCteMapper ctaCteMapper;
 
-    public CtaCteResponse obtenerCuentaPorId(Long cuentaId) {
+    public CtaCteResponse obtenerResponsePorId(Long cuentaId) {
         CuentaCorriente cuenta = ctaCteRepository.findById(cuentaId)
                 .orElseThrow(() -> new BusinessException("Cuenta Corriente no encontrada"));
         return ctaCteMapper.toResponse(cuenta);
     }
     
-    public CuentaCorriente obtenerPorId(Long cuentaId) {
+    public CuentaCorriente obtenerCuentaPorId(Long cuentaId) {
         CuentaCorriente cuenta = ctaCteRepository.findById(cuentaId)
                 .orElseThrow(() -> new BusinessException("Cuenta Corriente no encontrada"));
         return cuenta;
@@ -57,7 +57,7 @@ public class CtaCteService {
                 .orElseThrow(() -> new IllegalArgumentException("El cliente no existe"));
 
         if (ctaCteRepository.existsByClienteId(cliente.getId())) {
-            throw new IllegalStateException("El cliente ya tiene una cuenta corriente");
+            throw new BusinessException("El cliente ya tiene una cuenta corriente");
         }
 
         CuentaCorriente cuentaCorriente = new CuentaCorriente();
@@ -66,7 +66,6 @@ public class CtaCteService {
 
         return ctaCteMapper.toResponse2(cuentaCorriente, Page.empty());
     }
-
 
 
     public void eliminarCuenta(Long cuentaId) {
@@ -81,16 +80,16 @@ public class CtaCteService {
 
         switch (moneda) {
             case PESO:
-                cuenta.setSaldoPeso(calcularNuevoSaldo(cuenta.getSaldoPeso(), monto, tipo));
+                cuenta.setSaldoPesos(calcularNuevoSaldo(cuenta.getSaldoPesos(), monto, tipo));
                 break;
             case USD:
-                cuenta.setSaldoDolar(calcularNuevoSaldo(cuenta.getSaldoDolar(), monto, tipo));
+                cuenta.setSaldoDolares(calcularNuevoSaldo(cuenta.getSaldoDolares(), monto, tipo));
                 break;
             case EURO:
-                cuenta.setSaldoEuro(calcularNuevoSaldo(cuenta.getSaldoEuro(), monto, tipo));
+                cuenta.setSaldoEuros(calcularNuevoSaldo(cuenta.getSaldoEuros(), monto, tipo));
                 break;
             case REAL:
-                cuenta.setSaldoReal(calcularNuevoSaldo(cuenta.getSaldoReal(), monto, tipo));
+                cuenta.setSaldoReales(calcularNuevoSaldo(cuenta.getSaldoReales(), monto, tipo));
                 break;
             case CRYPTO:
                 cuenta.setSaldoCrypto(calcularNuevoSaldo(cuenta.getSaldoCrypto(), monto, tipo));
@@ -106,15 +105,80 @@ public class CtaCteService {
     private BigDecimal calcularNuevoSaldo(BigDecimal saldoActual, BigDecimal monto, TipoMovimiento tipo) {
         return tipo == TipoMovimiento.INGRESO ? saldoActual.add(monto) : saldoActual.subtract(monto);
     }
+    
+    @Transactional
+    public void actualizarSaldo(CuentaCorriente cuentaCorriente, Moneda moneda, BigDecimal monto, boolean esIngreso) {
+        if (cuentaCorriente == null) {
+            throw new IllegalArgumentException("La cuenta corriente no puede ser nula.");
+        }
+
+        // Obtener el saldo actual de la moneda específica
+        BigDecimal saldoActual = cuentaCorriente.getSaldoPorMoneda(moneda);
+        BigDecimal nuevoSaldo = esIngreso ? saldoActual.add(monto) : saldoActual.subtract(monto);
+
+        if (nuevoSaldo.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("No hay saldo suficiente para realizar la operación.");
+        }
+
+        // Actualizar el saldo en la cuenta
+        cuentaCorriente.setSaldoPorMoneda(moneda, nuevoSaldo);
+        ctaCteRepository.save(cuentaCorriente);
+    }
 
     public Page<MovimientoCtaCteResponse> obtenerMovimientos(Long cuentaId, LocalDate fechaDesde, LocalDate fechaHasta,
             LocalDate fechaExacta, BigDecimal monto,
             Moneda moneda, TipoMovimiento tipo,
             Pageable pageable) {
-		Page<MovimientoCtaCte> movimientos = movimientoCtaCteRepository.filtrarMovimientos(
-		cuentaId, fechaDesde, fechaHasta, fechaExacta, monto, moneda, tipo, pageable);
+		Page<MovimientoCtaCte> movimientos = filtrarMovimientos(cuentaId, fechaExacta, fechaDesde, fechaHasta, monto, moneda, tipo, pageable);
 		return movimientos.map(ctaCteMapper::toMovimientoResponse);
 	}
+    
+    public BigDecimal obtenerSaldoPorMoneda(CuentaCorriente cuenta, Moneda moneda) {
+        switch (moneda) {
+            case USD:
+                return cuenta.getSaldoDolares();
+            case PESO:
+                return cuenta.getSaldoPesos();
+            case REAL:
+                return cuenta.getSaldoReales();
+            case EURO:
+                return cuenta.getSaldoEuros();
+            default:
+                throw new BusinessException("Moneda no soportada: " + moneda);
+        }
+    }
+
+    public void setSaldoPorMoneda(CuentaCorriente cuenta, BigDecimal nuevoSaldo, Moneda moneda) {
+        switch (moneda) {
+            case USD:
+                cuenta.setSaldoDolares(nuevoSaldo);
+                break;
+            case PESO:
+                cuenta.setSaldoPesos(nuevoSaldo);
+                break;
+            case REAL:
+                cuenta.setSaldoReales(nuevoSaldo);
+                break;
+            case EURO:
+                cuenta.setSaldoEuros(nuevoSaldo);
+                break;
+            default:
+                throw new BusinessException("Moneda no soportada: " + moneda);
+        }
+    }
+    
+    public Page<MovimientoCtaCte> filtrarMovimientos(
+            Long cuentaCorrienteId,
+            LocalDate fechaExacta,
+            LocalDate fechaDesde,
+            LocalDate fechaHasta,
+            BigDecimal monto,
+            Moneda moneda,
+            TipoMovimiento tipoMovimiento,
+            Pageable pageable) {
+            return movimientoCtaCteRepository.filtrarMovimientos(
+                cuentaCorrienteId, fechaExacta, fechaDesde, fechaHasta, monto, moneda, tipoMovimiento, pageable);
+    }
 
 
 
