@@ -2,12 +2,13 @@ package com.thames.finance_app.models;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.ArrayList;
 
-import com.thames.finance_app.enums.EstadoOperacion;
 import com.thames.finance_app.enums.Moneda;
-import com.thames.finance_app.enums.TipoEntrega;
 import com.thames.finance_app.enums.TipoOperacion;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -16,6 +17,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -55,29 +57,25 @@ public class Operacion {
     private CuentaCorriente cuentaCorriente; 
 	
 	@Enumerated(EnumType.STRING)
-	private Moneda monedaOrigen;  	// USD, PESO, EURO, REAL, CRYPTO
-	
-	private BigDecimal montoOrigen;
-	
-	private BigDecimal montoOrigenEjecutado;
-	
-	@Enumerated(EnumType.STRING)
-	private Moneda monedaConversion;  
-	
-	private BigDecimal montoConversion;
-	
-	private BigDecimal montoConversionEjecutado;
+	private Moneda monedaOrigen;  	// USD, PESO, EURO, REAL, CRYPTO	
+	private BigDecimal montoOrigen;	
 	
 	private BigDecimal tipoCambio;
 	
 	@Enumerated(EnumType.STRING)
-	private EstadoOperacion estado; //COMPLETA, PARCIAL, CANCELADA
+	private Moneda monedaConversion;  
+	private BigDecimal montoConversion;
+  
+	@Builder.Default
+	@OneToMany(mappedBy = "operacion", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Pago> pagosOrigen = new ArrayList<>();
 	
-	@Enumerated(EnumType.STRING)
-	private TipoEntrega tipoEntrega;  //	TRANSFERENCIA, OFICINA, DELIVERY, BANCO
-	
+	@Builder.Default
+	@OneToMany(mappedBy = "operacion", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Pago> pagosConversion = new ArrayList<>();
+			
 	@ManyToOne
-	@JoinColumn(name = "cuenta_corriente_referido_id", nullable = true) // Puede ser null si no hay referido
+	@JoinColumn(name = "cuenta_corriente_referido_id", nullable = true) 
 	private CuentaCorriente cuentaCorrienteReferido; 
 	
 	private BigDecimal puntosReferido;
@@ -87,9 +85,33 @@ public class Operacion {
 	
 	private BigDecimal gananciaReferido;
 	
-	@ManyToOne
-	private Liquidador liquidador;
-
-	private BigDecimal montoLiquidador;
+	public BigDecimal getTotalPagosOrigen() {
+        BigDecimal total = BigDecimal.ZERO;
+        for (Pago pago : pagosOrigen) {
+            if (pago.getValor() != null) {
+                total = total.add(pago.getValor());
+            }
+        }
+        return total;
+	}
 	
+	public BigDecimal getTotalPagosConversion() {
+        BigDecimal total = BigDecimal.ZERO;
+        for (Pago pago : pagosConversion) {
+            if (pago.getValor() != null) {
+                total = total.add(pago.getValor());
+            }
+        }
+        return total;
+	}
+	
+	
+	public boolean estaCompleta() {
+		if ( getTotalPagosOrigen().compareTo(montoOrigen) == 0 
+				&& getTotalPagosConversion().compareTo(montoConversion) == 0){
+			return true;
+		}
+		return false;
+	}
+		
 }

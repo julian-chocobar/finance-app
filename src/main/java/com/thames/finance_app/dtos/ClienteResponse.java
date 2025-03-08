@@ -1,6 +1,9 @@
 package com.thames.finance_app.dtos;
 
 import java.math.BigDecimal;
+import java.util.Map;
+
+import com.thames.finance_app.enums.Moneda;
 
 import lombok.Builder;
 import lombok.Data;
@@ -16,11 +19,6 @@ public class ClienteResponse {
 
     // Información básica de la cuenta corriente
     private Long cuentaCorrienteId;
-    private BigDecimal saldoPeso;
-    private BigDecimal saldoDolar;
-    private BigDecimal saldoEuro;
-    private BigDecimal saldoReal;
-    private BigDecimal saldoCrypto;
-    
+    private Map<Moneda, BigDecimal> saldos;
     
 }

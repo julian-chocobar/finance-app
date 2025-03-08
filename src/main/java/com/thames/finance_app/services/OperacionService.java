@@ -7,24 +7,23 @@ import org.springframework.stereotype.Service;
 
 import com.thames.finance_app.dtos.OperacionRequest;
 import com.thames.finance_app.dtos.OperacionResponse;
-import com.thames.finance_app.enums.Moneda;
-import com.thames.finance_app.enums.TipoMovimiento;
+import com.thames.finance_app.dtos.PagoRequest;
+import com.thames.finance_app.enums.TipoOperacion;
 import com.thames.finance_app.mappers.OperacionMapper;
-import com.thames.finance_app.models.CuentaCorriente;
-import com.thames.finance_app.models.Liquidador;
+import com.thames.finance_app.mappers.PagoMapper;
+import com.thames.finance_app.models.Caja;
 import com.thames.finance_app.models.Operacion;
+import com.thames.finance_app.models.Pago;
 import com.thames.finance_app.repositories.OperacionRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
@@ -32,85 +31,28 @@ import java.util.Optional;
 public class OperacionService {
 	
     private final OperacionRepository operacionRepository;
+    private final CajaService cajaService;
     private final CtaCteService ctaCteService;
-    private final LiquidadorService liquidadorService;
+    private final PagoService pagoService;
     private final OperacionMapper operacionMapper;
+    private final PagoMapper pagoMapper;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
     @Transactional
-    public OperacionResponse crearOperacion(OperacionRequest request) {
-        CuentaCorriente cuentaCliente = ctaCteService.obtenerCuentaPorId(request.getCuentaCorrienteId());
-        CuentaCorriente cuentaReferido = Optional.ofNullable(request.getCuentaCorrienteReferidoId())
-                .map(ctaCteService::obtenerCuentaPorId)
-                .orElse(null);
-
-        Liquidador liquidador = request.getLiquidadorId() != null
-                ? liquidadorService.obtenerPorId(request.getLiquidadorId())
-                : null;
-
-        Operacion operacion = Operacion.builder()
-                .fecha(LocalDateTime.now())
-                .tipo(request.getTipo())
-                .cuentaCorriente(cuentaCliente)
-                .monedaOrigen(request.getMonedaOrigen())
-                .montoOrigen(request.getMontoOrigen())
-                .tipoCambio(request.getTipoCambio())
-                .monedaConversion(request.getMonedaConversion())
-                .montoConversion(request.getMontoConversion())
-                .estado(request.getEstado())
-                .tipoEntrega(request.getTipoEntrega())
-                .cuentaCorrienteReferido(cuentaReferido)
-                .puntosReferido(request.getPuntosReferido())
-                .monedaReferido(request.getMonedaReferido())
-                .gananciaReferido(calcularGananciaReferido(request))
-                .liquidador(liquidador)
-                .montoLiquidador(request.getMontoLiquidador())
-                .build();
-
-        operacion = operacionRepository.save(operacion);
-        actualizarSaldoReferido(operacion);
-        actualizarSaldosCajas(operacion);
-       
-        if (cuentaCliente.getMovimientos() == null) {
-            cuentaCliente.setMovimientos(new ArrayList<>());
-        }
-        cuentaCliente.getMovimientos().add(operacion);
+    public OperacionResponse crearOperacion(OperacionRequest request) {	
+        Operacion operacion = operacionMapper.toEntity(request);
+        pagoService.vincularConOperacion(operacion);
+        operacion = operacionRepository.save(operacion); 
+        
+        cajaService.impactoOperacion(operacion);             
+        ctaCteService.impactoOperacion(operacion);
+        
+        if(operacion.getCuentaCorrienteReferido()!=null) {   
+            ctaCteService.impactoOperacionReferido(operacion); 
+        }       
         return operacionMapper.toResponse(operacion);
     }
-    
-    private void actualizarSaldoReferido(Operacion operacion) {
-        CuentaCorriente cuentaReferido = operacion.getCuentaCorrienteReferido();
-        if (cuentaReferido == null || operacion.getGananciaReferido() == null || operacion.getGananciaReferido().compareTo(BigDecimal.ZERO) == 0) {
-            return;
-        }
-
-        Moneda monedaReferido = operacion.getMonedaReferido();
-        BigDecimal saldoActual = cuentaReferido.getSaldoPorMoneda(monedaReferido);
-        cuentaReferido.setSaldoPorMoneda(monedaReferido, saldoActual.add(operacion.getGananciaReferido()));
-    }
-    
-    private BigDecimal calcularGananciaReferido(OperacionRequest request) {
-        if (request.getCuentaCorrienteReferidoId() != null && request.getPuntosReferido() != null) {
-            return request.getPuntosReferido().multiply(request.getMontoOrigen());
-        }
-        return BigDecimal.ZERO;
-    }
-
-    private void actualizarSaldosCajas(Operacion operacion) {
-    	//Identifica las cajas afectadas según monedaOrigen y monedaDestino.
-    	
-    	//Llama a CajaService.actualizarSaldoReal() para reflejar el compromiso de fondos.
-    	
-    	//Llama a CajaService.actualizarSaldoDisponible() cuando la operación se ejecuta.
-    }
-    
-    public void confirmarEjecucionOperacion(Long operacionId, BigDecimal montoOrigenEjecutado, BigDecimal montoConversionEjecutado) {
-    	//Marca la operacion como ejecutada
-    	
-    	//Ajusta los saldos disponibles
-    }
-    
-    
+       
     public OperacionResponse obtenerOperacion(Long id) {
         Optional<Operacion> operacion = operacionRepository.findById(id);
         return operacion.map(operacionMapper::toResponse)
@@ -126,53 +68,62 @@ public class OperacionService {
     }
     
     public OperacionResponse actualizarOperacion(Long id, OperacionRequest request) {
-        Operacion operacion = operacionRepository.findById(id)
+    	
+        Operacion vieja = operacionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Operación no encontrada"));
-        
-        CuentaCorriente cuentaCliente = ctaCteService.obtenerCuentaPorId(request.getCuentaCorrienteId());
-        
-        CuentaCorriente cuentaReferido = request.getCuentaCorrienteReferidoId() != null 
-        	    ? ctaCteService.obtenerCuentaPorId(request.getCuentaCorrienteReferidoId()) 
-        	    : null;
 
-        Liquidador liquidador = request.getLiquidadorId() != null 
-        	    ? liquidadorService.obtenerPorId(request.getLiquidadorId()) 
-        	    : null;
-
-        operacionMapper.updateEntity(operacion, request,  liquidador, cuentaCliente, cuentaReferido );
-        operacion = operacionRepository.save(operacion);
-        actualizarSaldosCuentaCorriente(operacion);
-        return operacionMapper.toResponse(operacion);
+        Operacion nueva = operacionMapper.updateEntity(vieja, request);
+        pagoService.vincularConOperacion(nueva);
+        
+        cajaService.actualizarPorCambioOperacion(vieja, nueva);
+        ctaCteService.actualizarPorCambioOperacion(vieja, nueva);
+        ctaCteService.revertirImpactoOperacionReferido(vieja);
+        ctaCteService.impactoOperacionReferido(nueva);
+                      
+        operacionRepository.save(nueva);
+        return operacionMapper.toResponse(nueva);
     }
     
-    private void actualizarSaldosCuentaCorriente(Operacion operacion) {
-        if (operacion.getCuentaCorriente() != null) {
-            ctaCteService.actualizarSaldos(
-                    operacion.getCuentaCorriente().getId(),
-                    operacion.getMontoOrigen(),
-                    operacion.getMonedaOrigen(),
-                    TipoMovimiento.EGRESO
-            );
-
-            ctaCteService.actualizarSaldos(
-                    operacion.getCuentaCorriente().getId(),
-                    operacion.getMontoConversion(),
-                    operacion.getMonedaConversion(),
-                    TipoMovimiento.INGRESO
-            );
-        }
-
-        // Actualizar saldo del referido si tiene ganancia
-        if (operacion.getCuentaCorrienteReferido() != null && operacion.getGananciaReferido() != null) {
-            ctaCteService.actualizarSaldos(
-                    operacion.getCuentaCorrienteReferido().getId(),
-                    operacion.getGananciaReferido(),
-                    operacion.getMonedaReferido(),
-                    TipoMovimiento.INGRESO
-            );
-        }
+    public OperacionResponse agregarPagoOrigen(OperacionRequest operacionRequest, PagoRequest pagoRequest) {
+    	Operacion operacion = operacionMapper.toEntity(operacionRequest);
+    	Pago pago = pagoMapper.toEntity(pagoRequest);
+    	pagoService.vincularConOperacion(pago, operacion);
+    	
+    	Caja origen = cajaService.obtenerPorMoneda(operacion.getMonedaOrigen());
+    	if (operacion.getTipo() == TipoOperacion.COMPRA) {
+    		cajaService.actualizarSaldoDisponible(origen, pago.getValor(), true);
+    		operacion.getPagosOrigen().add(pago);
+    	}
+    	if (operacion.getTipo() == TipoOperacion.VENTA) {
+    		cajaService.actualizarSaldoDisponible(origen, pago.getValor(), false);
+    		operacion.getPagosOrigen().add(pago);
+    	}
+    	
+    	operacionRepository.save(operacion);
+    	return operacionMapper.toResponse(operacion);  	
     }
     
+    public OperacionResponse agregarPagoConversion(OperacionRequest operacionRequest, PagoRequest pagoRequest) {
+    	Operacion operacion = operacionMapper.toEntity(operacionRequest);
+    	Pago pago = pagoMapper.toEntity(pagoRequest);
+    	pagoService.vincularConOperacion(pago, operacion);
+    	
+    	Caja origen = cajaService.obtenerPorMoneda(operacion.getMonedaConversion());
+    	if (operacion.getTipo() == TipoOperacion.COMPRA) {
+    		cajaService.actualizarSaldoDisponible(origen, pago.getValor(), false);
+    		operacion.getPagosOrigen().add(pago);
+    	}
+    	if (operacion.getTipo() == TipoOperacion.VENTA) {
+    		cajaService.actualizarSaldoDisponible(origen, pago.getValor(), true);
+    		operacion.getPagosOrigen().add(pago);
+    	}
+    	
+    	operacionRepository.save(operacion);
+    	return operacionMapper.toResponse(operacion);  	
+    }
+    
+    
+        
     public LocalDateTime parsearFecha(String fecha) {
     	try {
     		return (fecha != null) ? LocalDateTime.of(LocalDate.parse(fecha, FORMATTER), LocalTime.MIN) : null;
@@ -181,8 +132,12 @@ public class OperacionService {
     	}
     }
     
+    public boolean existePorCuentaCorriente(Long id) {
+    	return operacionRepository.existsByCuentaCorrienteId(id);
+    }
     
-   
+    
+          
 }
 
 

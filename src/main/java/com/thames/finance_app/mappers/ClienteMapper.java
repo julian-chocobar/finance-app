@@ -1,6 +1,6 @@
 package com.thames.finance_app.mappers;
 
-import java.math.BigDecimal;
+import java.util.HashMap;
 
 import org.springframework.stereotype.Component;
 
@@ -32,23 +32,20 @@ public class ClienteMapper {
                 .build();
     }
 
-    public ClienteResponse toResponse(Cliente cliente) {
-        CuentaCorriente cuenta = cliente.getCuentaCorriente();
-        
-        return ClienteResponse.builder()
-                .id(cliente.getId())
-                .nombre(cliente.getNombre())
-                .telefono(cliente.getTelefono())
-                .email(cliente.getEmail())
-                .direccion(cliente.getDireccion())
-                .cuentaCorrienteId(cuenta != null ? cuenta.getId() : null)
-                .saldoPeso(cuenta != null ? cuenta.getSaldoPesos() : BigDecimal.ZERO)
-                .saldoDolar(cuenta != null ? cuenta.getSaldoDolares() : BigDecimal.ZERO)
-                .saldoEuro(cuenta != null ? cuenta.getSaldoEuros() : BigDecimal.ZERO)
-                .saldoReal(cuenta != null ? cuenta.getSaldoReales() : BigDecimal.ZERO)
-                .saldoCrypto(cuenta != null ? cuenta.getSaldoCrypto() : BigDecimal.ZERO)
-                .build();
-    }
+	public ClienteResponse toResponse(Cliente cliente) {
+	    CuentaCorriente cuenta = cliente.getCuentaCorriente();
+
+	    return ClienteResponse.builder()
+	            .id(cliente.getId())
+	            .nombre(cliente.getNombre())
+	            .telefono(cliente.getTelefono())
+	            .email(cliente.getEmail())
+	            .direccion(cliente.getDireccion())
+	            .cuentaCorrienteId(cuenta != null ? cuenta.getId() : null)
+	            .saldos(cuenta != null ? new HashMap<>(cuenta.getSaldos()) : new HashMap<>()) // Copia de los saldos para evitar modificaciones accidentales
+	            .build();
+	}
+
 
 	public void updateEntity(Cliente clienteExistente, ClienteRequest clienteRequest) {
 			

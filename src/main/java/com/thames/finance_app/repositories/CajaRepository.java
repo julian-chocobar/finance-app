@@ -12,5 +12,6 @@ import com.thames.finance_app.models.Caja;
 public interface CajaRepository extends JpaRepository<Caja, Long>{
 
 	Optional<Caja> findByMoneda(Moneda moneda);
+	
 
 }

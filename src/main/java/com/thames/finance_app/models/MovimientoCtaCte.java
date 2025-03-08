@@ -65,8 +65,6 @@ public class MovimientoCtaCte {
 
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal monto;
-
-    @Column(length = 255)
-    private String comentarios;
+    
 
 }

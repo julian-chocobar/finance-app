@@ -2,61 +2,50 @@ package com.thames.finance_app.mappers;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
 import com.thames.finance_app.dtos.OperacionRequest;
 import com.thames.finance_app.dtos.OperacionResponse;
+import com.thames.finance_app.enums.TipoPago;
 import com.thames.finance_app.models.CuentaCorriente;
-import com.thames.finance_app.models.Liquidador;
-import com.thames.finance_app.models.MovimientoCaja;
-import com.thames.finance_app.models.MovimientoCtaCte;
 import com.thames.finance_app.models.Operacion;
+import com.thames.finance_app.services.ClienteService;
 
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
 public class OperacionMapper {
-    
-	public MovimientoCaja toMovimientoCaja() {
-		
-	}
 	
-	public MovimientoCtaCte toMovimientoCtaCte() {
+	private final ClienteService clienteService;
+	private final PagoMapper pagoMapper;
 		
-	}
-	
-	public OperacionResponse toResponse(Operacion operacion) {
+    public OperacionResponse toResponse(Operacion operacion) {
+    	
+    	String nombreCliente = operacion.getCuentaCorriente().getCliente().getNombre();
+    	String nombreReferido = operacion.getCuentaCorrienteReferido().getCliente().getNombre();
+    	BigDecimal totalEjecutadoOrigen = operacion.getTotalPagosOrigen();
+    	BigDecimal totalEjecutadoConversion = operacion.getTotalPagosConversion();
+    	
+    	
+    	
         return OperacionResponse.builder()
                 .id(operacion.getId())
                 .fecha(operacion.getFecha())
+                .nombreCliente(nombreCliente)
                 .tipo(operacion.getTipo())
                 .monedaOrigen(operacion.getMonedaOrigen())
                 .montoOrigen(operacion.getMontoOrigen())
-                .montoOrigenEjecutado(operacion.getMontoOrigenEjecutado())
+                
                 .monedaConversion(operacion.getMonedaConversion())
                 .montoConversion(operacion.getMontoConversion())
-                .montoConversionEjecutado(operacion.getMontoConversionEjecutado())
                 .tipoCambio(operacion.getTipoCambio())
-                .estado(operacion.getEstado())
-                .tipoEntrega(
-                    operacion.getTipoEntrega() != null ? 
-                    operacion.getTipoEntrega() : null
-                )
-                .cuentaCorrienteId(operacion.getCuentaCorriente().getId())
-                .cuentaCorrienteReferidoId(
-                    operacion.getCuentaCorrienteReferido() != null ? 
-                    operacion.getCuentaCorrienteReferido().getId() : null
-                )
-                .liquidadorId(
-                    operacion.getLiquidador() != null ? 
-                    operacion.getLiquidador().getId() : null
-                )
-                .montoLiquidador(
-                    operacion.getMontoLiquidador() != null ? 
-                    operacion.getMontoLiquidador() : null
-                )
+                
+                .nombreReferido(nombreReferido != null ?
+                				nombreReferido : null)
+
                 .puntosReferido(
                     operacion.getPuntosReferido() != null ? 
                     operacion.getPuntosReferido() : null
@@ -69,49 +58,73 @@ public class OperacionMapper {
                     operacion.getGananciaReferido() != null ? 
                     operacion.getGananciaReferido() : null
                 )
+                .pagosOrigen(pagoMapper.toPagoResponseList(operacion.getPagosOrigen()))
+                .totalPagosOrigen(totalEjecutadoOrigen)
+                
+                .pagosConversion(pagoMapper.toPagoResponseList(operacion.getPagosConversion()))
+                .totalPagosConversion(totalEjecutadoConversion)
                 .build();
     }
 
-	public Operacion toEntity(OperacionRequest request, CuentaCorriente cuentaCliente, CuentaCorriente cuentaReferido, Liquidador liquidador) {
-	    return Operacion.builder()
-	            .fecha(LocalDateTime.now())
-	            .tipo(request.getTipo())
-	            .monedaOrigen(request.getMonedaOrigen())
-	            .montoOrigen(request.getMontoOrigen())
-	            .monedaConversion(request.getMonedaConversion())
-	            .montoConversion(request.getMontoConversion())
-	            .tipoCambio(request.getTipoCambio())
-	            .estado(request.getEstado())
-	            .tipoEntrega(request.getTipoEntrega() != null ? request.getTipoEntrega() : null)
-	            .cuentaCorriente(cuentaCliente)
-	            .cuentaCorrienteReferido(cuentaReferido != null ? cuentaReferido : null)
-	            .liquidador(liquidador)
-	            .montoLiquidador(request.getMontoLiquidador() != null ? request.getMontoLiquidador() : null)
-	            .puntosReferido(request.getPuntosReferido() != null ? request.getPuntosReferido() : null)
-	            .monedaReferido(request.getMonedaReferido() != null ? request.getMonedaReferido() : null)
-	            .gananciaReferido(request.getPuntosReferido() != null ? request.getPuntosReferido().multiply(request.getMontoOrigen()) : BigDecimal.ZERO)
-	            .build();
-	}
-
-	public void updateEntity(Operacion operacion, OperacionRequest request, Liquidador liquidador, CuentaCorriente cuentaCliente, CuentaCorriente cuentaReferido) {
-	    operacion.setTipo(request.getTipo());
-	    operacion.setMonedaOrigen(request.getMonedaOrigen());
-	    operacion.setMontoOrigen(request.getMontoOrigen());
-	    operacion.setMonedaConversion(request.getMonedaConversion());
-	    operacion.setMontoConversion(request.getMontoConversion());
-	    operacion.setTipoCambio(request.getTipoCambio());
-	    operacion.setEstado(request.getEstado());
-	    operacion.setTipoEntrega(request.getTipoEntrega() != null ? request.getTipoEntrega() : null);
+    public Operacion toEntity(OperacionRequest request) {   
+    	CuentaCorriente cuentaCliente = clienteService
+				.obtenerClientePorNombre(request
+				.getNombreCliente()).getCuentaCorriente();
+    	CuentaCorriente cuentaReferido = Optional.ofNullable(clienteService
+									.obtenerClientePorNombre(request
+									.getNombreReferido())
+									.getCuentaCorriente()).orElse(null);
+    	
+    	return Operacion.builder()
+                .fecha(LocalDateTime.now())
+                .tipo(request.getTipo())
+                .cuentaCorriente(cuentaCliente)
+                .monedaOrigen(request.getMonedaOrigen())
+                .montoOrigen(request.getMontoOrigen())
+                .monedaConversion(request.getMonedaConversion())
+                .montoConversion(request.getMontoConversion())
+                .tipoCambio(request.getTipoCambio())
+                .cuentaCorrienteReferido(cuentaReferido)
+                .puntosReferido(request.getPuntosReferido())
+                .monedaReferido(request.getMonedaReferido())
+                .gananciaReferido(request.getPuntosReferido() != null ? request.getPuntosReferido().multiply(request.getMontoOrigen()) : BigDecimal.ZERO)
+                .pagosOrigen(pagoMapper.toPagoList(request.getPagosOrigen(), TipoPago.ORIGEN))
+                .pagosConversion(pagoMapper.toPagoList(request.getPagosConversion(), TipoPago.CONVERSION))
+                .build();   	
+    }
+   
+    public Operacion updateEntity(Operacion operacion, OperacionRequest request) {
+    	CuentaCorriente cuentaCliente = clienteService
+    									.obtenerClientePorNombre(request
+    									.getNombreCliente()).getCuentaCorriente();
+    	CuentaCorriente cuentaReferido = Optional.ofNullable(clienteService
+    														.obtenerClientePorNombre(request
+    														.getNombreReferido())
+    														.getCuentaCorriente()).orElse(null);
+    	
+        operacion.setTipo(request.getTipo());
+        operacion.setMonedaOrigen(request.getMonedaOrigen());
+        operacion.setMontoOrigen(request.getMontoOrigen());
+        operacion.setMonedaConversion(request.getMonedaConversion());
+        operacion.setMontoConversion(request.getMontoConversion());
+        operacion.setTipoCambio(request.getTipoCambio());
         operacion.setCuentaCorriente(cuentaCliente);
-        operacion.setCuentaCorrienteReferido(cuentaReferido != null ? cuentaReferido : null);
-	    operacion.setPuntosReferido(request.getPuntosReferido() != null ? request.getPuntosReferido() : null);
-	    operacion.setMonedaReferido(request.getMonedaReferido() != null ? request.getMonedaReferido() : null);
-	    operacion.setGananciaReferido(request.getPuntosReferido() != null ? request.getPuntosReferido().multiply(request.getMontoOrigen()) : BigDecimal.ZERO);
-	    operacion.setLiquidador(liquidador);
-	    operacion.setMontoLiquidador(request.getMontoLiquidador() != null ? request.getMontoLiquidador() : null);
-	}
+        operacion.setCuentaCorrienteReferido(cuentaReferido);
+        operacion.setPuntosReferido(request.getPuntosReferido());
+        operacion.setMonedaReferido(request.getMonedaReferido());
+        operacion.setGananciaReferido(request.getPuntosReferido() != null ? 
+        							request.getPuntosReferido()
+        							.multiply(request.getMontoOrigen()) : BigDecimal.ZERO);
 
-
+        // Actualizar listas de pagos
+        operacion.getPagosOrigen().clear();
+        operacion.getPagosOrigen().addAll(pagoMapper.toPagoList(request.getPagosOrigen(), TipoPago.ORIGEN));
+        operacion.getPagosConversion().clear();
+        operacion.getPagosConversion().addAll(pagoMapper.toPagoList(request.getPagosConversion(), TipoPago.CONVERSION));
+        
+        return operacion;
+    }
+    
 
 }
 

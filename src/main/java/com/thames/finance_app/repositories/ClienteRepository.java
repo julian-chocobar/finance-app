@@ -18,7 +18,8 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
   
     Optional<Cliente> findByIdAndEsReferidoFalse(Long id);   // por ID cliente
 
-    
     Optional<Cliente> findByIdAndEsReferidoTrue(Long id); // por ID referido
+    
+    Optional <Cliente> findByNombre(String name);
 
 }

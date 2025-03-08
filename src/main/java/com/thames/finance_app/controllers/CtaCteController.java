@@ -61,7 +61,7 @@ public class CtaCteController {
 
     @GetMapping("/cliente/{clienteId}")
     public ResponseEntity<CtaCteResponse> obtenerCuentaPorCliente(@PathVariable Long clienteId) {
-        return ResponseEntity.ok(ctaCteService.obtenerCuentaPorClienteId(clienteId));
+        return ResponseEntity.ok(ctaCteService.obtenerResponsePorClienteId(clienteId));
     }
 
     @PostMapping
@@ -75,13 +75,13 @@ public class CtaCteController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{id}/actualizar-saldo")
-    public ResponseEntity<CtaCteResponse> actualizarSaldos(
-            @PathVariable Long id,
-            @RequestParam BigDecimal monto,
-            @RequestParam Moneda moneda,
-            @RequestParam TipoMovimiento tipo) {
-        return ResponseEntity.ok(ctaCteService.actualizarSaldos(id, monto, moneda, tipo));
-    }
+//    @PutMapping("/{id}/actualizar-saldo")
+//    public ResponseEntity<CtaCteResponse> actualizarSaldos(
+//            @PathVariable Long id,
+//            @RequestParam BigDecimal monto,
+//            @RequestParam Moneda moneda,
+//            @RequestParam TipoMovimiento tipo) {
+//        return ResponseEntity.ok(ctaCteService.actualizarSaldos(id, monto, moneda, tipo));
+//    }
 }
 

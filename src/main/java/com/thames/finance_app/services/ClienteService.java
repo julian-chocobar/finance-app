@@ -1,7 +1,9 @@
 package com.thames.finance_app.services;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -14,8 +16,6 @@ import com.thames.finance_app.mappers.ClienteMapper;
 import com.thames.finance_app.models.Cliente;
 import com.thames.finance_app.models.CuentaCorriente;
 import com.thames.finance_app.repositories.ClienteRepository;
-import com.thames.finance_app.repositories.CtaCteRepository;
-import com.thames.finance_app.repositories.OperacionRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -25,10 +25,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ClienteService {
 	
-	private final ClienteRepository clienteRepository;
-	private final CtaCteRepository ctaCteRepository;
+	private final ClienteRepository clienteRepository;	
 	private final CtaCteService ctaCteService;
-	private final OperacionRepository operacionRepository;
+	private final OperacionService operacionService;
 	private final ClienteMapper clienteMapper;
 
 	public List<ClienteResponse> obtenerTodos(){
@@ -58,42 +57,54 @@ public class ClienteService {
 		return clienteMapper.toResponse(cliente);	
 	}
 	
+	public Cliente obtenerEntidadPorID(Long id) {
+		return clienteRepository.findByIdAndEsReferidoFalse(id)
+				.orElseThrow( () -> new EntityNotFoundException("Cliente con id: " + id + " no encontrado"));		
+	}
+	
 	public ClienteResponse obtenerReferidoPorID(Long id) {
 		Cliente referidos = clienteRepository.findByIdAndEsReferidoTrue(id)
 				.orElseThrow( () -> new EntityNotFoundException("Cliente con id: " + id + " no encontrado"));
 		return clienteMapper.toResponse(referidos);
 	}
 	
-	@Transactional
-	public ClienteResponse crearCliente(ClienteRequest clienteRequest) {
-		Cliente cliente = clienteMapper.toEntity(clienteRequest);
-		
-		CuentaCorriente cuentaCorriente = CuentaCorriente.builder()
-	            .saldoPesos(BigDecimal.ZERO)
-	            .saldoDolares(BigDecimal.ZERO)
-	            .saldoReales(BigDecimal.ZERO)
-	            .saldoCrypto(BigDecimal.ZERO)
-	            .saldoEuros(BigDecimal.ZERO)
-	            .cliente(cliente) 
-	            .build();
-		
-		 cliente.setCuentaCorriente(cuentaCorriente);
-		
-		Cliente savedCliente = clienteRepository.save(cliente);
-		return clienteMapper.toResponse(savedCliente);	
+	public Cliente obtenerClientePorNombre(String nombre) {
+		return clienteRepository.findByNombre(nombre)
+				.orElseThrow( () -> new EntityNotFoundException("Cliente con nombre: " + nombre + " no encontrado"));
 	}
+	
+	@Transactional
+	public ClienteResponse crearCliente(ClienteRequest clienteRequest) {	
+		verificarNombreUnico(clienteRequest.getNombre());				
+	    Cliente cliente = clienteMapper.toEntity(clienteRequest);
+	    // Inicializar los saldos con BigDecimal.ZERO para todas las monedas
+	    Map<Moneda, BigDecimal> saldosIniciales = new HashMap<>();
+	    for (Moneda moneda : Moneda.values()) {
+	        saldosIniciales.put(moneda, BigDecimal.ZERO);
+	    }
+	    CuentaCorriente cuentaCorriente = CuentaCorriente.builder()
+	            .cliente(cliente)
+	            .saldos(saldosIniciales)
+	            .build();
+
+	    cliente.setCuentaCorriente(cuentaCorriente);
+	    Cliente savedCliente = clienteRepository.save(cliente);
+	    return clienteMapper.toResponse(savedCliente);
+	}
+
 	
 	@Transactional
 	public ClienteResponse crearReferido(ClienteRequest clienteRequest) {
 		Cliente cliente = clienteMapper.toEntityReferido(clienteRequest);
 		
-		CuentaCorriente cuentaCorriente = CuentaCorriente.builder()
-	            .saldoPesos(BigDecimal.ZERO)
-	            .saldoDolares(BigDecimal.ZERO)
-	            .saldoReales(BigDecimal.ZERO)
-	            .saldoCrypto(BigDecimal.ZERO)
-	            .saldoEuros(BigDecimal.ZERO)
-	            .cliente(cliente) 
+	    Map<Moneda, BigDecimal> saldosIniciales = new HashMap<>();
+	    for (Moneda moneda : Moneda.values()) {
+	        saldosIniciales.put(moneda, BigDecimal.ZERO);
+	    }
+
+	    CuentaCorriente cuentaCorriente = CuentaCorriente.builder()
+	            .cliente(cliente)
+	            .saldos(saldosIniciales)
 	            .build();
 		
 		 cliente.setCuentaCorriente(cuentaCorriente);
@@ -103,10 +114,7 @@ public class ClienteService {
 	}
 	
 	public BigDecimal obtenerSaldoReferido(Long referidoId, Moneda moneda) {
-	    CuentaCorriente cuenta = ctaCteRepository.findByClienteId(referidoId)
-	        .orElseThrow(() -> new BusinessException("Cuenta corriente del referido no encontrada"));
-	    
-	    return ctaCteService.obtenerSaldoPorMoneda(cuenta, moneda);
+	    return ctaCteService.obtenerSaldoPorMoneda(ctaCteService.obtenerEntidadPorClienteId(referidoId), moneda);
 	}
 	
 	
@@ -114,10 +122,6 @@ public class ClienteService {
 	public ClienteResponse actualizarCliente(Long id, ClienteRequest clienteRequest) {
 	    Cliente cliente = clienteRepository.findById(id)
 	        .orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado"));
-
-	    if (cliente.isEsReferido() != clienteRequest.isEsReferido()) {
-	        throw new BusinessException("No se puede cambiar el estado de referenciado de un cliente.");
-	    }
 
 	    cliente.setNombre(clienteRequest.getNombre());
 	    cliente.setTelefono(clienteRequest.getTelefono());
@@ -130,12 +134,23 @@ public class ClienteService {
 	    Cliente cliente = clienteRepository.findById(id)
 	        .orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado"));
 
-	   if (operacionRepository.existsByCuentaCorrienteId(cliente.getCuentaCorriente().getId())){
+	   if (operacionService.existePorCuentaCorriente(cliente.getCuentaCorriente().getId())){
 		   throw new BusinessException("No se puede eliminar un cliente con operaciones registradas.");
 	   }
 	    
 
 	    clienteRepository.delete(cliente);
 	}
+	
+	
+    public boolean existeNombre(String nombre) {
+        return clienteRepository.findByNombre(nombre).isPresent();
+    }
+    
+    public void verificarNombreUnico(String nombre) {
+        if (existeNombre(nombre)) {
+            throw new BusinessException("Nombre ya registrado");
+        }
+    }
 
 }

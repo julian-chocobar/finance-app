@@ -1,16 +1,25 @@
 package com.thames.finance_app.models;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.thames.finance_app.enums.Moneda;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapKeyColumn;
+import jakarta.persistence.MapKeyEnumerated;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
@@ -47,42 +56,34 @@ public class CuentaCorriente {
     @JoinColumn(name = "cliente_id")
 	private Cliente cliente;
 	
-	private BigDecimal saldoPesos;
+	@Builder.Default
+    @ElementCollection
+    @CollectionTable(name = "cuenta_corriente_saldos", joinColumns = @JoinColumn(name = "cuenta_corriente_id"))
+    @MapKeyEnumerated(EnumType.STRING)
+    @MapKeyColumn(name = "moneda")
+    @Column(name = "saldo")
+    private Map<Moneda, BigDecimal> saldos = new HashMap<>();
 	
-	private BigDecimal saldoDolares;
-	
-	private BigDecimal saldoReales;
-	
-	private BigDecimal saldoCrypto;
-	
-	private BigDecimal saldoEuros;
-	
+//	@Builder.Default
 //	@OneToMany(mappedBy = "cuentaCorriente", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Operacion> operaciones;
+//    private List<Operacion> operaciones = new ArrayList<>();
 	
+	@Builder.Default
 	@OneToMany(mappedBy = "cuentaCorriente", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MovimientoCtaCte> movimientos;
+    private List<MovimientoCtaCte> movimientos = new ArrayList<>();
+	
 
     public BigDecimal getSaldoPorMoneda(Moneda moneda) {
-        return switch (moneda) {
-            case PESO -> saldoPesos;
-            case USD -> saldoDolares;
-            case REAL -> saldoReales;
-            case EURO -> saldoEuros;
-            case CRYPTO -> saldoCrypto;
-		default -> throw new IllegalArgumentException("Unexpected value: " + moneda);
-        };
+        return saldos.getOrDefault(moneda, BigDecimal.ZERO);
     }
 
     public void setSaldoPorMoneda(Moneda moneda, BigDecimal nuevoSaldo) {
-        switch (moneda) {
-            case PESO -> saldoPesos = nuevoSaldo;
-            case USD -> saldoDolares = nuevoSaldo;
-            case REAL -> saldoReales = nuevoSaldo;
-            case EURO -> saldoEuros= nuevoSaldo;
-            case CRYPTO -> saldoCrypto =nuevoSaldo;
-		default -> throw new IllegalArgumentException("Unexpected value: " + moneda);
-        }
+        saldos.put(moneda, nuevoSaldo);
     }
+
+    public void actualizarSaldo(Moneda moneda, BigDecimal nuevoSaldo) {
+        saldos.put(moneda, nuevoSaldo);
+    }
+
 
 }

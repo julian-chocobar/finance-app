@@ -1,6 +1,7 @@
 package com.thames.finance_app.mappers;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.data.domain.Page;
@@ -21,25 +22,15 @@ public class CtaCteMapper {
         return CtaCteResponse.builder()
                 .id(cuenta.getId())
                 .clienteId(cuenta.getCliente().getId())
-                .saldoPeso(cuenta.getSaldoPesos())
-                .saldoDolar(cuenta.getSaldoDolares())
-                .saldoEuro(cuenta.getSaldoEuros())
-                .saldoReal(cuenta.getSaldoReales())
-                .saldoCrypto(cuenta.getSaldoCrypto())
+                .saldoPorMoneda(new HashMap<>(cuenta.getSaldos())) // Copia el mapa para evitar modificaciones accidentales
                 .build();
     }
-    
+
     public CtaCteResponse toResponse2(CuentaCorriente cuentaCorriente, Page<MovimientoCtaCte> movimientos) {
         return CtaCteResponse.builder()
                 .id(cuentaCorriente.getId())
                 .clienteId(cuentaCorriente.getCliente().getId())
-                .saldoPorMoneda(Map.of(
-                        Moneda.PESO, cuentaCorriente.getSaldoPesos(),
-                        Moneda.USD, cuentaCorriente.getSaldoDolares(),
-                        Moneda.EURO, cuentaCorriente.getSaldoEuros(),
-                        Moneda.REAL, cuentaCorriente.getSaldoReales(),
-                        Moneda.CRYPTO, cuentaCorriente.getSaldoCrypto()
-                ))
+                .saldoPorMoneda(new HashMap<>(cuentaCorriente.getSaldos()))
                 .movimientos(movimientos.getContent().stream()
                         .map(this::toMovimientoResponse)
                         .toList())
@@ -47,26 +38,26 @@ public class CtaCteMapper {
                 .totalPaginas(movimientos.getTotalPages())
                 .build();
     }
-    
+
     public MovimientoCtaCteResponse toMovimientoResponse(MovimientoCtaCte movimiento) {
         return MovimientoCtaCteResponse.builder()
                 .id(movimiento.getId())
-                .tipo(movimiento.getTipo())
+                .tipo(movimiento.getTipoMovimiento())
                 .moneda(movimiento.getMoneda())
                 .monto(movimiento.getMonto())
-                .descripcion(movimiento.getDescripcion())
                 .fecha(movimiento.getFecha())
                 .build();
     }
 
     public CuentaCorriente toEntity(CtaCteRequest request, Cliente cliente) {
+        Map<Moneda, BigDecimal> saldosIniciales = new HashMap<>();
+        for (Moneda moneda : Moneda.values()) {
+            saldosIniciales.put(moneda, BigDecimal.ZERO);
+        }
+
         return CuentaCorriente.builder()
                 .cliente(cliente)
-                .saldoPesos(BigDecimal.ZERO)
-                .saldoDolares(BigDecimal.ZERO)
-                .saldoEuros(BigDecimal.ZERO)
-                .saldoReales(BigDecimal.ZERO)
-                .saldoCrypto(BigDecimal.ZERO)
+                .saldos(saldosIniciales)
                 .build();
     }
 }

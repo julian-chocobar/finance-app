@@ -2,6 +2,7 @@ package com.thames.finance_app.models;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.ArrayList;
 
 import com.thames.finance_app.enums.Moneda;
 
@@ -50,7 +51,8 @@ public class Caja {
 	@Enumerated(EnumType.STRING)
 	private Moneda moneda;
 	
+	@Builder.Default
 	@OneToMany(mappedBy = "caja", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MovimientoCaja> movimientos;
+    private List<MovimientoCaja> movimientos = new ArrayList<>();
 
 }
