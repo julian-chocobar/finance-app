@@ -16,6 +16,7 @@ import com.thames.finance_app.mappers.ClienteMapper;
 import com.thames.finance_app.models.Cliente;
 import com.thames.finance_app.models.CuentaCorriente;
 import com.thames.finance_app.repositories.ClienteRepository;
+import com.thames.finance_app.repositories.OperacionRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -26,8 +27,7 @@ import lombok.RequiredArgsConstructor;
 public class ClienteService {
 	
 	private final ClienteRepository clienteRepository;	
-	private final CtaCteService ctaCteService;
-	private final OperacionService operacionService;
+	private final OperacionRepository operacionRepository;
 	private final ClienteMapper clienteMapper;
 
 	public List<ClienteResponse> obtenerTodos(){
@@ -112,11 +112,7 @@ public class ClienteService {
 		Cliente savedCliente = clienteRepository.save(cliente);
 		return clienteMapper.toResponse(savedCliente);	
 	}
-	
-	public BigDecimal obtenerSaldoReferido(Long referidoId, Moneda moneda) {
-	    return ctaCteService.obtenerSaldoPorMoneda(ctaCteService.obtenerEntidadPorClienteId(referidoId), moneda);
-	}
-	
+		
 	
 	@Transactional
 	public ClienteResponse actualizarCliente(Long id, ClienteRequest clienteRequest) {
@@ -134,7 +130,7 @@ public class ClienteService {
 	    Cliente cliente = clienteRepository.findById(id)
 	        .orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado"));
 
-	   if (operacionService.existePorCuentaCorriente(cliente.getCuentaCorriente().getId())){
+	   if (operacionRepository.existsByCuentaCorrienteId(cliente.getCuentaCorriente().getId())){
 		   throw new BusinessException("No se puede eliminar un cliente con operaciones registradas.");
 	   }
 	    

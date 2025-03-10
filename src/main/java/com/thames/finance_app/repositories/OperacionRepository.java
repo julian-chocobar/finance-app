@@ -13,7 +13,7 @@ import com.thames.finance_app.models.Operacion;
 public interface OperacionRepository extends JpaRepository<Operacion, Long>{
 	
 	boolean existsByCuentaCorrienteId(Long cuentaCorrienteId);
-	
+		
 	Page<Operacion> findAll(Specification<Operacion> spec, Pageable pageable);
 
 }

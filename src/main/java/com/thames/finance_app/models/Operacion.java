@@ -57,14 +57,17 @@ public class Operacion {
     private CuentaCorriente cuentaCorriente; 
 	
 	@Enumerated(EnumType.STRING)
-	private Moneda monedaOrigen;  	// USD, PESO, EURO, REAL, CRYPTO	
+	private Moneda monedaOrigen; // USD, PESO, EURO, REAL, CRYPTO	
 	private BigDecimal montoOrigen;	
 	
-	private BigDecimal tipoCambio;
+	private BigDecimal valorTipoCambio;
+	
+//	private TipoDeCambio tipoDeCambio;
 	
 	@Enumerated(EnumType.STRING)
-	private Moneda monedaConversion;  
-	private BigDecimal montoConversion;
+	private Moneda monedaConversion;
+	
+//	private BigDecimal montoConversion;
   
 	@Builder.Default
 	@OneToMany(mappedBy = "operacion", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -83,7 +86,7 @@ public class Operacion {
 	@Enumerated(EnumType.STRING)
 	private Moneda monedaReferido; 
 	
-	private BigDecimal gananciaReferido;
+//	private BigDecimal gananciaReferido;
 	
 	public BigDecimal getTotalPagosOrigen() {
         BigDecimal total = BigDecimal.ZERO;
@@ -104,14 +107,22 @@ public class Operacion {
         }
         return total;
 	}
-	
-	
+		
 	public boolean estaCompleta() {
 		if ( getTotalPagosOrigen().compareTo(montoOrigen) == 0 
-				&& getTotalPagosConversion().compareTo(montoConversion) == 0){
+				&& getTotalPagosConversion().compareTo(getMontoConversion()) == 0){
 			return true;
 		}
 		return false;
 	}
+	
+	public BigDecimal getMontoConversion() {
+		return this.montoOrigen.multiply(this.valorTipoCambio);		
+	}
+	
+	public BigDecimal getGananciaReferido(BigDecimal monto) {
+		return monto.multiply(puntosReferido);
+	}
+	
 		
 }

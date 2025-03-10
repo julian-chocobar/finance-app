@@ -12,6 +12,7 @@ import com.thames.finance_app.enums.TipoOperacion;
 import com.thames.finance_app.mappers.OperacionMapper;
 import com.thames.finance_app.mappers.PagoMapper;
 import com.thames.finance_app.models.Caja;
+import com.thames.finance_app.models.CuentaCorriente;
 import com.thames.finance_app.models.Operacion;
 import com.thames.finance_app.models.Pago;
 import com.thames.finance_app.repositories.OperacionRepository;
@@ -33,6 +34,7 @@ public class OperacionService {
     private final OperacionRepository operacionRepository;
     private final CajaService cajaService;
     private final CtaCteService ctaCteService;
+    private final ClienteService clienteService;
     private final PagoService pagoService;
     private final OperacionMapper operacionMapper;
     private final PagoMapper pagoMapper;
@@ -60,29 +62,68 @@ public class OperacionService {
     }
 
     public void eliminarOperacion(Long id) {
+    	Operacion operacion = operacionRepository.getReferenceById(id);
+    	cajaService.revertirImpactoOperacion(operacion);
+    	ctaCteService.revertirImpactoOperacion(operacion);
+    	ctaCteService.revertirImpactoOperacionReferido(operacion);
         operacionRepository.deleteById(id);
+    }
+    
+    public void eliminarOperacionSinRevertir(Long id) {
+    	operacionRepository.deleteById(id);
     }
 
     public Page<OperacionResponse> listarOperaciones(Specification<Operacion> spec, Pageable pageable) {
         return operacionRepository.findAll(spec, pageable).map(operacionMapper::toResponse);
     }
     
-    public OperacionResponse actualizarOperacion(Long id, OperacionRequest request) {
-    	
+    public OperacionResponse actualizarOperacion(Long id, OperacionRequest request) {   	
         Operacion vieja = operacionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Operación no encontrada"));
 
         Operacion nueva = operacionMapper.updateEntity(vieja, request);
         pagoService.vincularConOperacion(nueva);
         
-        cajaService.actualizarPorCambioOperacion(vieja, nueva);
-        ctaCteService.actualizarPorCambioOperacion(vieja, nueva);
+        cajaService.revertirImpactoOperacion(vieja);
+        cajaService.impactoOperacion(nueva);
+        
+        ctaCteService.revertirImpactoOperacion(vieja);
+        ctaCteService.impactoOperacion(nueva);
+        
         ctaCteService.revertirImpactoOperacionReferido(vieja);
         ctaCteService.impactoOperacionReferido(nueva);
                       
         operacionRepository.save(nueva);
         return operacionMapper.toResponse(nueva);
     }
+    
+  
+    public OperacionResponse cambiarMontoOrigen(Long id, OperacionRequest request) {  	
+        Operacion operacion = operacionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Operación no encontrada"));
+        cajaService.revertirImpactoOperacion(operacion);   
+        operacion.setMontoOrigen(request.getMontoOrigen());
+        cajaService.impactoOperacion(operacion);    	
+        
+        operacionRepository.save(operacion);
+        return operacionMapper.toResponse(operacion);
+    }
+    
+    public OperacionResponse cambiarCliente(Long id, OperacionRequest request) {
+    	Operacion operacion = operacionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Operación no encontrada"));
+    	
+    	CuentaCorriente cuentaNueva = clienteService
+				.obtenerClientePorNombre(request
+				.getNombreCliente()).getCuentaCorriente();
+    	ctaCteService.revertirImpactoOperacion(operacion);
+    	operacion.setCuentaCorriente(cuentaNueva);
+    	ctaCteService.impactoOperacion(operacion);
+    	
+    	operacionRepository.save(operacion); 
+    	return operacionMapper.toResponse(operacion);
+    }
+    
     
     public OperacionResponse agregarPagoOrigen(OperacionRequest operacionRequest, PagoRequest pagoRequest) {
     	Operacion operacion = operacionMapper.toEntity(operacionRequest);
@@ -103,6 +144,25 @@ public class OperacionService {
     	return operacionMapper.toResponse(operacion);  	
     }
     
+    public OperacionResponse quitarPagoOrigen(OperacionRequest operacionRequest, PagoRequest pagoRequest) {
+    	Operacion operacion = operacionMapper.toEntity(operacionRequest);
+    	Pago pago = pagoMapper.toEntity(pagoRequest);
+    	
+    	Caja origen = cajaService.obtenerPorMoneda(operacion.getMonedaOrigen());
+    	if (operacion.getTipo() == TipoOperacion.COMPRA) {
+    		cajaService.actualizarSaldoDisponible(origen, pago.getValor(), false);
+    		operacion.getPagosOrigen().remove(pago);
+    	}
+    	if (operacion.getTipo() == TipoOperacion.VENTA) {
+    		cajaService.actualizarSaldoDisponible(origen, pago.getValor(), true);
+    		operacion.getPagosOrigen().remove(pago);
+    	}
+    	
+    	pagoService.eliminarPago(pago);
+    	operacionRepository.save(operacion);
+    	return operacionMapper.toResponse(operacion); 
+    }
+    
     public OperacionResponse agregarPagoConversion(OperacionRequest operacionRequest, PagoRequest pagoRequest) {
     	Operacion operacion = operacionMapper.toEntity(operacionRequest);
     	Pago pago = pagoMapper.toEntity(pagoRequest);
@@ -120,10 +180,59 @@ public class OperacionService {
     	
     	operacionRepository.save(operacion);
     	return operacionMapper.toResponse(operacion);  	
+    }  
+    
+    public OperacionResponse quitarPagoConversion(OperacionRequest operacionRequest, PagoRequest pagoRequest) {
+    	Operacion operacion = operacionMapper.toEntity(operacionRequest);
+    	Pago pago = pagoMapper.toEntity(pagoRequest);
+    	
+    	Caja origen = cajaService.obtenerPorMoneda(operacion.getMonedaConversion());
+    	if (operacion.getTipo() == TipoOperacion.COMPRA) {
+    		cajaService.actualizarSaldoDisponible(origen, pago.getValor(), true);
+    		operacion.getPagosConversion().remove(pago);
+    	}
+    	if (operacion.getTipo() == TipoOperacion.VENTA) {
+    		cajaService.actualizarSaldoDisponible(origen, pago.getValor(), false);
+    		operacion.getPagosConversion().remove(pago);
+    	}
+    	
+    	pagoService.eliminarPago(pago);
+    	operacionRepository.save(operacion);
+    	return operacionMapper.toResponse(operacion); 
     }
     
+    // Cambiar MonedaOrigen
     
-        
+     
+    
+    
+    
+    
+    // Cambiar MontoOrigen
+    
+  
+   
+    
+    
+    
+    // Cambiar MonedaDestino
+    
+    
+    
+    //Agregar Referido
+    
+    
+    //Quitar referido
+    
+   
+    // Agregar puntos referido
+    
+    // Cambiar puntos referido
+    
+    // Agregar Moneda Referido
+    
+    //Cambiar moneda referido
+            
     public LocalDateTime parsearFecha(String fecha) {
     	try {
     		return (fecha != null) ? LocalDateTime.of(LocalDate.parse(fecha, FORMATTER), LocalTime.MIN) : null;

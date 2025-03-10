@@ -47,7 +47,7 @@ public class CajaService {
     }
     
    
-    private void revertirImpactoOperacion(Operacion operacion) {
+    public void revertirImpactoOperacion(Operacion operacion) {
         Caja cajaOrigen = cajaRepository.findByMoneda(operacion.getMonedaOrigen())
                 .orElseThrow(() -> new RuntimeException("Caja no encontrada"));
         Caja cajaConversion = cajaRepository.findByMoneda(operacion.getMonedaConversion())
@@ -69,12 +69,7 @@ public class CajaService {
             actualizarSaldoDisponible(cajaConversion, operacion.getTotalPagosConversion(), false);
         }
     }
-    
-	public void actualizarPorCambioOperacion(Operacion vieja, Operacion nueva) {
-        revertirImpactoOperacion(vieja);
-        impactoOperacion(nueva);
-	}
-    
+        
 	@Transactional
 	public void actualizarSaldoReal(Caja caja, BigDecimal monto, boolean esIngreso) {
 		if (esIngreso) {

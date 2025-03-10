@@ -40,5 +40,9 @@ public class PagoService {
 
     	}		
 	}
+	
+	public void eliminarPago(Pago pago) {
+		pagoRepository.delete(pago);
+	}
 
 }

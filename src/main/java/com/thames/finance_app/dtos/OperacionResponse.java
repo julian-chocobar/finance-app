@@ -27,8 +27,8 @@ public class OperacionResponse {
     private Moneda monedaOrigen;
     private BigDecimal montoOrigen;  
     private Moneda monedaConversion;
-    private BigDecimal montoConversion;
-    private BigDecimal tipoCambio;
+//    private BigDecimal montoConversion;
+    private BigDecimal valorTipoCambio;
     
     private List<PagoResponse> pagosOrigen;
     private BigDecimal totalPagosOrigen;
