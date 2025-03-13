@@ -3,7 +3,6 @@ package com.thames.finance_app.models;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import com.thames.finance_app.enums.Moneda;
 import com.thames.finance_app.enums.TipoMovimiento;
 
 import jakarta.persistence.Column;
@@ -15,7 +14,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -55,12 +53,12 @@ public class MovimientoCtaCte {
     @JoinColumn(name = "cuenta_corriente_id", nullable = true)
     private CuentaCorriente cuentaCorriente; 
 	
-	@OneToOne
+	@ManyToOne
     @JoinColumn(name = "operacion_id", nullable = true)
     private Operacion operacion;
 	
-	@Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "moneda_id", nullable = false)
     private Moneda moneda; 
 
     @Column(nullable = false, precision = 19, scale = 2)

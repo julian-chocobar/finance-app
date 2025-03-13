@@ -8,13 +8,13 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.thames.finance_app.dtos.ClienteRequest;
-import com.thames.finance_app.dtos.ClienteResponse;
-import com.thames.finance_app.enums.Moneda;
+import com.thames.finance_app.dtos.TitularRequest;
+import com.thames.finance_app.dtos.TitularResponse;
 import com.thames.finance_app.exceptions.BusinessException;
-import com.thames.finance_app.mappers.ClienteMapper;
-import com.thames.finance_app.models.Cliente;
+import com.thames.finance_app.mappers.TitularMapper;
+import com.thames.finance_app.models.Titular;
 import com.thames.finance_app.models.CuentaCorriente;
+import com.thames.finance_app.models.Moneda;
 import com.thames.finance_app.repositories.ClienteRepository;
 import com.thames.finance_app.repositories.OperacionRepository;
 
@@ -28,95 +28,110 @@ public class ClienteService {
 	
 	private final ClienteRepository clienteRepository;	
 	private final OperacionRepository operacionRepository;
-	private final ClienteMapper clienteMapper;
+	private final MonedaService monedaService;
+	private final TitularMapper clienteMapper;
 
-	public List<ClienteResponse> obtenerTodos(){
-		List<Cliente> clientes = clienteRepository.findAll();
+	public List<TitularResponse> obtenerTodos(){
+		List<Titular> clientes = clienteRepository.findAll();
 		return clientes.stream()
 				.map(clienteMapper::toResponse)
 				.collect(Collectors.toList());	
 	}
 	
-	public List<ClienteResponse> obtenerTodosClientes(){
-		List<Cliente> clientes = clienteRepository.findByEsReferidoFalse();
+	public List<TitularResponse> obtenerTodosClientes(){
+		List<Titular> clientes = clienteRepository.findByEsReferidoFalse();
 		return clientes.stream()
 				.map(clienteMapper::toResponse)
 				.collect(Collectors.toList());	
 	}
 	
-	public List<ClienteResponse> obtenerTodosReferidos(){
-		List<Cliente> referidos = clienteRepository.findByEsReferidoTrue();
+	public List<TitularResponse> obtenerTodosReferidos(){
+		List<Titular> referidos = clienteRepository.findByEsReferidoTrue();
 		return referidos.stream()
 				.map(clienteMapper::toResponse)
 				.collect(Collectors.toList());	
 	}
 	
-	public ClienteResponse obtenerClientePorID(Long id) {
-		Cliente cliente = clienteRepository.findByIdAndEsReferidoFalse(id)
+	public TitularResponse obtenerClientePorID(Long id) {
+		Titular cliente = clienteRepository.findByIdAndEsReferidoFalse(id)
 				.orElseThrow( () -> new EntityNotFoundException("Cliente con id: " + id + " no encontrado"));
 		return clienteMapper.toResponse(cliente);	
 	}
 	
-	public Cliente obtenerEntidadPorID(Long id) {
+	public Titular obtenerEntidadPorID(Long id) {
 		return clienteRepository.findByIdAndEsReferidoFalse(id)
 				.orElseThrow( () -> new EntityNotFoundException("Cliente con id: " + id + " no encontrado"));		
 	}
 	
-	public ClienteResponse obtenerReferidoPorID(Long id) {
-		Cliente referidos = clienteRepository.findByIdAndEsReferidoTrue(id)
+	public TitularResponse obtenerReferidoPorID(Long id) {
+		Titular referidos = clienteRepository.findByIdAndEsReferidoTrue(id)
 				.orElseThrow( () -> new EntityNotFoundException("Cliente con id: " + id + " no encontrado"));
 		return clienteMapper.toResponse(referidos);
 	}
 	
-	public Cliente obtenerClientePorNombre(String nombre) {
+	public Titular obtenerClientePorNombre(String nombre) {
 		return clienteRepository.findByNombre(nombre)
 				.orElseThrow( () -> new EntityNotFoundException("Cliente con nombre: " + nombre + " no encontrado"));
 	}
 	
 	@Transactional
-	public ClienteResponse crearCliente(ClienteRequest clienteRequest) {	
-		verificarNombreUnico(clienteRequest.getNombre());				
-	    Cliente cliente = clienteMapper.toEntity(clienteRequest);
-	    // Inicializar los saldos con BigDecimal.ZERO para todas las monedas
+	public TitularResponse crearCliente(TitularRequest clienteRequest) {	
+	    verificarNombreUnico(clienteRequest.getNombre());				
+	    
+	    Titular cliente = clienteMapper.toEntityCliente(clienteRequest);
+	    
+	    // Obtener todas las monedas desde la base de datos
+	    List<Moneda> monedas = monedaService.listarTodas(); 
+
+	    // Inicializar los saldos con BigDecimal.ZERO para cada moneda
 	    Map<Moneda, BigDecimal> saldosIniciales = new HashMap<>();
-	    for (Moneda moneda : Moneda.values()) {
+	    for (Moneda moneda : monedas) {
 	        saldosIniciales.put(moneda, BigDecimal.ZERO);
 	    }
+
 	    CuentaCorriente cuentaCorriente = CuentaCorriente.builder()
-	            .cliente(cliente)
+	            .titular(cliente)
 	            .saldos(saldosIniciales)
 	            .build();
 
 	    cliente.setCuentaCorriente(cuentaCorriente);
-	    Cliente savedCliente = clienteRepository.save(cliente);
+	    Titular savedCliente = clienteRepository.save(cliente);
+	    
 	    return clienteMapper.toResponse(savedCliente);
 	}
 
+
 	
 	@Transactional
-	public ClienteResponse crearReferido(ClienteRequest clienteRequest) {
-		Cliente cliente = clienteMapper.toEntityReferido(clienteRequest);
+	public TitularResponse crearReferido(TitularRequest clienteRequest) {
+		verificarNombreUnico(clienteRequest.getNombre());	
 		
+		Titular cliente = clienteMapper.toEntityReferido(clienteRequest);
+		
+		// Obtener todas las monedas desde la base de datos
+	    List<Moneda> monedas = monedaService.listarTodas(); 
+
+	    // Inicializar los saldos con BigDecimal.ZERO para cada moneda
 	    Map<Moneda, BigDecimal> saldosIniciales = new HashMap<>();
-	    for (Moneda moneda : Moneda.values()) {
+	    for (Moneda moneda : monedas) {
 	        saldosIniciales.put(moneda, BigDecimal.ZERO);
 	    }
 
 	    CuentaCorriente cuentaCorriente = CuentaCorriente.builder()
-	            .cliente(cliente)
+	            .titular(cliente)
 	            .saldos(saldosIniciales)
 	            .build();
 		
 		 cliente.setCuentaCorriente(cuentaCorriente);
 		
-		Cliente savedCliente = clienteRepository.save(cliente);
+		Titular savedCliente = clienteRepository.save(cliente);
 		return clienteMapper.toResponse(savedCliente);	
 	}
 		
 	
 	@Transactional
-	public ClienteResponse actualizarCliente(Long id, ClienteRequest clienteRequest) {
-	    Cliente cliente = clienteRepository.findById(id)
+	public TitularResponse actualizarCliente(Long id, TitularRequest clienteRequest) {
+	    Titular cliente = clienteRepository.findById(id)
 	        .orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado"));
 
 	    cliente.setNombre(clienteRequest.getNombre());
@@ -127,7 +142,7 @@ public class ClienteService {
 	}
 	
 	public void eliminarCliente(Long id) {
-	    Cliente cliente = clienteRepository.findById(id)
+	    Titular cliente = clienteRepository.findById(id)
 	        .orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado"));
 
 	   if (operacionRepository.existsByCuentaCorrienteId(cliente.getCuentaCorriente().getId())){

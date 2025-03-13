@@ -4,21 +4,15 @@ package com.thames.finance_app.dtos;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import com.thames.finance_app.enums.Moneda;
 import com.thames.finance_app.enums.TipoMovimiento;
+import com.thames.finance_app.models.Moneda;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 @Builder
-public class MovimientoCtaCteResponse {
+public class MovimientoCtaCteDTO {
    
 	private Long id;
     private TipoMovimiento tipo;

@@ -1,12 +1,6 @@
 package com.thames.finance_app.models;
 
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-
-import com.thames.finance_app.enums.Moneda;
-
-
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,32 +10,32 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Table(name = "tipo_de_cambio")
+@Table(name = "monedas")
+@Setter
+@Getter
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TipoDeCambio {
-	
+public class Moneda {
 	@Id
 	@GeneratedValue(
 			strategy = GenerationType.SEQUENCE,
-			generator = "tipo_de_cambio_generator")
+			generator = "moneda_generator")
 	@SequenceGenerator (
-			name = "tipo_de_cambio_generator",
-			sequenceName = "tipo_de_cambio_sequence",
+			name = "moneda_generator",
+			sequenceName = "moneda_sequence",
 			allocationSize = 1)
 	private Long id;
-
-	private Moneda moneda;
 	
-	private BigDecimal valorCompra;
+	private String nombre;
 	
-	private BigDecimal valorVenta;
-	
-	private LocalDateTime ultimaActualizacion;
+	@Column(unique = true, nullable = false)
+    private String codigo; // USD, EUR, ARS, BRL.
 	
 }

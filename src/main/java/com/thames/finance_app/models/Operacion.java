@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ArrayList;
 
-import com.thames.finance_app.enums.Moneda;
 import com.thames.finance_app.enums.TipoOperacion;
 
 import jakarta.persistence.CascadeType;
@@ -56,18 +55,19 @@ public class Operacion {
     @JoinColumn(name = "cuenta_corriente_id", nullable = false)
     private CuentaCorriente cuentaCorriente; 
 	
-	@Enumerated(EnumType.STRING)
+	@ManyToOne
+	@JoinColumn(name = "moneda_origen_id", nullable = false)
 	private Moneda monedaOrigen; // USD, PESO, EURO, REAL, CRYPTO	
+	
 	private BigDecimal montoOrigen;	
 	
 	private BigDecimal valorTipoCambio;
 	
-//	private TipoDeCambio tipoDeCambio;
-	
-	@Enumerated(EnumType.STRING)
+	@ManyToOne
+	@JoinColumn(name = "moneda_conversion_id", nullable = false)
 	private Moneda monedaConversion;
 	
-//	private BigDecimal montoConversion;
+	private BigDecimal montoConversion;
   
 	@Builder.Default
 	@OneToMany(mappedBy = "operacion", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -83,7 +83,8 @@ public class Operacion {
 	
 	private BigDecimal puntosReferido;
 	
-	@Enumerated(EnumType.STRING)
+	@ManyToOne
+	@JoinColumn(name = "moneda_referido_id", nullable = true)
 	private Moneda monedaReferido; 
 	
 //	private BigDecimal gananciaReferido;
@@ -116,9 +117,9 @@ public class Operacion {
 		return false;
 	}
 	
-	public BigDecimal getMontoConversion() {
-		return this.montoOrigen.multiply(this.valorTipoCambio);		
-	}
+//	public BigDecimal getMontoConversion() {
+//		return this.montoOrigen.multiply(this.valorTipoCambio);		
+//	}
 	
 	public BigDecimal getGananciaReferido(BigDecimal monto) {
 		return monto.multiply(puntosReferido);

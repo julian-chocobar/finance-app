@@ -4,19 +4,13 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
-import com.thames.finance_app.enums.Moneda;
 import com.thames.finance_app.models.CuentaCorriente.CuentaCorrienteBuilder;
+import com.thames.finance_app.models.Moneda;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 @Builder
 public class CtaCteResponse {
     private Long id;
@@ -25,10 +19,9 @@ public class CtaCteResponse {
     private BigDecimal saldoDolar;
     private BigDecimal saldoEuro;
     private BigDecimal saldoReal;
-    private BigDecimal saldoCrypto;
-    
+    private BigDecimal saldoCrypto;  
     private Map<Moneda, BigDecimal> saldoPorMoneda;
-    private List<MovimientoCtaCteResponse> movimientos;
+    private List<MovimientoCtaCteDTO> movimientos;
     private long totalMovimientos;
     private int totalPaginas;
     

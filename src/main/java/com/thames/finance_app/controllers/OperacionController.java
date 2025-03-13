@@ -5,9 +5,11 @@ import org.springframework.web.bind.annotation.*;
 
 import com.thames.finance_app.dtos.OperacionRequest;
 import com.thames.finance_app.dtos.OperacionResponse;
-import com.thames.finance_app.enums.Moneda;
+import com.thames.finance_app.dtos.PagoDTO;
 import com.thames.finance_app.enums.TipoOperacion;
+import com.thames.finance_app.models.Moneda;
 import com.thames.finance_app.models.Operacion;
+import com.thames.finance_app.services.MonedaService;
 import com.thames.finance_app.services.OperacionService;
 import com.thames.finance_app.specifications.OperacionSpecification;
 
@@ -28,6 +30,7 @@ import org.springframework.data.jpa.domain.Specification;
 public class OperacionController {
 
     private final OperacionService operacionService;
+    private final MonedaService monedaService;
 
     @PostMapping
     public ResponseEntity<OperacionResponse> crearOperacion(@Valid @RequestBody OperacionRequest request) {
@@ -53,7 +56,7 @@ public class OperacionController {
         return ResponseEntity.noContent().build();
     }
     
-
+    @GetMapping("/listado")
     public ResponseEntity<Page<OperacionResponse>> listarOperaciones(
             @RequestParam(required = false) String fechaInicio,
             @RequestParam(required = false) String fechaFin,
@@ -63,21 +66,25 @@ public class OperacionController {
             @RequestParam(required = false) Long clienteId,
             Pageable pageable) {
 
-        // Parsear los parámetros
+        // Parseo de parámetros
         LocalDateTime fechaInicioParsed = operacionService.parsearFecha(fechaInicio);
         LocalDateTime fechaFinParsed = operacionService.parsearFecha(fechaFin);
         BigDecimal montoParsed = (monto != null) ? new BigDecimal(monto) : null;
-        Moneda monedaParsed = (moneda != null) ? Moneda.valueOf(moneda) : null;
         TipoOperacion tipoParsed = (tipo != null) ? TipoOperacion.valueOf(tipo) : null;
+
+        // Buscar la moneda si está presente
+        Moneda monedaParsed = null;
+        if (moneda != null && !moneda.isEmpty()) {
+            monedaParsed = monedaService.buscarPorNombre(moneda);        }
 
         // Crear la Specification usando OperacionSpecification
         Specification<Operacion> spec = OperacionSpecification.filtrarPorParametros(
-            fechaInicioParsed,
-            fechaFinParsed,
-            montoParsed,
-            monedaParsed,
-            tipoParsed,
-            clienteId
+                fechaInicioParsed,
+                fechaFinParsed,
+                montoParsed,
+                monedaParsed,
+                tipoParsed,
+                clienteId
         );
 
         // Llamar al servicio con la Specification y el Pageable
@@ -86,5 +93,40 @@ public class OperacionController {
         return ResponseEntity.ok(operaciones);
     }
 
+    @PatchMapping("/{id}/monto-origen")
+    public ResponseEntity<OperacionResponse> cambiarMontoOrigen(@PathVariable Long id, @RequestBody OperacionRequest request) {
+        OperacionResponse response = operacionService.cambiarMontoOrigen(id, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{id}/cliente")
+    public ResponseEntity<OperacionResponse> cambiarCliente(@PathVariable Long id, @RequestBody OperacionRequest request) {
+        OperacionResponse response = operacionService.cambiarCliente(id, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{id}/pagos/origen")
+    public ResponseEntity<OperacionResponse> agregarPagoOrigen(@PathVariable Long id, @RequestBody PagoDTO pagoRequest) {
+        OperacionResponse response = operacionService.agregarPagoOrigen(id, pagoRequest);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}/pagos/origen")
+    public ResponseEntity<OperacionResponse> quitarPagoOrigen(@PathVariable Long id, @RequestBody PagoDTO pagoRequest) {
+        OperacionResponse response = operacionService.quitarPagoOrigen(id, pagoRequest);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{id}/pagos/conversion")
+    public ResponseEntity<OperacionResponse> agregarPagoConversion(@PathVariable Long id, @RequestBody PagoDTO pagoRequest) {
+        OperacionResponse response = operacionService.agregarPagoConversion(id, pagoRequest);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}/pagos/conversion")
+    public ResponseEntity<OperacionResponse> quitarPagoConversion(@PathVariable Long id, @RequestBody PagoDTO pagoRequest) {
+        OperacionResponse response = operacionService.quitarPagoConversion(id, pagoRequest);
+        return ResponseEntity.ok(response);
+    }
 }
 

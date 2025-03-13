@@ -2,8 +2,8 @@ package com.thames.finance_app.specifications;
 
 import org.springframework.data.jpa.domain.Specification;
 
-import com.thames.finance_app.enums.Moneda;
 import com.thames.finance_app.enums.TipoOperacion;
+import com.thames.finance_app.models.Moneda;
 import com.thames.finance_app.models.Operacion;
 
 import jakarta.persistence.criteria.*;

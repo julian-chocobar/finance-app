@@ -4,24 +4,24 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.ArrayList;
 
-import com.thames.finance_app.enums.Moneda;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Table(name = "cajas")
@@ -41,14 +41,16 @@ public class Caja {
 			name = "caja_generator",
 			sequenceName = "caja_sequence",
 			allocationSize = 1)
-	
 	private Long id;
 	
 	private BigDecimal saldoReal;
 	
 	private BigDecimal saldoDisponible;
 	
-	@Enumerated(EnumType.STRING)
+	@OneToOne
+    @JoinColumn(name = "moneda_id")
+    @ToString.Exclude // Excluye esta propiedad del método toString()
+    @EqualsAndHashCode.Exclude // Excluye esta propiedad del hashCode() y equals()
 	private Moneda moneda;
 	
 	@Builder.Default

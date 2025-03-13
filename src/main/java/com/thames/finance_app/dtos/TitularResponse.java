@@ -3,14 +3,14 @@ package com.thames.finance_app.dtos;
 import java.math.BigDecimal;
 import java.util.Map;
 
-import com.thames.finance_app.enums.Moneda;
+import com.thames.finance_app.models.Moneda;
 
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
-public class ClienteResponse {
+public class TitularResponse {
 	private Long id;
     private String nombre;
     private String telefono;

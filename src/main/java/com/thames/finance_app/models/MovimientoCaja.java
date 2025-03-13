@@ -13,7 +13,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -51,7 +50,7 @@ public class MovimientoCaja {
     @JoinColumn(name = "caja_id", nullable = true)
     private Caja caja;
 	
-	@OneToOne
+	@ManyToOne
     @JoinColumn(name = "operacion_id", nullable = true)
     private Operacion operacion;
 	

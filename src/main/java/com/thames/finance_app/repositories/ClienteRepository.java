@@ -5,21 +5,21 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.thames.finance_app.models.Cliente;
+import com.thames.finance_app.models.Titular;
 
-public interface ClienteRepository extends JpaRepository<Cliente, Long> {
-
-    
-    List<Cliente> findByEsReferidoFalse();  // clientes
+public interface ClienteRepository extends JpaRepository<Titular, Long> {
 
     
-    List<Cliente> findByEsReferidoTrue(); // referidos
+    List<Titular> findByEsReferidoFalse();  // clientes
+
+    
+    List<Titular> findByEsReferidoTrue(); // referidos
 
   
-    Optional<Cliente> findByIdAndEsReferidoFalse(Long id);   // por ID cliente
+    Optional<Titular> findByIdAndEsReferidoFalse(Long id);   // por ID cliente
 
-    Optional<Cliente> findByIdAndEsReferidoTrue(Long id); // por ID referido
+    Optional<Titular> findByIdAndEsReferidoTrue(Long id); // por ID referido
     
-    Optional <Cliente> findByNombre(String name);
+    Optional <Titular> findByNombre(String name);
 
 }

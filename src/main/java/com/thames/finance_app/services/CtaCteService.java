@@ -8,21 +8,20 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.thames.finance_app.dtos.CtaCteRequest;
 import com.thames.finance_app.dtos.CtaCteResponse;
-import com.thames.finance_app.dtos.MovimientoCtaCteResponse;
-import com.thames.finance_app.enums.Moneda;
+import com.thames.finance_app.dtos.MovimientoCtaCteDTO;
 import com.thames.finance_app.enums.TipoMovimiento;
 import com.thames.finance_app.enums.TipoOperacion;
 import com.thames.finance_app.exceptions.BusinessException;
 import com.thames.finance_app.mappers.CtaCteMapper;
 import com.thames.finance_app.models.Caja;
-import com.thames.finance_app.models.Cliente;
 import com.thames.finance_app.models.CuentaCorriente;
+import com.thames.finance_app.models.Moneda;
 import com.thames.finance_app.models.MovimientoCtaCte;
 import com.thames.finance_app.models.Operacion;
 import com.thames.finance_app.repositories.CtaCteRepository;
 import com.thames.finance_app.repositories.MovimientoCtaCteRepository;
+import com.thames.finance_app.repositories.OperacionRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -33,10 +32,14 @@ public class CtaCteService {
 
     private final CtaCteRepository ctaCteRepository;
     private final MovimientoCtaCteRepository movimientoCtaCteRepository;
-    private final ClienteService clienteService;
+	private final OperacionRepository operacionRepository;
     private final CajaService cajaService;
     private final MovimientoCtaCteService movimientoCtaCteService;
     private final CtaCteMapper ctaCteMapper;
+    
+    public Page<MovimientoCtaCte> listarMovimientos(Pageable pageable) {
+        return movimientoCtaCteRepository.findAllOrderByFechaDesc(pageable);
+    }
 
     public CtaCteResponse obtenerResponsePorId(Long cuentaId) {
         CuentaCorriente cuenta = ctaCteRepository.findById(cuentaId)
@@ -61,36 +64,58 @@ public class CtaCteService {
                 .orElseThrow(() -> new BusinessException("Cuenta Corriente no encontrada para el cliente"));
     }
  
-    @Transactional
-    public CtaCteResponse crearCuentaCorriente(CtaCteRequest request) {
-    	Cliente cliente = clienteService.obtenerEntidadPorID(request.getClienteId());
-    	 
-        if (ctaCteRepository.existsByClienteId(cliente.getId())) {
-            throw new BusinessException("El cliente ya tiene una cuenta corriente");
-        }
-
-        CuentaCorriente cuentaCorriente = new CuentaCorriente();
-        cuentaCorriente.setCliente(cliente);
-        ctaCteRepository.save(cuentaCorriente);
-
-        return ctaCteMapper.toResponse2(cuentaCorriente, Page.empty());
-    }
-
-
     public void eliminarCuenta(Long cuentaId) {
         CuentaCorriente cuenta = ctaCteRepository.findById(cuentaId)
                 .orElseThrow(() -> new BusinessException("Cuenta Corriente no encontrada"));
+        if (operacionRepository.existsByCuentaCorriente(cuenta)) {
+            throw new RuntimeException("No se puede eliminar la cuenta porque está asociada a operaciones.");
+        }
+     // Verificar que todos los saldos de la cuenta estén en 0
+        boolean tieneSaldosPendientes = cuenta.getSaldos().values().stream()
+                .anyMatch(saldo -> saldo.compareTo(BigDecimal.ZERO) != 0);
+
+        if (tieneSaldosPendientes) {
+            throw new BusinessException("No se puede eliminar la cuenta porque tiene saldos pendientes en una o más monedas.");
+        }
         ctaCteRepository.delete(cuenta);
     }
     
 
-    public Page<MovimientoCtaCteResponse> obtenerMovimientos(Long cuentaId, LocalDate fechaDesde, LocalDate fechaHasta,
+    public Page<MovimientoCtaCteDTO> obtenerMovimientos(Long cuentaId, LocalDate fechaDesde, LocalDate fechaHasta,
             LocalDate fechaExacta, BigDecimal monto,
             Moneda moneda, TipoMovimiento tipo,
             Pageable pageable) {
 		Page<MovimientoCtaCte> movimientos = filtrarMovimientos(cuentaId, fechaExacta, fechaDesde, fechaHasta, monto, moneda, tipo, pageable);
 		return movimientos.map(ctaCteMapper::toMovimientoResponse);
 	}
+    
+    public Page<MovimientoCtaCteDTO> obtenerTodosLosMovimientos(
+            LocalDate fechaExacta,
+            LocalDate fechaDesde,
+            LocalDate fechaHasta,
+            BigDecimal monto,
+            Moneda moneda,
+            TipoMovimiento tipo,
+            Pageable pageable) {
+        
+        Page<MovimientoCtaCte> movimientos = filtrarTodosLosMovimientos(
+            fechaExacta, fechaDesde, fechaHasta, monto, moneda, tipo, pageable);
+        
+        return movimientos.map(ctaCteMapper::toMovimientoResponse);
+    }
+    
+    public Page<MovimientoCtaCte> filtrarTodosLosMovimientos(
+            LocalDate fechaExacta,
+            LocalDate fechaDesde,
+            LocalDate fechaHasta,
+            BigDecimal monto,
+            Moneda moneda,
+            TipoMovimiento tipoMovimiento,
+            Pageable pageable) {
+        
+        return movimientoCtaCteRepository.filtrarMovimientos(
+            fechaExacta, fechaDesde, fechaHasta, monto, moneda, tipoMovimiento, pageable);
+    }
     
     public BigDecimal obtenerSaldoPorMoneda(CuentaCorriente cuenta, Moneda moneda) {
     	return cuenta.getSaldoPorMoneda(moneda);
@@ -187,6 +212,21 @@ public class CtaCteService {
         movimientoCtaCteService.revertirRegistroMovimientoReferido(operacion);
         ctaCteRepository.save(cuentaReferido);
     }
+
+	public CtaCteResponse actualizarSaldos(Long id, BigDecimal monto, Moneda moneda, TipoMovimiento tipo) {
+		CuentaCorriente cuenta = ctaCteRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("Cuenta Corriente no encontrada"));
+	    BigDecimal saldoActual = cuenta.getSaldoPorMoneda(moneda);
+	    if (tipo == TipoMovimiento.INGRESO) {
+		    cuenta.setSaldoPorMoneda(moneda, saldoActual.add(monto));
+
+	    }else {
+		    cuenta.setSaldoPorMoneda(moneda, saldoActual.subtract(monto));
+	    }
+	    ctaCteRepository.save(cuenta);
+	    return ctaCteMapper.toResponse(cuenta);	
+	    		
+	}
 
    
 }

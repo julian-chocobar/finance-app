@@ -1,12 +1,16 @@
 package com.thames.finance_app.services;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.thames.finance_app.enums.Moneda;
+import com.thames.finance_app.dtos.CajaDTO;
 import com.thames.finance_app.enums.TipoOperacion;
+import com.thames.finance_app.mappers.CajaMapper;
 import com.thames.finance_app.models.Caja;
+import com.thames.finance_app.models.Moneda;
 import com.thames.finance_app.models.Operacion;
 import com.thames.finance_app.repositories.CajaRepository;
 
@@ -19,6 +23,15 @@ public class CajaService {
 	
 	private final CajaRepository cajaRepository;
     private final MovimientoCajaService movimientoCajaService;
+    private final CajaMapper cajaMapper;
+    
+
+	public List<CajaDTO> obtenerCajas() {		
+		List<Caja> cajas = cajaRepository.findAll();
+		return cajas.stream()
+				.map(cajaMapper::toDTO)
+				.collect(Collectors.toList());
+	}
 	
     public void impactoOperacion(Operacion operacion) {
     	Caja cajaOrigen = cajaRepository.findByMoneda(operacion.getMonedaOrigen())
@@ -94,6 +107,8 @@ public class CajaService {
 	public Caja obtenerPorMoneda(Moneda moneda) {
 		return cajaRepository.findByMoneda(moneda).orElseThrow(() -> new RuntimeException("Caja no encontrada"));
 	}
+
+
 
 
 		

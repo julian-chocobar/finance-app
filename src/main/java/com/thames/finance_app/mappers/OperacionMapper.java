@@ -12,9 +12,8 @@ import com.thames.finance_app.enums.TipoOperacion;
 import com.thames.finance_app.enums.TipoPago;
 import com.thames.finance_app.models.CuentaCorriente;
 import com.thames.finance_app.models.Operacion;
-import com.thames.finance_app.models.TipoDeCambio;
 import com.thames.finance_app.services.ClienteService;
-import com.thames.finance_app.services.TipoDeCambioService;
+import com.thames.finance_app.services.TipoCambioService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,60 +22,49 @@ import lombok.RequiredArgsConstructor;
 public class OperacionMapper {
 	
 	private final ClienteService clienteService;
-	private final TipoDeCambioService  tipoDeCambioService;
+	private final TipoCambioService tipoCambioService;
 	private final PagoMapper pagoMapper;
 	
     public Operacion toEntity(OperacionRequest request) {   
     	CuentaCorriente cuentaCliente = clienteService
 				.obtenerClientePorNombre(request
 				.getNombreCliente()).getCuentaCorriente();
-    	CuentaCorriente cuentaReferido = Optional.ofNullable(clienteService
-									.obtenerClientePorNombre(request
-									.getNombreReferido())
-									.getCuentaCorriente()).orElse(null);
-    	TipoDeCambio tipoDeCambio = tipoDeCambioService.obtenerPorMoneda(request.getMonedaOrigen());
-    	BigDecimal valorTipoDeCambio;
-    	if (request.getTipo()==TipoOperacion.COMPRA) {
-    		valorTipoDeCambio = tipoDeCambio.getValorCompra();
-    	}else {
-    		valorTipoDeCambio = tipoDeCambio.getValorVenta();
-    	}
     	
-    	return Operacion.builder()
+    	Operacion operacion = Operacion.builder()
                 .fecha(LocalDateTime.now())
                 .tipo(request.getTipo())
                 .cuentaCorriente(cuentaCliente)
                 .monedaOrigen(request.getMonedaOrigen())
                 .montoOrigen(request.getMontoOrigen())
                 .monedaConversion(request.getMonedaConversion())
-//                .montoConversion(request.getMontoConversion())
-                .valorTipoCambio(valorTipoDeCambio)
-                .cuentaCorrienteReferido(cuentaReferido)
-                .puntosReferido(request.getPuntosReferido())
-                .monedaReferido(request.getMonedaReferido())
-//                .gananciaReferido(request.getPuntosReferido() != null ? request.getPuntosReferido().multiply(request.getMontoOrigen()) : BigDecimal.ZERO)
-                .pagosOrigen(pagoMapper.toPagoList(request.getPagosOrigen(), TipoPago.ORIGEN))
-                .pagosConversion(pagoMapper.toPagoList(request.getPagosConversion(), TipoPago.CONVERSION))
-                .build();   	
+                .montoConversion(tipoCambioService.convertirMoneda(request.getMonedaOrigen(), request.getMonedaConversion(),
+                												request.getMontoOrigen(),
+																request.getTipo() == TipoOperacion.COMPRA ? true : false ))
+                .valorTipoCambio(tipoCambioService.obtenerTipoCambio(request.getMonedaOrigen(), request.getMonedaConversion(),
+                												request.getTipo() == TipoOperacion.COMPRA ? true : false ))
+                .build();
+    	
+    	if(request.getNombreReferido() !=null) {      	
+        	CuentaCorriente cuentaReferido = Optional.ofNullable(clienteService
+					.obtenerClientePorNombre(request
+					.getNombreReferido())
+					.getCuentaCorriente()).orElse(null); 
+  
+        	operacion.setCuentaCorrienteReferido(cuentaReferido);
+        	operacion.setMonedaReferido(request.getMonedaReferido());
+        	operacion.setPuntosReferido(request.getPuntosReferido());      
+        }       
+    	
+    	return operacion;
     }
 		
     public OperacionResponse toResponse(Operacion operacion) {
     	
-    	String nombreCliente = operacion.getCuentaCorriente().getCliente().getNombre();
-    	String nombreReferido = operacion.getCuentaCorrienteReferido().getCliente().getNombre();
+    	String nombreCliente = operacion.getCuentaCorriente().getTitular().getNombre();
     	BigDecimal totalEjecutadoOrigen = operacion.getTotalPagosOrigen();
     	BigDecimal totalEjecutadoConversion = operacion.getTotalPagosConversion();
-    	
-    	TipoDeCambio tipoDeCambio = tipoDeCambioService.obtenerPorMoneda(operacion.getMonedaOrigen());
-    	BigDecimal valorTipoDeCambio;
-    	if (operacion.getTipo()==TipoOperacion.COMPRA) {
-    		valorTipoDeCambio = tipoDeCambio.getValorCompra();
-    	}else {
-    		valorTipoDeCambio = tipoDeCambio.getValorVenta();
-    	}
-    	
- 	
-        return OperacionResponse.builder()
+    	    	
+        OperacionResponse operacionResponse = OperacionResponse.builder()
                 .id(operacion.getId())
                 .fecha(operacion.getFecha())
                 .nombreCliente(nombreCliente)
@@ -85,30 +73,25 @@ public class OperacionMapper {
                 .montoOrigen(operacion.getMontoOrigen())
                 
                 .monedaConversion(operacion.getMonedaConversion())
-//                .montoConversion(operacion.getMontoConversion())
-                .valorTipoCambio(valorTipoDeCambio)
-                
-                .nombreReferido(nombreReferido != null ?
-                				nombreReferido : null)
-
-                .puntosReferido(
-                    operacion.getPuntosReferido() != null ? 
-                    operacion.getPuntosReferido() : null
-                )
-                .monedaReferido(
-                    operacion.getMonedaReferido() != null ? 
-                    operacion.getMonedaReferido() : null
-                )
-                .gananciaReferido(
-                    operacion.getGananciaReferido(operacion.getMontoOrigen())!= null ? 
-                    operacion.getGananciaReferido(operacion.getMontoOrigen()) : null
-                )
+                .montoConversion(operacion.getMontoConversion())
+                .valorTipoCambio(tipoCambioService.obtenerTipoCambio(operacion.getMonedaOrigen(), operacion.getMonedaConversion(),
+						operacion.getTipo() == TipoOperacion.COMPRA ? true : false ))
                 .pagosOrigen(pagoMapper.toPagoResponseList(operacion.getPagosOrigen()))
                 .totalPagosOrigen(totalEjecutadoOrigen)
                 
                 .pagosConversion(pagoMapper.toPagoResponseList(operacion.getPagosConversion()))
                 .totalPagosConversion(totalEjecutadoConversion)
                 .build();
+        
+        if (operacion.getCuentaCorrienteReferido() != null) {
+        	String nombreReferido = operacion.getCuentaCorrienteReferido().getTitular().getNombre();
+        	operacionResponse.setNombreReferido(nombreReferido);
+        	operacionResponse.setPuntosReferido(operacion.getPuntosReferido());
+        	operacionResponse.setMonedaReferido(operacion.getMonedaReferido());
+        	operacionResponse.setGananciaReferido(operacion.getMontoOrigen());
+        	
+        }
+        return operacionResponse;
     }
 
    
@@ -120,21 +103,15 @@ public class OperacionMapper {
     														.obtenerClientePorNombre(request
     														.getNombreReferido())
     														.getCuentaCorriente()).orElse(null);
-    	
-    	TipoDeCambio tipoDeCambio = tipoDeCambioService.obtenerPorMoneda(request.getMonedaOrigen());
-    	BigDecimal valorTipoDeCambio;
-    	if (request.getTipo()==TipoOperacion.COMPRA) {
-    		valorTipoDeCambio = tipoDeCambio.getValorCompra();
-    	}else {
-    		valorTipoDeCambio = tipoDeCambio.getValorVenta();
-    	}
-    	
         operacion.setTipo(request.getTipo());
         operacion.setMonedaOrigen(request.getMonedaOrigen());
         operacion.setMontoOrigen(request.getMontoOrigen());
         operacion.setMonedaConversion(request.getMonedaConversion());
-//        operacion.setMontoConversion(request.getMontoConversion());
-        operacion.setValorTipoCambio(valorTipoDeCambio);
+        operacion.setMontoConversion(tipoCambioService.convertirMoneda(request.getMonedaOrigen(), request.getMonedaConversion(),
+																		request.getMontoOrigen(),
+																		request.getTipo() == TipoOperacion.COMPRA ? true : false ));
+        operacion.setValorTipoCambio(tipoCambioService.obtenerTipoCambio(request.getMonedaOrigen(), request.getMonedaConversion(),
+														request.getTipo() == TipoOperacion.COMPRA ? true : false ));
         operacion.setCuentaCorriente(cuentaCliente);
         operacion.setCuentaCorrienteReferido(cuentaReferido);
         operacion.setPuntosReferido(request.getPuntosReferido());

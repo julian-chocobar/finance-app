@@ -4,17 +4,18 @@ import java.util.HashMap;
 
 import org.springframework.stereotype.Component;
 
-import com.thames.finance_app.dtos.ClienteRequest;
-import com.thames.finance_app.dtos.ClienteResponse;
-import com.thames.finance_app.models.Cliente;
+import com.thames.finance_app.dtos.TitularRequest;
+import com.thames.finance_app.dtos.TitularResponse;
+import com.thames.finance_app.enums.TipoTitular;
+import com.thames.finance_app.models.Titular;
 import com.thames.finance_app.models.CuentaCorriente;
 
 @Component
-public class ClienteMapper {
+public class TitularMapper {
 	
-	public Cliente toEntity(ClienteRequest request) {
-        return Cliente.builder()
-        		.esReferido(false)
+	public Titular toEntityCliente(TitularRequest request) {
+        return Titular.builder()
+        		.tipo(TipoTitular.CLIENTE)
                 .nombre(request.getNombre())
                 .telefono(request.getTelefono())
                 .email(request.getEmail())
@@ -22,9 +23,9 @@ public class ClienteMapper {
                 .build();
     }
 	
-	public Cliente toEntityReferido(ClienteRequest request) {
-        return Cliente.builder()
-        		.esReferido(true)
+	public Titular toEntityReferido(TitularRequest request) {
+        return Titular.builder()
+        		.tipo(TipoTitular.REFERIDO)
                 .nombre(request.getNombre())
                 .telefono(request.getTelefono())
                 .email(request.getEmail())
@@ -32,10 +33,10 @@ public class ClienteMapper {
                 .build();
     }
 
-	public ClienteResponse toResponse(Cliente cliente) {
+	public TitularResponse toResponse(Titular cliente) {
 	    CuentaCorriente cuenta = cliente.getCuentaCorriente();
 
-	    return ClienteResponse.builder()
+	    return TitularResponse.builder()
 	            .id(cliente.getId())
 	            .nombre(cliente.getNombre())
 	            .telefono(cliente.getTelefono())
@@ -47,7 +48,7 @@ public class ClienteMapper {
 	}
 
 
-	public void updateEntity(Cliente clienteExistente, ClienteRequest clienteRequest) {
+	public void updateEntity(Titular clienteExistente, TitularRequest clienteRequest) {
 			
 	}
 }

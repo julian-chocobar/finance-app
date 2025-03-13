@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.thames.finance_app.dtos.OperacionRequest;
 import com.thames.finance_app.models.Operacion;
 import com.thames.finance_app.models.Pago;
 import com.thames.finance_app.repositories.PagoRepository;
@@ -16,6 +17,12 @@ public class PagoService {
 	
 	private final PagoRepository pagoRepository;
 		
+	
+	public void agregarPagosOperacion(OperacionRequest request) {
+		
+		
+	}
+	
 	public void guardarPago(Pago pago) {
 		pagoRepository.save(pago);
 	}
@@ -44,5 +51,7 @@ public class PagoService {
 	public void eliminarPago(Pago pago) {
 		pagoRepository.delete(pago);
 	}
+
+
 
 }

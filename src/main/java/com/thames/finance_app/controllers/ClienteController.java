@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.thames.finance_app.dtos.ClienteRequest;
-import com.thames.finance_app.dtos.ClienteResponse;
+import com.thames.finance_app.dtos.TitularRequest;
+import com.thames.finance_app.dtos.TitularResponse;
 import com.thames.finance_app.services.ClienteService;
 
 
@@ -26,26 +26,26 @@ public class ClienteController {
 	@Autowired
 	private ClienteService clienteService;
 	
-	@GetMapping("/clientes")
-	public ResponseEntity<List<ClienteResponse>> obtenerTodos() {
-        List<ClienteResponse> products = clienteService.obtenerTodosClientes();
+	@GetMapping("/todos")
+	public ResponseEntity<List<TitularResponse>> obtenerTodos() {
+        List<TitularResponse> products = clienteService.obtenerTodosClientes();
         return ResponseEntity.ok(products);
     }
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<ClienteResponse> obtenerPorID(@PathVariable Long id){
-		ClienteResponse cliente = clienteService.obtenerClientePorID(id);
+	public ResponseEntity<TitularResponse> obtenerPorID(@PathVariable Long id){
+		TitularResponse cliente = clienteService.obtenerClientePorID(id);
 		return ResponseEntity.ok(cliente);	
 	}
 	
 	@PostMapping
-    public ResponseEntity<ClienteResponse> crearCliente(@RequestBody ClienteRequest clienteRequest) {
-        ClienteResponse clienteResponse = clienteService.crearCliente(clienteRequest);
+    public ResponseEntity<TitularResponse> crearCliente(@RequestBody TitularRequest clienteRequest) {
+        TitularResponse clienteResponse = clienteService.crearCliente(clienteRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(clienteResponse);
     }
 	
 	 @PutMapping("/{id}")
-	 public ResponseEntity<ClienteResponse> actualizarCliente(@PathVariable Long id, @RequestBody ClienteRequest clienteRequest){
+	 public ResponseEntity<TitularResponse> actualizarCliente(@PathVariable Long id, @RequestBody TitularRequest clienteRequest){
 		 return ResponseEntity.ok(clienteService.actualizarCliente(id, clienteRequest));
 	 }
 	 
