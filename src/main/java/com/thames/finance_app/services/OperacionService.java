@@ -124,7 +124,7 @@ public class OperacionService {
                 .orElseThrow(() -> new RuntimeException("Operación no encontrada"));
     	
     	CuentaCorriente cuentaNueva = clienteService
-				.obtenerClientePorNombre(request
+				.obtenerPorNombre(request
 				.getNombreCliente()).getCuentaCorriente();
     	ctaCteService.revertirImpactoOperacion(operacion);
     	operacion.setCuentaCorriente(cuentaNueva);

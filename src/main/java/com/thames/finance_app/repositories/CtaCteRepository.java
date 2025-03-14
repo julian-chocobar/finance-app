@@ -11,9 +11,7 @@ import com.thames.finance_app.models.CuentaCorriente;
 @Repository
 public interface CtaCteRepository extends JpaRepository<CuentaCorriente, Long> {
 
-    Optional<CuentaCorriente> findByClienteId(Long clienteId);
+    Optional<CuentaCorriente> findByTitular(Titular titular);
 
-    boolean existsByCliente(Titular cliente);
-
-	boolean existsByClienteId(Long l);
+    boolean existsByTitular(Titular cliente);
 }

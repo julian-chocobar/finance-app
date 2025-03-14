@@ -28,30 +28,30 @@ public class ClienteController {
 	
 	@GetMapping("/todos")
 	public ResponseEntity<List<TitularResponse>> obtenerTodos() {
-        List<TitularResponse> products = clienteService.obtenerTodosClientes();
+        List<TitularResponse> products = clienteService.obtenerTodos();
         return ResponseEntity.ok(products);
     }
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<TitularResponse> obtenerPorID(@PathVariable Long id){
-		TitularResponse cliente = clienteService.obtenerClientePorID(id);
+		TitularResponse cliente = clienteService.obtenerPorID(id);
 		return ResponseEntity.ok(cliente);	
 	}
 	
 	@PostMapping
     public ResponseEntity<TitularResponse> crearCliente(@RequestBody TitularRequest clienteRequest) {
-        TitularResponse clienteResponse = clienteService.crearCliente(clienteRequest);
+        TitularResponse clienteResponse = clienteService.crear(clienteRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(clienteResponse);
     }
 	
 	 @PutMapping("/{id}")
 	 public ResponseEntity<TitularResponse> actualizarCliente(@PathVariable Long id, @RequestBody TitularRequest clienteRequest){
-		 return ResponseEntity.ok(clienteService.actualizarCliente(id, clienteRequest));
+		 return ResponseEntity.ok(clienteService.actualizar(id, clienteRequest));
 	 }
 	 
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> eliminarCliente(@PathVariable Long id) {
-		clienteService.eliminarCliente(id);
+		clienteService.eliminar(id);
 	    return ResponseEntity.noContent().build();
 	}	 
 	

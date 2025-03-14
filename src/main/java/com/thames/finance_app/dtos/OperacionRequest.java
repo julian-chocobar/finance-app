@@ -28,14 +28,14 @@ public class OperacionRequest {
     private String nombreCliente;
 
     @NotNull(message = "La moneda de origen es obligatoria.")
-    private Moneda monedaOrigen;
+    private String monedaOrigen;
 
     @NotNull(message = "El monto de origen es obligatorio.")
     @Positive(message = "El monto de origen debe ser mayor a cero.")
     private BigDecimal montoOrigen;
 
     @NotNull(message = "La moneda de conversión es obligatoria.")
-    private Moneda monedaConversion;
+    private String monedaConversion;
     
     private List<PagoDTO> pagosOrigen;
     

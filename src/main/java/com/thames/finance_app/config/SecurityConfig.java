@@ -24,6 +24,7 @@ public class SecurityConfig {
                 .requestMatchers("/clientes/**").permitAll()
                 .requestMatchers("/operaciones/**").permitAll()
                 .requestMatchers("/ctas-ctes/**").permitAll()
+                .requestMatchers("/cajas/**").permitAll()
                 
         );
 

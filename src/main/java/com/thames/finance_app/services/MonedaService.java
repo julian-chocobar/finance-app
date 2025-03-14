@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.thames.finance_app.dtos.MonedaDTO;
+import com.thames.finance_app.exceptions.BusinessException;
 import com.thames.finance_app.mappers.MonedaMapper;
 import com.thames.finance_app.models.CuentaCorriente;
 import com.thames.finance_app.models.Moneda;
@@ -37,10 +38,13 @@ public class MonedaService {
 	}
 	
     public MonedaDTO crearMoneda(MonedaDTO monedaDTO) {
+    	verificarNombreUnico(monedaDTO.getNombre());
         Moneda moneda = monedaMapper.toEntity(monedaDTO);
         moneda = monedaRepository.save(moneda);
         return monedaMapper.toDTO(moneda);
     }
+    
+    
 
     public MonedaDTO obtenerMonedaPorId(Long id) {
         Moneda moneda = monedaRepository.findById(id)
@@ -69,7 +73,7 @@ public class MonedaService {
                 .orElseThrow(() -> new RuntimeException("Moneda no encontrada con ID: " + id));
 
         // Verificar si la moneda está asociada a operaciones
-        if (operacionRepository.existsByMoneda(moneda)) {
+        if (operacionRepository.existsByMonedaOrigen(moneda) || operacionRepository.existsByMonedaConversion(moneda)) {
             throw new RuntimeException("No se puede eliminar la moneda porque está asociada a operaciones.");
         }
 
@@ -83,6 +87,16 @@ public class MonedaService {
         }
         // Si pasa las verificaciones, eliminar la moneda
         monedaRepository.deleteById(id);
+    }
+    
+    public boolean existeNombre(String nombre) {
+        return monedaRepository.findByNombre(nombre).isPresent();
+    }
+    
+    public void verificarNombreUnico(String nombre) {
+        if (existeNombre(nombre)) {
+            throw new BusinessException("Nombre ya registrado");
+        }
     }
 	
 	

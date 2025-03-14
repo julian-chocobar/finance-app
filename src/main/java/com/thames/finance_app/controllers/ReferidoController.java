@@ -16,41 +16,41 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.thames.finance_app.dtos.TitularRequest;
 import com.thames.finance_app.dtos.TitularResponse;
-import com.thames.finance_app.services.ClienteService;
+import com.thames.finance_app.services.ReferidoService;
 
 @RestController
 @RequestMapping("/referidos")
-public class ReferidosController {
+public class ReferidoController {
 	
 	@Autowired
-	private ClienteService clienteService;
+	private ReferidoService referidoService;
 	
 	@GetMapping("/referidos")
 	public ResponseEntity<List<TitularResponse>> obtenerTodos() {
-        List<TitularResponse> products = clienteService.obtenerTodosReferidos();
-        return ResponseEntity.ok(products);
+        List<TitularResponse> referidos = referidoService.obtenerTodosReferidos();
+        return ResponseEntity.ok(referidos);
     }
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<TitularResponse> obtenerPorID(@PathVariable Long id){
-		TitularResponse cliente = clienteService.obtenerReferidoPorID(id);
-		return ResponseEntity.ok(cliente);	
+		TitularResponse referido = referidoService.obtenerReferidoPorID(id);
+		return ResponseEntity.ok(referido);	
 	}
 	
 	@PostMapping("/referidos")
-	public ResponseEntity<TitularResponse> crearReferido(@RequestBody TitularRequest clienteRequest) {
-	    TitularResponse clienteResponse = clienteService.crearReferido(clienteRequest);
-	    return ResponseEntity.status(HttpStatus.CREATED).body(clienteResponse);
+	public ResponseEntity<TitularResponse> crearReferido(@RequestBody TitularRequest rederidoRequest) {
+	    TitularResponse referidoResponse = referidoService.crearReferido(rederidoRequest);
+	    return ResponseEntity.status(HttpStatus.CREATED).body(referidoResponse);
 	}
 	
 	 @PutMapping("/{id}")
-	 public ResponseEntity<TitularResponse> actualizarReferido(@PathVariable Long id, @RequestBody TitularRequest clienteRequest) {
-		 return ResponseEntity.ok(clienteService.actualizarCliente(id, clienteRequest));
+	 public ResponseEntity<TitularResponse> actualizarReferido(@PathVariable Long id, @RequestBody TitularRequest rederidoRequest) {
+		 return ResponseEntity.ok(referidoService.actualizar(id, rederidoRequest));
 	 }
 
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> eliminarReferido(@PathVariable Long id) {
-		clienteService.eliminarCliente(id);
+		referidoService.eliminar(id);
 	    return ResponseEntity.noContent().build();
 	}	 
 

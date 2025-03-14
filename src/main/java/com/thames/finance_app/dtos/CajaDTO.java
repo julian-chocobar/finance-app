@@ -12,6 +12,9 @@ import lombok.Data;
 @Builder
 public class CajaDTO {
 	
+	@NotNull(message = "La caja debe tener nombre")
+	private String nombre;
+	
 	private BigDecimal saldoReal;
 	
 	private BigDecimal saldoDisponible;

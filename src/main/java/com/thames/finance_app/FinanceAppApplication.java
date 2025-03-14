@@ -18,7 +18,7 @@ import com.thames.finance_app.models.CuentaCorriente;
 import com.thames.finance_app.models.Moneda;
 import com.thames.finance_app.models.TipoCambio;
 import com.thames.finance_app.repositories.CajaRepository;
-import com.thames.finance_app.repositories.ClienteRepository;
+import com.thames.finance_app.repositories.TitularRepository;
 import com.thames.finance_app.repositories.CtaCteRepository;
 import com.thames.finance_app.repositories.MonedaRepository;
 import com.thames.finance_app.repositories.TipoCambioRepository;
@@ -33,7 +33,7 @@ public class FinanceAppApplication {
 	@SuppressWarnings("unused")
 	@Bean
     CommandLineRunner init(CajaRepository cajaRepository, TipoCambioRepository tipoCambioRepository,
-    						ClienteRepository clienteRepository, CtaCteRepository ctaCteRepository,
+    						TitularRepository clienteRepository, CtaCteRepository ctaCteRepository,
     						MonedaRepository monedaRepository) {
         return args -> {
         	        	       	
@@ -56,6 +56,7 @@ public class FinanceAppApplication {
      
         	//CREAR CAJAS
         	Caja cajaPesos = Caja.builder()
+        					.nombre("PESOS")
         					.saldoReal(BigDecimal.ZERO)
         					.saldoDisponible(BigDecimal.ZERO)
         					.moneda(peso)
@@ -63,6 +64,7 @@ public class FinanceAppApplication {
         	cajaRepository.save(cajaPesos);
         	
         	Caja cajaDolares = Caja.builder()
+        			.nombre("DOLARES")
 					.saldoReal(BigDecimal.ZERO)
 					.saldoDisponible(BigDecimal.ZERO)
 					.moneda(dolar)
@@ -70,6 +72,7 @@ public class FinanceAppApplication {
         	cajaRepository.save(cajaDolares);
         	
         	Caja cajaReales = Caja.builder()
+        			.nombre("REALES")
 					.saldoReal(BigDecimal.ZERO)
 					.saldoDisponible(BigDecimal.ZERO)
 					.moneda(real)
@@ -77,6 +80,7 @@ public class FinanceAppApplication {
         	cajaRepository.save(cajaReales);
         	
         	Caja cajaEuros = Caja.builder()
+        			.nombre("EUROS")
 					.saldoReal(BigDecimal.ZERO)
 					.saldoDisponible(BigDecimal.ZERO)
 					.moneda(euro)

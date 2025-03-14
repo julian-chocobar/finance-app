@@ -8,4 +8,6 @@ import com.thames.finance_app.models.MovimientoCaja;
 @Repository
 public interface MovimientoCajaRepository extends JpaRepository<MovimientoCaja, Long> {
 
+	boolean existsByCajaId(Long id);
+
 }

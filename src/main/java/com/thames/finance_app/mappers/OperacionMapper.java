@@ -11,8 +11,11 @@ import com.thames.finance_app.dtos.OperacionResponse;
 import com.thames.finance_app.enums.TipoOperacion;
 import com.thames.finance_app.enums.TipoPago;
 import com.thames.finance_app.models.CuentaCorriente;
+import com.thames.finance_app.models.Moneda;
 import com.thames.finance_app.models.Operacion;
+import com.thames.finance_app.repositories.MonedaRepository;
 import com.thames.finance_app.services.ClienteService;
+import com.thames.finance_app.services.ReferidoService;
 import com.thames.finance_app.services.TipoCambioService;
 
 import lombok.RequiredArgsConstructor;
@@ -22,31 +25,41 @@ import lombok.RequiredArgsConstructor;
 public class OperacionMapper {
 	
 	private final ClienteService clienteService;
+	private final ReferidoService referidoService;
 	private final TipoCambioService tipoCambioService;
+	private final MonedaRepository monedaRepository;
 	private final PagoMapper pagoMapper;
 	
     public Operacion toEntity(OperacionRequest request) {   
     	CuentaCorriente cuentaCliente = clienteService
-				.obtenerClientePorNombre(request
+				.obtenerPorNombre(request
 				.getNombreCliente()).getCuentaCorriente();
+    	Moneda monedaOrigen = monedaRepository
+    			.findByCodigo(request.getMonedaOrigen())
+    			.orElseThrow(() -> new RuntimeException("Moneda no encontrada"));
+    	
+    	Moneda monedaConversion = monedaRepository
+    			.findByCodigo(request.getMonedaConversion())
+    			.orElseThrow(() -> new RuntimeException("Moneda no encontrada"));
+    	
     	
     	Operacion operacion = Operacion.builder()
                 .fecha(LocalDateTime.now())
                 .tipo(request.getTipo())
                 .cuentaCorriente(cuentaCliente)
-                .monedaOrigen(request.getMonedaOrigen())
+                .monedaOrigen(monedaOrigen)
                 .montoOrigen(request.getMontoOrigen())
-                .monedaConversion(request.getMonedaConversion())
-                .montoConversion(tipoCambioService.convertirMoneda(request.getMonedaOrigen(), request.getMonedaConversion(),
+                .monedaConversion(monedaConversion)
+                .montoConversion(tipoCambioService.convertirMoneda(monedaOrigen, monedaConversion,
                 												request.getMontoOrigen(),
 																request.getTipo() == TipoOperacion.COMPRA ? true : false ))
-                .valorTipoCambio(tipoCambioService.obtenerTipoCambio(request.getMonedaOrigen(), request.getMonedaConversion(),
+                .valorTipoCambio(tipoCambioService.obtenerTipoCambio(monedaOrigen, monedaConversion,
                 												request.getTipo() == TipoOperacion.COMPRA ? true : false ))
                 .build();
     	
     	if(request.getNombreReferido() !=null) {      	
-        	CuentaCorriente cuentaReferido = Optional.ofNullable(clienteService
-					.obtenerClientePorNombre(request
+        	CuentaCorriente cuentaReferido = Optional.ofNullable(referidoService
+					.obtenerPorNombre(request
 					.getNombreReferido())
 					.getCuentaCorriente()).orElse(null); 
   
@@ -97,20 +110,28 @@ public class OperacionMapper {
    
     public Operacion updateEntity(Operacion operacion, OperacionRequest request) {
     	CuentaCorriente cuentaCliente = clienteService
-    									.obtenerClientePorNombre(request
+    									.obtenerPorNombre(request
     									.getNombreCliente()).getCuentaCorriente();
-    	CuentaCorriente cuentaReferido = Optional.ofNullable(clienteService
-    														.obtenerClientePorNombre(request
+    	CuentaCorriente cuentaReferido = Optional.ofNullable(referidoService
+    														.obtenerPorNombre(request
     														.getNombreReferido())
     														.getCuentaCorriente()).orElse(null);
+    	Moneda monedaOrigen = monedaRepository
+    			.findByCodigo(request.getMonedaOrigen())
+    			.orElseThrow(() -> new RuntimeException("Moneda no encontrada"));
+    	
+    	Moneda monedaConversion = monedaRepository
+    			.findByCodigo(request.getMonedaConversion())
+    			.orElseThrow(() -> new RuntimeException("Moneda no encontrada"));
+    	
         operacion.setTipo(request.getTipo());
-        operacion.setMonedaOrigen(request.getMonedaOrigen());
+        operacion.setMonedaOrigen(monedaOrigen);
         operacion.setMontoOrigen(request.getMontoOrigen());
-        operacion.setMonedaConversion(request.getMonedaConversion());
-        operacion.setMontoConversion(tipoCambioService.convertirMoneda(request.getMonedaOrigen(), request.getMonedaConversion(),
+        operacion.setMonedaConversion(monedaConversion);
+        operacion.setMontoConversion(tipoCambioService.convertirMoneda(monedaOrigen, monedaConversion,
 																		request.getMontoOrigen(),
 																		request.getTipo() == TipoOperacion.COMPRA ? true : false ));
-        operacion.setValorTipoCambio(tipoCambioService.obtenerTipoCambio(request.getMonedaOrigen(), request.getMonedaConversion(),
+        operacion.setValorTipoCambio(tipoCambioService.obtenerTipoCambio(monedaOrigen, monedaConversion,
 														request.getTipo() == TipoOperacion.COMPRA ? true : false ));
         operacion.setCuentaCorriente(cuentaCliente);
         operacion.setCuentaCorrienteReferido(cuentaReferido);

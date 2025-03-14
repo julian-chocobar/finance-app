@@ -1,15 +1,11 @@
 package com.thames.finance_app.services;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.thames.finance_app.dtos.CtaCteResponse;
-import com.thames.finance_app.dtos.MovimientoCtaCteDTO;
 import com.thames.finance_app.enums.TipoMovimiento;
 import com.thames.finance_app.enums.TipoOperacion;
 import com.thames.finance_app.exceptions.BusinessException;
@@ -19,9 +15,11 @@ import com.thames.finance_app.models.CuentaCorriente;
 import com.thames.finance_app.models.Moneda;
 import com.thames.finance_app.models.MovimientoCtaCte;
 import com.thames.finance_app.models.Operacion;
+import com.thames.finance_app.models.Titular;
 import com.thames.finance_app.repositories.CtaCteRepository;
 import com.thames.finance_app.repositories.MovimientoCtaCteRepository;
 import com.thames.finance_app.repositories.OperacionRepository;
+import com.thames.finance_app.repositories.TitularRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -33,13 +31,11 @@ public class CtaCteService {
     private final CtaCteRepository ctaCteRepository;
     private final MovimientoCtaCteRepository movimientoCtaCteRepository;
 	private final OperacionRepository operacionRepository;
+	private final TitularRepository titularRepository;
     private final CajaService cajaService;
     private final MovimientoCtaCteService movimientoCtaCteService;
-    private final CtaCteMapper ctaCteMapper;
-    
-    public Page<MovimientoCtaCte> listarMovimientos(Pageable pageable) {
-        return movimientoCtaCteRepository.findAllOrderByFechaDesc(pageable);
-    }
+    private final CtaCteMapper ctaCteMapper;    
+   
 
     public CtaCteResponse obtenerResponsePorId(Long cuentaId) {
         CuentaCorriente cuenta = ctaCteRepository.findById(cuentaId)
@@ -54,13 +50,17 @@ public class CtaCteService {
     }
 
     public CtaCteResponse obtenerResponsePorClienteId(Long clienteId) {
-        CuentaCorriente cuenta = ctaCteRepository.findByClienteId(clienteId)
+    	Titular cliente = titularRepository.findById(clienteId)
+    			.orElseThrow(() -> new BusinessException("Cliente no encontrado"));
+        CuentaCorriente cuenta = ctaCteRepository.findByTitular(cliente)
                 .orElseThrow(() -> new BusinessException("Cuenta Corriente no encontrada para el cliente"));
         return ctaCteMapper.toResponse(cuenta);
     }
     
     public CuentaCorriente obtenerEntidadPorClienteId(Long clienteId) {
-        return ctaCteRepository.findByClienteId(clienteId)
+      	Titular cliente = titularRepository.findById(clienteId)
+    			.orElseThrow(() -> new BusinessException("Cliente no encontrado"));
+        return ctaCteRepository.findByTitular(cliente)
                 .orElseThrow(() -> new BusinessException("Cuenta Corriente no encontrada para el cliente"));
     }
  
@@ -80,64 +80,6 @@ public class CtaCteService {
         ctaCteRepository.delete(cuenta);
     }
     
-
-    public Page<MovimientoCtaCteDTO> obtenerMovimientos(Long cuentaId, LocalDate fechaDesde, LocalDate fechaHasta,
-            LocalDate fechaExacta, BigDecimal monto,
-            Moneda moneda, TipoMovimiento tipo,
-            Pageable pageable) {
-		Page<MovimientoCtaCte> movimientos = filtrarMovimientos(cuentaId, fechaExacta, fechaDesde, fechaHasta, monto, moneda, tipo, pageable);
-		return movimientos.map(ctaCteMapper::toMovimientoResponse);
-	}
-    
-    public Page<MovimientoCtaCteDTO> obtenerTodosLosMovimientos(
-            LocalDate fechaExacta,
-            LocalDate fechaDesde,
-            LocalDate fechaHasta,
-            BigDecimal monto,
-            Moneda moneda,
-            TipoMovimiento tipo,
-            Pageable pageable) {
-        
-        Page<MovimientoCtaCte> movimientos = filtrarTodosLosMovimientos(
-            fechaExacta, fechaDesde, fechaHasta, monto, moneda, tipo, pageable);
-        
-        return movimientos.map(ctaCteMapper::toMovimientoResponse);
-    }
-    
-    public Page<MovimientoCtaCte> filtrarTodosLosMovimientos(
-            LocalDate fechaExacta,
-            LocalDate fechaDesde,
-            LocalDate fechaHasta,
-            BigDecimal monto,
-            Moneda moneda,
-            TipoMovimiento tipoMovimiento,
-            Pageable pageable) {
-        
-        return movimientoCtaCteRepository.filtrarMovimientos(
-            fechaExacta, fechaDesde, fechaHasta, monto, moneda, tipoMovimiento, pageable);
-    }
-    
-    public BigDecimal obtenerSaldoPorMoneda(CuentaCorriente cuenta, Moneda moneda) {
-    	return cuenta.getSaldoPorMoneda(moneda);
-    }
-
-    public void setSaldoPorMoneda(CuentaCorriente cuenta, BigDecimal nuevoSaldo, Moneda moneda) {
-      cuenta.setSaldoPorMoneda(moneda, nuevoSaldo);
-    }
-    
-    public Page<MovimientoCtaCte> filtrarMovimientos(
-            Long cuentaCorrienteId,
-            LocalDate fechaExacta,
-            LocalDate fechaDesde,
-            LocalDate fechaHasta,
-            BigDecimal monto,
-            Moneda moneda,
-            TipoMovimiento tipoMovimiento,
-            Pageable pageable) {
-            return movimientoCtaCteRepository.filtrarMovimientos(
-                cuentaCorrienteId, fechaExacta, fechaDesde, fechaHasta, monto, moneda, tipoMovimiento, pageable);
-    }
-	
 	public void impactoOperacion(Operacion operacion) {	
 		CuentaCorriente cuentaCliente = operacion.getCuentaCorriente();
 		
@@ -227,6 +169,14 @@ public class CtaCteService {
 	    return ctaCteMapper.toResponse(cuenta);	
 	    		
 	}
+	
+    public BigDecimal obtenerSaldoPorMoneda(CuentaCorriente cuenta, Moneda moneda) {
+    	return cuenta.getSaldoPorMoneda(moneda);
+    }
+
+    public void setSaldoPorMoneda(CuentaCorriente cuenta, BigDecimal nuevoSaldo, Moneda moneda) {
+      cuenta.setSaldoPorMoneda(moneda, nuevoSaldo);
+    }
 
    
 }

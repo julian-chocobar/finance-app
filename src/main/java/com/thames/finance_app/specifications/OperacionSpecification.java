@@ -14,7 +14,8 @@ import java.time.LocalDateTime;
 
 public class OperacionSpecification {
 
-    public static Specification<Operacion> filtrarPorParametros(
+    @SuppressWarnings("unused")
+	public static Specification<Operacion> filtrarPorParametros(
             LocalDateTime fechaInicio,
             LocalDateTime fechaFin,
             BigDecimal monto,

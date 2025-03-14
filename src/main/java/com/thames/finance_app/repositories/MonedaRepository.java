@@ -11,5 +11,7 @@ import com.thames.finance_app.models.Moneda;
 public interface MonedaRepository extends JpaRepository<Moneda, Long>{
 
 	Optional <Moneda> findByNombre(String nombre);
+	Optional <Moneda> findByCodigo(String codigo);
+
 
 }

@@ -15,10 +15,10 @@ import lombok.Data;
 public class MovimientoCtaCteDTO {
    
 	private Long id;
+	private String nombreTitular;
     private TipoMovimiento tipo;
     private Moneda moneda;
     private BigDecimal monto;
-    private String descripcion;
     private LocalDateTime fecha;
 	
 }

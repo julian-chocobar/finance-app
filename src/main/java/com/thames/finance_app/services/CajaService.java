@@ -8,12 +8,15 @@ import org.springframework.stereotype.Service;
 
 import com.thames.finance_app.dtos.CajaDTO;
 import com.thames.finance_app.enums.TipoOperacion;
+import com.thames.finance_app.exceptions.BusinessException;
 import com.thames.finance_app.mappers.CajaMapper;
 import com.thames.finance_app.models.Caja;
 import com.thames.finance_app.models.Moneda;
 import com.thames.finance_app.models.Operacion;
 import com.thames.finance_app.repositories.CajaRepository;
+import com.thames.finance_app.repositories.MovimientoCajaRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -23,15 +26,56 @@ public class CajaService {
 	
 	private final CajaRepository cajaRepository;
     private final MovimientoCajaService movimientoCajaService;
+    private final MovimientoCajaRepository movimientoCajaRepository;
     private final CajaMapper cajaMapper;
     
 
-	public List<CajaDTO> obtenerCajas() {		
+	public List<CajaDTO> obtenerTodas() {		
 		List<Caja> cajas = cajaRepository.findAll();
 		return cajas.stream()
 				.map(cajaMapper::toDTO)
 				.collect(Collectors.toList());
 	}
+	
+	public CajaDTO obtenerPorID(Long id) {
+		Caja caja = cajaRepository.findById(id)
+				.orElseThrow( () -> new EntityNotFoundException("Cliente con id: " + id + " no encontrado"));
+		return cajaMapper.toDTO(caja);	
+	}
+	
+	@Transactional
+	public CajaDTO crearCaja(CajaDTO dto) {
+		verificarNombreUnico(dto.getNombre());
+		Caja caja = cajaMapper.toEntity(dto);
+		cajaRepository.save(caja);
+		return cajaMapper.toDTO(caja);
+	}
+	
+    public boolean existeNombre(String nombre) {
+        return cajaRepository.findByNombre(nombre).isPresent();
+    }
+    
+    public void verificarNombreUnico(String nombre) {
+        if (existeNombre(nombre)) {
+            throw new BusinessException("Nombre ya registrado");
+        }
+    }
+	
+
+	
+	public void eliminar(Long id) {
+	    Caja caja = cajaRepository.findById(id)
+	        .orElseThrow(() -> new EntityNotFoundException("Caja no encontrado"));
+        boolean tieneMovimientos = movimientoCajaRepository.existsByCajaId(id);
+        if (tieneMovimientos) {
+            throw new IllegalStateException("No se puede eliminar la caja porque tiene movimientos registrados.");
+        }
+        if (caja.getSaldoReal().compareTo(BigDecimal.ZERO) != 0 || caja.getSaldoDisponible().compareTo(BigDecimal.ZERO) !=0) {
+            throw new IllegalStateException("No se puede eliminar la caja porque tiene saldo pendiente.");
+        }
+	   cajaRepository.delete(caja);
+	}
+		
 	
     public void impactoOperacion(Operacion operacion) {
     	Caja cajaOrigen = cajaRepository.findByMoneda(operacion.getMonedaOrigen())
@@ -107,7 +151,6 @@ public class CajaService {
 	public Caja obtenerPorMoneda(Moneda moneda) {
 		return cajaRepository.findByMoneda(moneda).orElseThrow(() -> new RuntimeException("Caja no encontrada"));
 	}
-
 
 
 
