@@ -11,14 +11,12 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-	
+
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http ) throws Exception {
 		http
@@ -27,6 +25,7 @@ public class SecurityConfig {
         .authorizeHttpRequests(request -> 
             request
                 .requestMatchers("/clientes/**").permitAll()
+                .requestMatchers("/referidos/**").permitAll()
                 .requestMatchers("/operaciones/**").permitAll()
                 .requestMatchers("/ctas-ctes/**").permitAll()
                 .requestMatchers("/cajas/**").permitAll()
@@ -38,16 +37,18 @@ public class SecurityConfig {
 	}
 	
     @Bean
-    public CorsFilter corsFilter() {
+    CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173")); // Permite el frontend
+//        config.setAllowedOrigins(List.of("http://localhost:5173")); // Permite el frontend
+        config.setAllowedOrigins(List.of("*")); // Permite el frontend
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
+
 	
 
 

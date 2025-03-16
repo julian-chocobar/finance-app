@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Referidos</title>
+    <link rel="stylesheet" th:href="@{static/css/styles.css}">
+</head>
+<body>
+    <h1>Referidos</h1>
+
+    <!-- Verifica si hay datos -->
+    <div th:if="${referidos != null and !referidos.empty}">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Teléfono</th>
+                    <th>Email</th>
+                    <th>Dirección</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="referido : ${referidos.content}">
+                    <td th:text="${referido.id}">1</td>
+                    <td th:text="${referido.nombre}">Nombre del Referido</td>
+                    <td th:text="${referido.telefono}">Teléfono</td>
+                    <td th:text="${referido.email}">Email</td>
+                    <td th:text="${referido.direccion}">Dirección</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Paginación -->
+        <div th:if="${referidos.totalPages > 1}">
+            <span th:if="${!referidos.first}">
+                <a th:href="@{/referidos(page=0, size=${referidos.size})}">Primera</a>
+            </span>
+            <span th:if="${referidos.hasPrevious()}">
+                <a th:href="@{/referidos(page=${referidos.number - 1}, size=${referidos.size})}">Anterior</a>
+            </span>
+            <span th:each="i : ${#numbers.sequence(1, referidos.totalPages)}">
+                <a th:if="${i - 1 != referidos.number}" 
+                   th:href="@{/referidos(page=${i - 1}, size=${referidos.size})}" 
+                   th:text="${i}">1</a>
+                <span th:unless="${i - 1 != referidos.number}" th:text="${i}">1</span>
+            </span>
+            <span th:if="${referidos.hasNext()}">
+                <a th:href="@{/referidos(page=${referidos.number + 1}, size=${referidos.size})}">Siguiente</a>
+            </span>
+            <span th:if="${!referidos.last}">
+                <a th:href="@{/referidos(page=${referidos.totalPages - 1}, size=${referidos.size})}">Última</a>
+            </span>
+        </div>
+
+        <!-- Información de la paginación -->
+        <div>
+            <p>Página <span th:text="${referidos.number + 1}">1</span> de <span th:text="${referidos.totalPages}">1</span></p>
+            <p>Total de referidos: <span th:text="${referidos.totalElements}">0</span></p>
+        </div>
+    </div>
+
+    <!-- Mensaje si no hay datos -->
+    <div th:if="${referidos == null or referidos.empty}">
+        <p>No hay referidos disponibles.</p>
+    </div>
+</body>
+</html>

@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.thames.finance_app.enums.TipoOperacion;
 import com.thames.finance_app.models.Moneda;
 
 import lombok.AllArgsConstructor;
@@ -22,11 +21,11 @@ import lombok.NoArgsConstructor;
 public class OperacionResponse {
     private Long id;
     private LocalDateTime fecha;
-    private TipoOperacion tipo;
+    private String tipo;
     private String nombreCliente;
-    private Moneda monedaOrigen;
+    private String monedaOrigen;
     private BigDecimal montoOrigen;  
-    private Moneda monedaConversion;
+    private String monedaConversion;
     private BigDecimal montoConversion;
     private BigDecimal valorTipoCambio;
     

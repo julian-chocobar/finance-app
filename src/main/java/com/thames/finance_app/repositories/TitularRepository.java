@@ -1,8 +1,9 @@
 package com.thames.finance_app.repositories;
 
-import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.thames.finance_app.enums.TipoTitular;
@@ -13,7 +14,7 @@ public interface TitularRepository extends JpaRepository<Titular, Long> {
         
     Optional <Titular> findByNombre(String name);
     
-    List<Titular> findByTipo(TipoTitular tipo);
+    Page<Titular> findByTipo(TipoTitular tipo, Pageable pageable);
 
 	Optional<Titular> findByNombreAndTipo(String nombre, TipoTitular tipo);
 

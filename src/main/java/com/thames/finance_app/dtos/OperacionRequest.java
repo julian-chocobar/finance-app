@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import com.thames.finance_app.enums.TipoOperacion;
-import com.thames.finance_app.models.Moneda;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -46,7 +45,7 @@ public class OperacionRequest {
     @PositiveOrZero(message = "El puntaje del referido no puede ser negativo.")
     private BigDecimal puntosReferido;
         
-    private Moneda monedaReferido;
+    private String monedaReferido;
     
 //  @NotNull(message = "El monto de conversión es obligatorio.")
 //  @Positive(message = "El monto de conversión debe ser mayor a cero.")

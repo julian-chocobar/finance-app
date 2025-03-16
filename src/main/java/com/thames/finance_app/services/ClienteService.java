@@ -4,8 +4,9 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.thames.finance_app.dtos.TitularRequest;
@@ -32,11 +33,9 @@ public class ClienteService {
 	private final MonedaService monedaService;
 	private final TitularMapper titularMapper;
 	
-	public List<TitularResponse> obtenerTodos(){
-		List<Titular> clientes = titularRepository.findByTipo(TipoTitular.CLIENTE);
-		return clientes.stream()
-				.map(titularMapper::toResponse)
-				.collect(Collectors.toList());	
+	public Page<TitularResponse> obtenerTodos(Pageable pageable){		
+		return  titularRepository.findByTipo(TipoTitular.CLIENTE, pageable)
+				.map(titularMapper::toResponse);
 	}
 
 	public TitularResponse obtenerPorID(Long id) {

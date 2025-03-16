@@ -41,8 +41,7 @@ public class OperacionMapper {
     	Moneda monedaConversion = monedaRepository
     			.findByCodigo(request.getMonedaConversion())
     			.orElseThrow(() -> new RuntimeException("Moneda no encontrada"));
-    	
-    	
+    
     	Operacion operacion = Operacion.builder()
                 .fecha(LocalDateTime.now())
                 .tipo(request.getTipo())
@@ -62,9 +61,13 @@ public class OperacionMapper {
 					.obtenerPorNombre(request
 					.getNombreReferido())
 					.getCuentaCorriente()).orElse(null); 
+        	
+        	Moneda monedaReferido = monedaRepository
+        			.findByCodigo(request.getMonedaReferido())
+        			.orElseThrow(() -> new RuntimeException("Moneda no encontrada"));
   
         	operacion.setCuentaCorrienteReferido(cuentaReferido);
-        	operacion.setMonedaReferido(request.getMonedaReferido());
+        	operacion.setMonedaReferido(monedaReferido);
         	operacion.setPuntosReferido(request.getPuntosReferido());      
         }       
     	
@@ -81,11 +84,11 @@ public class OperacionMapper {
                 .id(operacion.getId())
                 .fecha(operacion.getFecha())
                 .nombreCliente(nombreCliente)
-                .tipo(operacion.getTipo())
-                .monedaOrigen(operacion.getMonedaOrigen())
+                .tipo(operacion.getTipo().toString())
+                .monedaOrigen(operacion.getMonedaOrigen().getCodigo())
                 .montoOrigen(operacion.getMontoOrigen())
                 
-                .monedaConversion(operacion.getMonedaConversion())
+                .monedaConversion(operacion.getMonedaConversion().getCodigo())
                 .montoConversion(operacion.getMontoConversion())
                 .valorTipoCambio(tipoCambioService.obtenerTipoCambio(operacion.getMonedaOrigen(), operacion.getMonedaConversion(),
 						operacion.getTipo() == TipoOperacion.COMPRA ? true : false ))
@@ -134,13 +137,20 @@ public class OperacionMapper {
         operacion.setValorTipoCambio(tipoCambioService.obtenerTipoCambio(monedaOrigen, monedaConversion,
 														request.getTipo() == TipoOperacion.COMPRA ? true : false ));
         operacion.setCuentaCorriente(cuentaCliente);
-        operacion.setCuentaCorrienteReferido(cuentaReferido);
-        operacion.setPuntosReferido(request.getPuntosReferido());
-        operacion.setMonedaReferido(request.getMonedaReferido());
-//        operacion.setGananciaReferido(request.getPuntosReferido() != null ? 
-//        							request.getPuntosReferido()
-//        							.multiply(request.getMontoOrigen()) : BigDecimal.ZERO);
-
+        
+        if(request.getNombreReferido() !=null) {     	
+        	Moneda monedaReferido = monedaRepository
+        			.findByCodigo(request.getMonedaReferido())
+        			.orElseThrow(() -> new RuntimeException("Moneda no encontrada"));
+        	
+            operacion.setCuentaCorrienteReferido(cuentaReferido);
+            operacion.setPuntosReferido(request.getPuntosReferido());
+            operacion.setMonedaReferido(monedaReferido);
+//            operacion.setGananciaReferido(request.getPuntosReferido() != null ? 
+//            							request.getPuntosReferido()
+//            							.multiply(request.getMontoOrigen()) : BigDecimal.ZERO);
+        }
+        
         // Actualizar listas de pagos
         operacion.getPagosOrigen().clear();
         operacion.getPagosOrigen().addAll(pagoMapper.toPagoList(request.getPagosOrigen(), TipoPago.ORIGEN));

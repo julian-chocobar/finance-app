@@ -1,0 +1,47 @@
+/* Estilos para la tabla */
+table {
+    width: 100%;
+    border-collapse: collapse; /* Elimina el espacio entre celdas */
+    margin-bottom: 20px;
+    font-family: Arial, sans-serif;
+}
+
+th, td {
+    padding: 12px 15px; /* Espaciado interno */
+    text-align: left;
+    border-bottom: 1px solid #ddd; /* Borde inferior para las filas */
+}
+
+th {
+    background-color: #f4f4f4; /* Color de fondo para los encabezados */
+    font-weight: bold;
+    color: #333; /* Color del texto */
+}
+
+tr:hover {
+    background-color: #f9f9f9; /* Color de fondo al pasar el mouse */
+}
+
+/* Estilos para la paginación */
+.pagination {
+    margin-top: 20px;
+}
+
+.pagination a {
+    color: #007bff;
+    text-decoration: none;
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    margin: 0 2px;
+}
+
+.pagination a:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+.pagination span {
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    margin: 0 2px;
+}

@@ -1,8 +1,9 @@
 package com.thames.finance_app.controllers;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,18 +19,22 @@ import com.thames.finance_app.dtos.TitularRequest;
 import com.thames.finance_app.dtos.TitularResponse;
 import com.thames.finance_app.services.ClienteService;
 
+import lombok.RequiredArgsConstructor;
+
 
 @RestController
 @RequestMapping("/clientes")
+@RequiredArgsConstructor
 public class ClienteController {
 	
-	@Autowired
-	private ClienteService clienteService;
+	private final ClienteService clienteService;
+	private final PagedResourcesAssembler<TitularResponse> pagedResourcesAssembler;
 	
-	@GetMapping("/todos")
-	public ResponseEntity<List<TitularResponse>> obtenerTodos() {
-        List<TitularResponse> products = clienteService.obtenerTodos();
-        return ResponseEntity.ok(products);
+	@GetMapping("/listado")
+	public ResponseEntity<org.springframework.hateoas.PagedModel<EntityModel<TitularResponse>>> obtenerTodos(Pageable pageable) {
+        Page<TitularResponse> clientes = clienteService.obtenerTodos(pageable);        
+	    org.springframework.hateoas.PagedModel<EntityModel<TitularResponse>> pagedModel = pagedResourcesAssembler.toModel(clientes);
+        return ResponseEntity.ok(pagedModel);
     }
 	
 	@GetMapping("/{id}")
