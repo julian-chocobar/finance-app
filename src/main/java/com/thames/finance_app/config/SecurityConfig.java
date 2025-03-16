@@ -24,6 +24,7 @@ public class SecurityConfig {
         .cors(cors -> cors.configure(http))  // Habilita CORS
         .authorizeHttpRequests(request -> 
             request
+            	.requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/clientes/**").permitAll()
                 .requestMatchers("/referidos/**").permitAll()
                 .requestMatchers("/operaciones/**").permitAll()
