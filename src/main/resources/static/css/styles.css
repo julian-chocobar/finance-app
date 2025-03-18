@@ -12,6 +12,67 @@ h1 {
     margin-bottom: 20px;
 }
 
+
+
+/* Contenedor principal */
+.header-container {
+    display: flex; /* Activa Flexbox */
+    justify-content: space-between; /* Distribuye los elementos en los extremos */
+    align-items: center; /* Alinea verticalmente los elementos */
+    width: 100%; /* Ocupa todo el ancho disponible */
+    margin-bottom: 20px; /* Espacio debajo del contenedor */
+}
+
+/* Estilos para el formulario de búsqueda */
+.form-busqueda {
+    display: flex; /* Coloca el campo y el botón en la misma línea */
+    align-items: center; /* Alinea verticalmente el campo y el botón */
+    margin-left: 0; /* Lo más a la izquierda posible */
+}
+
+.form-busqueda input[type="text"] {
+    width: 250px; /* Ancho del campo */
+    padding: 8px; /* Espaciado interno */
+    border: 1px solid #ccc; /* Borde del campo */
+    border-radius: 4px; /* Bordes redondeados */
+    margin-right: 10px; /* Espacio entre el campo y el botón */
+}
+
+.form-busqueda button {
+    padding: 8px 16px; /* Espaciado interno */
+    background-color: #007bff; /* Color de fondo */
+    color: white; /* Color del texto */
+    border: none; /* Sin borde */
+    border-radius: 4px; /* Bordes redondeados */
+    cursor: pointer; /* Cambia el cursor al pasar el mouse */
+}
+
+.form-busqueda button:hover {
+    background-color: #0056b3; /* Color de fondo al pasar el mouse */
+}
+
+/* Estilos para el botón "Nuevo Referido" */
+.btn-nuevo-referido-container {
+    margin-right: 0; /* Lo más a la derecha posible */
+}
+
+.btn-nuevo-referido-container button {
+    padding: 8px 16px; /* Espaciado interno */
+    background-color: #28a745; /* Color de fondo */
+    color: white; /* Color del texto */
+    border: none; /* Sin borde */
+    border-radius: 4px; /* Bordes redondeados */
+    cursor: pointer; /* Cambia el cursor al pasar el mouse */
+}
+
+.btn-nuevo-referido-container button:hover {
+    background-color: #218838; /* Color de fondo al pasar el mouse */
+}
+
+
+
+
+
     /* Estilos para los botones con íconos */
     button {
         background: none;

@@ -8,9 +8,6 @@
 </head>
 <body>
 	
-	<!-- Botón para abrir el modal -->
-	<button onclick="mostrarModal('crear')">Nuevo Referido</button>
-
 	<!-- Modal -->
 	<div id="modal-overlay">
 	    <div id="modal-content">
@@ -47,13 +44,20 @@
 <!-- Contenido principal -->
 <div id="main">
     <h1>Referidos</h1>
+	
+	<div class="header-container">
+	    <!-- Formulario de búsqueda -->
+	    <form th:action="@{/referidos}" method="get" class="form-busqueda">
+	        <input type="text" name="nombre" placeholder="Buscar por nombre" th:value="${nombreFiltro}">
+	        <button type="submit">Buscar</button>
+	    </form>
 
-    <!-- Formulario de búsqueda -->
-    <form th:action="@{/referidos}" method="get">
-        <input type="text" name="nombre" placeholder="Buscar por nombre" th:value="${nombreFiltro}">
-        <button type="submit">Buscar</button>
-    </form>
-
+	    <!-- Botón "Nuevo Referido" -->
+	    <div class="btn-nuevo-referido-container">
+	        <button onclick="mostrarModal('crear')">Nuevo Referido</button>
+	    </div>
+	</div>
+	
     <!-- Verifica si hay datos -->
     <div th:if="${referidos != null and !referidos.empty}">
         <table>
