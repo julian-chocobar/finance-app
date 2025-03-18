@@ -1,5 +1,5 @@
-# Utiliza OpenJDK 23 con una imagen ligera de Debian
-FROM openjdk:23-jdk-slim
+# Utiliza OpenJDK 17 con una imagen ligera de Debian
+FROM openjdk:17-jdk-slim
 
 # Argumento para el nombre del JAR
 ARG JAR_FILE=target/finance-app-0.0.1.jar

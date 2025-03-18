@@ -1,10 +1,5 @@
 package com.thames.finance_app.dtos;
 
-import java.math.BigDecimal;
-import java.util.Map;
-
-import com.thames.finance_app.models.Moneda;
-
 import lombok.Builder;
 import lombok.Data;
 
@@ -18,7 +13,7 @@ public class TitularResponse {
     private String direccion;
 
     // Información básica de la cuenta corriente
-    private Long cuentaCorrienteId;
-    private Map<Moneda, BigDecimal> saldos;
+//    private Long cuentaCorrienteId;
+//    private Map<Moneda, BigDecimal> saldos;
     
 }

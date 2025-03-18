@@ -2,17 +2,16 @@ package com.thames.finance_app.controllers;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.thames.finance_app.dtos.TitularRequest;
 import com.thames.finance_app.dtos.TitularResponse;
@@ -28,12 +27,15 @@ public class ReferidoController {
 	private final ReferidoService referidoService;
 		
     @GetMapping
-    public String obtenerTodos(Pageable pageable, Model model) {
-        Page<TitularResponse> referidos = referidoService.obtenerTodosReferidos(pageable);
+    public String obtenerTodos(@RequestParam(required = false) String nombre, Pageable pageable, Model model) {
+        Page<TitularResponse> referidos = (nombre == null || nombre.isEmpty())
+                ? referidoService.obtenerTodosReferidos(pageable)
+                : referidoService.buscarReferidosPorNombre(nombre, pageable);
         model.addAttribute("referidos", referidos);
-        return "referidos"; // Nombre de la vista Thymeleaf (referidos.html)
+        model.addAttribute("nombreFiltro", nombre);
+        model.addAttribute("referido", TitularResponse.builder().build());
+        return "referidos";
     }
-
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<TitularResponse> obtenerPorID(@PathVariable Long id){
@@ -41,17 +43,19 @@ public class ReferidoController {
 		return ResponseEntity.ok(referido);	
 	}
 	
-	@PostMapping("/referidos")
-	public ResponseEntity<TitularResponse> crearReferido(@RequestBody TitularRequest rederidoRequest) {
-	    TitularResponse referidoResponse = referidoService.crearReferido(rederidoRequest);
-	    return ResponseEntity.status(HttpStatus.CREATED).body(referidoResponse);
+	@PostMapping
+	public String crearReferido(@ModelAttribute TitularRequest referidoRequest) {
+	    referidoService.crearReferido(referidoRequest);
+	    return "redirect:/referidos"; // Redirige a la lista de referidos después de la creación
+	}
+
+	
+	@PostMapping("/editar/{id}")
+	public String actuslizarReferido(@PathVariable Long id, @ModelAttribute TitularRequest referidoRequest) {
+	    referidoService.actualizar(id, referidoRequest);
+	    return "redirect:/referidos";
 	}
 	
-	 @PutMapping("/{id}")
-	 public ResponseEntity<TitularResponse> actualizarReferido(@PathVariable Long id, @RequestBody TitularRequest rederidoRequest) {
-		 return ResponseEntity.ok(referidoService.actualizar(id, rederidoRequest));
-	 }
-
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> eliminarReferido(@PathVariable Long id) {
 		referidoService.eliminar(id);

@@ -1,6 +1,5 @@
 package com.thames.finance_app.mappers;
 
-import java.util.HashMap;
 
 import org.springframework.stereotype.Component;
 
@@ -8,7 +7,6 @@ import com.thames.finance_app.dtos.TitularRequest;
 import com.thames.finance_app.dtos.TitularResponse;
 import com.thames.finance_app.enums.TipoTitular;
 import com.thames.finance_app.models.Titular;
-import com.thames.finance_app.models.CuentaCorriente;
 
 @Component
 public class TitularMapper {
@@ -34,7 +32,7 @@ public class TitularMapper {
     }
 
 	public TitularResponse toResponse(Titular cliente) {
-	    CuentaCorriente cuenta = cliente.getCuentaCorriente();
+//	    CuentaCorriente cuenta = cliente.getCuentaCorriente();
 
 	    return TitularResponse.builder()
 	            .id(cliente.getId())
@@ -42,8 +40,8 @@ public class TitularMapper {
 	            .telefono(cliente.getTelefono())
 	            .email(cliente.getEmail())
 	            .direccion(cliente.getDireccion())
-	            .cuentaCorrienteId(cuenta != null ? cuenta.getId() : null)
-	            .saldos(cuenta != null ? new HashMap<>(cuenta.getSaldos()) : new HashMap<>()) // Copia de los saldos para evitar modificaciones accidentales
+//	            .cuentaCorrienteId(cuenta != null ? cuenta.getId() : null)
+//	            .saldos(cuenta != null ? new HashMap<>(cuenta.getSaldos()) : new HashMap<>()) // Copia de los saldos para evitar modificaciones accidentales
 	            .build();
 	}
 

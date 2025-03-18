@@ -38,6 +38,18 @@ public class ReferidoService {
 				.map(titularMapper::toResponse);
 	}
 	
+    public Page<TitularResponse> buscarReferidosPorNombre(String nombre, Pageable pageable) {
+        return titularRepository.findByNombreContainingIgnoreCase(nombre, pageable)
+                .map(titular -> TitularResponse.builder()
+                    .id(titular.getId())
+                    .nombre(titular.getNombre())
+                    .telefono(titular.getTelefono())
+                    .email(titular.getEmail())
+                    .direccion(titular.getDireccion()).build()
+                );
+                                        
+    }
+	
 	public TitularResponse obtenerReferidoPorID(Long id) {
 		Titular referidos = titularRepository.findById(id)
 				.orElseThrow( () -> new EntityNotFoundException("Cliente con id: " + id + " no encontrado"));
@@ -94,12 +106,13 @@ public class ReferidoService {
     @Transactional
 	public TitularResponse actualizar(Long id, TitularRequest referidoRequest) {
 	    Titular referido = titularRepository.findById(id)
-		        .orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado"));
+		        .orElseThrow(() -> new EntityNotFoundException("Referido no encontrado"));
 
 	    referido.setNombre(referidoRequest.getNombre());
 	    referido.setTelefono(referidoRequest.getTelefono());
+	    referido.setEmail(referidoRequest.getEmail());
+	    referido.setDireccion(referidoRequest.getDireccion());
 		titularRepository.save(referido);
-
 		    return titularMapper.toResponse(referido);
 	}
 
