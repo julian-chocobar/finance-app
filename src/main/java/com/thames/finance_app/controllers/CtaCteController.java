@@ -55,7 +55,12 @@ public class CtaCteController {
     
     @GetMapping("/cliente/{clienteId}")
     public ResponseEntity<CtaCteResponse> obtenerCuentaPorCliente(@PathVariable Long clienteId) {
-        return ResponseEntity.ok(ctaCteService.obtenerResponsePorClienteId(clienteId));
+        return ResponseEntity.ok(ctaCteService.obtenerResponsePorTitularId(clienteId));
+    }
+    
+    @GetMapping("/referido/{referidoId}")
+    public ResponseEntity<CtaCteResponse> obtenerCuentaPorReferido(@PathVariable Long referidoId) {
+        return ResponseEntity.ok(ctaCteService.obtenerResponsePorTitularId(referidoId));
     }
 
     @DeleteMapping("/{id}")

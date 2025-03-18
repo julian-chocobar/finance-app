@@ -49,18 +49,18 @@ public class CtaCteService {
         return cuenta;
     }
 
-    public CtaCteResponse obtenerResponsePorClienteId(Long clienteId) {
-    	Titular cliente = titularRepository.findById(clienteId)
+    public CtaCteResponse obtenerResponsePorTitularId(Long titularId) {
+    	Titular titular = titularRepository.findById(titularId)
     			.orElseThrow(() -> new BusinessException("Cliente no encontrado"));
-        CuentaCorriente cuenta = ctaCteRepository.findByTitular(cliente)
+        CuentaCorriente cuenta = ctaCteRepository.findByTitular(titular)
                 .orElseThrow(() -> new BusinessException("Cuenta Corriente no encontrada para el cliente"));
         return ctaCteMapper.toResponse(cuenta);
     }
     
-    public CuentaCorriente obtenerEntidadPorClienteId(Long clienteId) {
-      	Titular cliente = titularRepository.findById(clienteId)
+    public CuentaCorriente obtenerEntidadPorTitularId(Long titularId) {
+      	Titular titular = titularRepository.findById(titularId)
     			.orElseThrow(() -> new BusinessException("Cliente no encontrado"));
-        return ctaCteRepository.findByTitular(cliente)
+        return ctaCteRepository.findByTitular(titular)
                 .orElseThrow(() -> new BusinessException("Cuenta Corriente no encontrada para el cliente"));
     }
  

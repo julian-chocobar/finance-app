@@ -3,9 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <title>Lista de Referidos</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
+	
+	<!-- Botón para abrir el modal -->
+	<button onclick="mostrarModal('crear')">Nuevo Referido</button>
+
+	<!-- Modal -->
+	<div id="modal-overlay">
+	    <div id="modal-content">
+	        <button id="modal-close-btn" onclick="ocultarModal()">&times;</button>
+	        <form id="referidoForm" method="post">
+	            <label>Nombre:</label>
+	            <input type="text" id="nombre" name="nombre" required>
+
+	            <label>Teléfono:</label>
+	            <input type="text" id="telefono" name="telefono">
+
+	            <label>Email:</label>
+	            <input type="email" id="email" name="email">
+
+	            <label>Dirección:</label>
+	            <input type="text" id="direccion" name="direccion">
+
+	            <button type="submit">Guardar</button>
+	            <button type="button" onclick="ocultarModal()">Cancelar</button>
+	        </form>
+	    </div>
+	</div>
+		
+<!-- Botón para abrir la barra lateral -->
+<div class="open-btn" onclick="toggleSidebar()">&#9776;</div>
+
+<!-- Barra lateral -->
+<div id="sidebar">
+    <a href="javascript:void(0)" class="close-btn" onclick="toggleSidebar()">&times;</a>
+    <a href="/operaciones">Operaciones</a>
+    <a href="/clientes">Clientes</a>
+</div>
+
+<!-- Contenido principal -->
+<div id="main">
     <h1>Referidos</h1>
 
     <!-- Formulario de búsqueda -->
@@ -13,29 +53,6 @@
         <input type="text" name="nombre" placeholder="Buscar por nombre" th:value="${nombreFiltro}">
         <button type="submit">Buscar</button>
     </form>
-
-    <!-- Botón para mostrar el formulario de creación -->
-    <button onclick="mostrarFormulario('crear')">Nuevo Referido</button>
-
-    <!-- Formulario unificado para crear/editar un referido -->
-    <div id="formulario-referido" style="display: none;">
-        <form id="referidoForm" method="post">
-            <label>Nombre:</label>
-            <input type="text" id="nombre" name="nombre" required>
-
-            <label>Teléfono:</label>
-            <input type="text" id="telefono" name="telefono">
-
-            <label>Email:</label>
-            <input type="email" id="email" name="email">
-
-            <label>Dirección:</label>
-            <input type="text" id="direccion" name="direccion">
-
-            <button type="submit">Guardar</button>
-            <button type="button" onclick="cancelarEdicion()">Cancelar</button>
-        </form>
-    </div>
 
     <!-- Verifica si hay datos -->
     <div th:if="${referidos != null and !referidos.empty}">
@@ -57,9 +74,22 @@
                     <td th:text="${referido.telefono}">Teléfono</td>
                     <td th:text="${referido.email}">Email</td>
                     <td th:text="${referido.direccion}">Dirección</td>
-                    <td>
-						<button th:attr="onclick=|mostrarFormulario('editar', '${referido.id}', '${referido.nombre}', '${referido.telefono}', '${referido.email}', '${referido.direccion}')|">Editar</button>
-                    </td>
+					<td>
+					    <!-- Botón de Editar con ícono -->
+					    <button th:attr="onclick=|mostrarModal('editar', '${referido.id}', '${referido.nombre}', '${referido.telefono}', '${referido.email}', '${referido.direccion}')|">
+					        <i class="fas fa-edit"></i>
+					    </button>
+
+					    <!-- Botón de Eliminar con ícono -->
+					    <button th:attr="onclick=|confirmarEliminacion('${referido.id}')|">
+					        <i class="fas fa-trash-alt"></i>
+					    </button>
+
+					    <!-- Botón de Cuenta Corriente (CC) -->
+					    <a th:href="@{/ctas-ctes/referidos/{referidoId}(referidoId=${referido.id})}">
+					        <button>CC</button>
+					    </a>
+					</td>
                 </tr>
             </tbody>
         </table>
@@ -95,29 +125,72 @@
 	</div>
 
     <script>
-        function mostrarFormulario(modo, id = null, nombre = "", telefono = "", email = "", direccion = "") {
-            const form = document.getElementById("referidoForm");
+		
+		// Función para mostrar el modal
+		function mostrarModal(modo, id = null, nombre = "", telefono = "", email = "", direccion = "") {
+		    const form = document.getElementById("referidoForm");
 
-            if (modo === "crear") {
-                form.action = "/referidos"; // URL para crear un nuevo referido
-                form.method = "post";
-            } else if (modo === "editar" && id) {
-                form.action = "/referidos/editar/" + id; // URL con el ID en la ruta
-                form.method = "post";
-            }
+		    if (modo === "crear") {
+		        form.action = "/referidos"; // URL para crear un nuevo referido
+		        form.method = "post";
+		    } else if (modo === "editar" && id) {
+		        form.action = "/referidos/editar/" + id; // URL con el ID en la ruta
+		        form.method = "post";
+		    }
 
-            // Llenar los campos del formulario con datos si es edición
-            document.getElementById("nombre").value = nombre;
-            document.getElementById("telefono").value = telefono;
-            document.getElementById("email").value = email;
-            document.getElementById("direccion").value = direccion;
+		    // Llenar los campos del formulario con datos si es edición
+		    document.getElementById("nombre").value = nombre;
+		    document.getElementById("telefono").value = telefono;
+		    document.getElementById("email").value = email;
+		    document.getElementById("direccion").value = direccion;
 
-            document.getElementById("formulario-referido").style.display = "block";
-        }
+		    // Mostrar el modal
+		    document.getElementById("modal-overlay").style.display = "block";
+		}
+
+		// Función para ocultar el modal
+		function ocultarModal() {
+		    document.getElementById("modal-overlay").style.display = "none";
+		}
 
         function cancelarEdicion() {
             document.getElementById("formulario-referido").style.display = "none";
         }
+		
+		function confirmarEliminacion(referidoId) {
+		    const confirmar = confirm("¿Estás seguro de que deseas eliminar este referido?");
+		    if (confirmar) {
+		        fetch(`/referidos/${referidoId}`, {
+		            method: 'DELETE',
+		            headers: {
+		                'Content-Type': 'application/json',
+		            },
+		        })
+		        .then(response => {
+		            if (response.ok) {
+		                window.location.reload();
+		            } else {
+		                alert("Hubo un error al eliminar el referido.");
+		            }
+		        })
+		        .catch(error => {
+		            console.error("Error:", error);
+		            alert("Hubo un error al eliminar el referido.");
+		        });
+		    }
+		}
+		
+		function toggleSidebar() {
+		    const sidebar = document.getElementById("sidebar");
+		    const main = document.getElementById("main");
+		    if (sidebar.style.left === "0px") {
+		        sidebar.style.left = "-250px";
+		        main.style.marginLeft = "0";
+		    } else {
+		        sidebar.style.left = "0px";
+		        main.style.marginLeft = "250px";
+		    }
+		}
     </script>
 </body>
 </html>

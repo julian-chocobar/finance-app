@@ -48,19 +48,17 @@ public class ReferidoController {
 	    referidoService.crearReferido(referidoRequest);
 	    return "redirect:/referidos"; // Redirige a la lista de referidos después de la creación
 	}
-
 	
 	@PostMapping("/editar/{id}")
 	public String actuslizarReferido(@PathVariable Long id, @ModelAttribute TitularRequest referidoRequest) {
 	    referidoService.actualizar(id, referidoRequest);
 	    return "redirect:/referidos";
 	}
-	
+		
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> eliminarReferido(@PathVariable Long id) {
-		referidoService.eliminar(id);
-	    return ResponseEntity.noContent().build();
-	}	 
-
+	    referidoService.eliminar(id);
+	    return ResponseEntity.ok().build(); // Retorna un código 200 (OK)
+	}
 
 }

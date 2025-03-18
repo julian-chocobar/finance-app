@@ -12,6 +12,112 @@ h1 {
     margin-bottom: 20px;
 }
 
+    /* Estilos para los botones con íconos */
+    button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 5px;
+        font-size: 18px; /* Tamaño del ícono */
+        color: #007bff; /* Color del ícono */
+    }
+
+    button:hover {
+        color: #0056b3; /* Color del ícono al pasar el mouse */
+    }
+
+    /* Estilo específico para el botón de eliminar */
+    button .fa-trash-alt {
+        color: #dc3545; /* Rojo para el ícono de eliminar */
+    }
+
+    button:hover .fa-trash-alt {
+        color: #c82333; /* Rojo más oscuro al pasar el mouse */
+    }
+
+/* Estilos para la barra lateral */
+#sidebar {
+    width: 250px;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: -250px;
+    background-color: #333;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+}
+
+#sidebar a {
+    padding: 10px 15px;
+    text-decoration: none;
+    font-size: 18px;
+    color: white;
+    display: block;
+    transition: 0.3s;
+}
+
+#sidebar a:hover {
+    background-color: #575757;
+}
+
+#sidebar .close-btn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+}
+
+#main {
+    transition: margin-left 0.5s;
+    padding: 16px;
+}
+
+.open-btn {
+    font-size: 30px;
+    cursor: pointer;
+    position: fixed;
+    left: 10px;
+    top: 10px;
+    z-index: 1000;
+}
+
+/* Estilos para el modal */
+#modal-overlay {
+    display: none; /* Oculto por defecto */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semitransparente */
+    z-index: 1000; /* Asegura que esté por encima de todo */
+}
+
+#modal-content {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Centra el modal */
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1001; /* Asegura que esté por encima del overlay */
+}
+
+/* Estilos para el botón de cerrar */
+#modal-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
 /* Estilos para la tabla */
 table {
     width: 100%;
@@ -76,6 +182,17 @@ button {
 button:hover {
     background-color: #0056b3;
 }
+
+
+button {
+    padding: 5px 10px;
+    margin: 2px;
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+    color: white;
+}
+
 
 form {
     background: white;
