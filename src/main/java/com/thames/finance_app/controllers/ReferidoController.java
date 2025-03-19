@@ -33,7 +33,6 @@ public class ReferidoController {
                 : referidoService.buscarReferidosPorNombre(nombre, pageable);
         model.addAttribute("referidos", referidos);
         model.addAttribute("nombreFiltro", nombre);
-        model.addAttribute("referido", TitularResponse.builder().build());
         return "referidos";
     }
 	

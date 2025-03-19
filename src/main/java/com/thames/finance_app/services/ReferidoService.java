@@ -118,7 +118,7 @@ public class ReferidoService {
 
 	public Titular obtenerPorNombre(String nombre) {
 		return titularRepository.findByNombreAndTipo(nombre, TipoTitular.REFERIDO )
-				.orElseThrow( () -> new EntityNotFoundException("Cliente con nombre: " + nombre + " no encontrado"));
+				.orElseThrow( () -> new EntityNotFoundException("Referido con nombre: " + nombre + " no encontrado"));
 	}
 	
 }
