@@ -18,10 +18,12 @@ public class OperacionSpecification {
 	public static Specification<Operacion> filtrarPorParametros(
             LocalDateTime fechaInicio,
             LocalDateTime fechaFin,
-            BigDecimal monto,
-            Moneda moneda,
+            BigDecimal montoOrigen,
+            Moneda monedaOrigen,
+            BigDecimal montoConversion,
+            Moneda monedaConversion,
             TipoOperacion tipo,
-            Long clienteId) {
+            String clienteNombre) {
 
         return (Root<Operacion> root, CriteriaQuery<?> query, CriteriaBuilder cb) -> {
             Predicate predicate = cb.conjunction();
@@ -29,17 +31,23 @@ public class OperacionSpecification {
             if (fechaInicio != null && fechaFin != null) {
                 predicate = cb.and(predicate, cb.between(root.get("fecha"), fechaInicio, fechaFin));
             }
-            if (monto != null) {
-                predicate = cb.and(predicate, cb.equal(root.get("montoOrigen"), monto));
+            if (montoOrigen != null) {
+                predicate = cb.and(predicate, cb.equal(root.get("montoOrigen"), montoOrigen));
             }
-            if (moneda != null) {
-                predicate = cb.and(predicate, cb.equal(root.get("monedaOrigen"), moneda));
+            if (monedaOrigen != null) {
+                predicate = cb.and(predicate, cb.equal(root.get("monedaOrigen"), monedaOrigen));
+            }     
+            if (montoConversion != null) {
+                predicate = cb.and(predicate, cb.equal(root.get("montoConversion"), montoConversion));
+            }
+            if (monedaConversion != null) {
+                predicate = cb.and(predicate, cb.equal(root.get("monedaConversion"), monedaConversion));
             }
             if (tipo != null) {
                 predicate = cb.and(predicate, cb.equal(root.get("tipo"), tipo));
             }
-            if (clienteId != null) {
-                predicate = cb.and(predicate, cb.equal(root.get("cuentaCorriente").get("cliente").get("id"), clienteId));
+            if (clienteNombre != null) {
+                predicate = cb.and(predicate, cb.equal(root.get("cuentaCorriente").get("titular").get("nombre"), clienteNombre));
             }
 
             return predicate;

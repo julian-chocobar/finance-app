@@ -32,6 +32,10 @@ public class OperacionRequest {
     @NotNull(message = "El monto de origen es obligatorio.")
     @Positive(message = "El monto de origen debe ser mayor a cero.")
     private BigDecimal montoOrigen;
+    
+    @NotNull(message = "El tipo de cambio es obligatorio.")
+    @Positive(message = "El monto de origen debe ser mayor a cero.")
+    private BigDecimal valorTipoCambio;
 
     @NotNull(message = "La moneda de conversión es obligatoria.")
     private String monedaConversion;

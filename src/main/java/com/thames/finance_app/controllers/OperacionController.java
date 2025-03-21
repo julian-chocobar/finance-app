@@ -15,7 +15,6 @@ import com.thames.finance_app.services.MonedaService;
 import com.thames.finance_app.services.OperacionService;
 import com.thames.finance_app.specifications.OperacionSpecification;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
@@ -38,33 +37,44 @@ public class OperacionController {
     public String listarOperaciones(
             @RequestParam(required = false) String fechaInicio,
             @RequestParam(required = false) String fechaFin,
-            @RequestParam(required = false) String monto,
-            @RequestParam(required = false) String moneda,
+            @RequestParam(required = false) String montoOrigen,
+            @RequestParam(required = false) String monedaOrigen,
+            @RequestParam(required = false) String montoConversion,
+            @RequestParam(required = false) String monedaConversion,
             @RequestParam(required = false) String tipo,
-            @RequestParam(required = false) Long clienteId,
+            @RequestParam(required = false) String clienteNombre,
             Pageable pageable,
             Model model) {
 
         // Parseo de parámetros
         LocalDateTime fechaInicioParsed = operacionService.parsearFecha(fechaInicio);
         LocalDateTime fechaFinParsed = operacionService.parsearFecha(fechaFin);
-        BigDecimal montoParsed = (monto != null) ? new BigDecimal(monto) : null;
+        BigDecimal montoOrigenParsed = (montoOrigen != null) ? new BigDecimal(montoOrigen) : null;
+        BigDecimal montoConversionParsed = (montoConversion != null) ? new BigDecimal(montoConversion) : null;
+
         TipoOperacion tipoParsed = (tipo != null) ? TipoOperacion.valueOf(tipo) : null;
 
         // Buscar la moneda si está presente
-        Moneda monedaParsed = null;
-        if (moneda != null && !moneda.isEmpty()) {
-            monedaParsed = monedaService.buscarPorNombre(moneda);
+        Moneda monedaOrigenParsed = null;
+        if (monedaOrigen != null && !monedaOrigen.isEmpty()) {
+        	monedaOrigenParsed = monedaService.buscarPorCodigo(monedaOrigen);
+        }
+        
+        Moneda monedaConversionParsed = null;
+        if (monedaConversion != null && !monedaConversion.isEmpty()) {
+        	monedaConversionParsed = monedaService.buscarPorCodigo(monedaConversion);
         }
 
         // Crear la Specification usando OperacionSpecification
         Specification<Operacion> spec = OperacionSpecification.filtrarPorParametros(
                 fechaInicioParsed,
                 fechaFinParsed,
-                montoParsed,
-                monedaParsed,
+                montoOrigenParsed,
+                monedaOrigenParsed,
+                montoConversionParsed,
+                monedaConversionParsed,
                 tipoParsed,
-                clienteId
+                clienteNombre
         );
 
         // Llamar al servicio con la Specification y el Pageable
@@ -74,21 +84,18 @@ public class OperacionController {
         model.addAttribute("operaciones", operaciones);
         model.addAttribute("fechaInicio", fechaInicio);
         model.addAttribute("fechaFin", fechaFin);
-        model.addAttribute("monto", monto);
-        model.addAttribute("moneda", moneda);
+        model.addAttribute("montoOrigen", montoOrigen);
+        model.addAttribute("monedaOrigen", monedaOrigen);       
+        model.addAttribute("montoConversion", montoConversion);
+        model.addAttribute("monedaConversion", monedaConversion);        
         model.addAttribute("tipo", tipo);
-        model.addAttribute("clienteId", clienteId);
+        model.addAttribute("clienteNombre", clienteNombre);
 
         // Devolver el nombre de la vista
         return "operaciones";
     }
-    
-//    @PostMapping
-//    public ResponseEntity<OperacionResponse> crearOperacion(@Valid @RequestBody OperacionRequest request) {
-//        OperacionResponse response = operacionService.crearOperacion(request);
-//        return ResponseEntity.ok(response);
-//    }
-    
+   
+  
     @PostMapping
     public String crearOperacion(@ModelAttribute OperacionRequest request) {
         operacionService.crearOperacion(request);
@@ -101,10 +108,10 @@ public class OperacionController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<OperacionResponse> actualizarOperacion(@Valid @PathVariable Long id, @RequestBody OperacionRequest request) {
-        OperacionResponse response = operacionService.actualizarOperacion(id, request);
-        return ResponseEntity.ok(response);
+    @PostMapping("/editar/{id}")
+    public String actualizarOperacion(@PathVariable Long id, @ModelAttribute OperacionRequest request) {
+        operacionService.actualizarOperacion(id, request);
+        return "redirect:/referidos";
     }
 
     @DeleteMapping("/{id}")

@@ -48,12 +48,9 @@ public class OperacionMapper {
                 .cuentaCorriente(cuentaCliente)
                 .monedaOrigen(monedaOrigen)
                 .montoOrigen(request.getMontoOrigen())
+                .valorTipoCambio(request.getValorTipoCambio())
                 .monedaConversion(monedaConversion)
-                .montoConversion(tipoCambioService.convertirMoneda(monedaOrigen, monedaConversion,
-                												request.getMontoOrigen(),
-																request.getTipo() == TipoOperacion.COMPRA ? true : false ))
-                .valorTipoCambio(tipoCambioService.obtenerTipoCambio(monedaOrigen, monedaConversion,
-                												request.getTipo() == TipoOperacion.COMPRA ? true : false ))
+                .montoConversion(request.getMontoOrigen().multiply(request.getValorTipoCambio()))
                 .build();
     	
     	if(request.getNombreReferido() !=null) {      	
@@ -90,8 +87,9 @@ public class OperacionMapper {
                 
                 .monedaConversion(operacion.getMonedaConversion().getCodigo())
                 .montoConversion(operacion.getMontoConversion())
-                .valorTipoCambio(tipoCambioService.obtenerTipoCambio(operacion.getMonedaOrigen(), operacion.getMonedaConversion(),
-						operacion.getTipo() == TipoOperacion.COMPRA ? true : false ))
+                .valorTipoCambio(operacion.getValorTipoCambio())
+//                .valorTipoCambio(tipoCambioService.obtenerTipoCambio(operacion.getMonedaOrigen(), operacion.getMonedaConversion(),
+//						operacion.getTipo() == TipoOperacion.COMPRA ? true : false ))
                 .pagosOrigen(pagoMapper.toPagoResponseList(operacion.getPagosOrigen()))
                 .totalPagosOrigen(totalEjecutadoOrigen)
                 
@@ -134,8 +132,9 @@ public class OperacionMapper {
         operacion.setMontoConversion(tipoCambioService.convertirMoneda(monedaOrigen, monedaConversion,
 																		request.getMontoOrigen(),
 																		request.getTipo() == TipoOperacion.COMPRA ? true : false ));
-        operacion.setValorTipoCambio(tipoCambioService.obtenerTipoCambio(monedaOrigen, monedaConversion,
-														request.getTipo() == TipoOperacion.COMPRA ? true : false ));
+//        operacion.setValorTipoCambio(tipoCambioService.obtenerTipoCambio(monedaOrigen, monedaConversion,
+//														request.getTipo() == TipoOperacion.COMPRA ? true : false ));
+        operacion.setValorTipoCambio(request.getValorTipoCambio());
         operacion.setCuentaCorriente(cuentaCliente);
         
         if(request.getNombreReferido() !=null) {     	

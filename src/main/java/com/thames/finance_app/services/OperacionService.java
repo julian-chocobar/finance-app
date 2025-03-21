@@ -246,19 +246,39 @@ public class OperacionService {
     
     //Cambiar moneda referido
             
-    public LocalDateTime parsearFecha(String fecha) {
-    	try {
-    		return (fecha != null) ? LocalDateTime.of(LocalDate.parse(fecha, FORMATTER), LocalTime.MIN) : null;
-    	} catch (DateTimeParseException e) {
-    	    throw new IllegalArgumentException("Formato de fecha incorrecto. Usa dd-MM-yyyy");
-    	}
-    }
+//    public LocalDateTime parsearFecha(String fecha) {
+//    	try {
+//    		return (fecha != null) ? LocalDateTime.of(LocalDate.parse(fecha, FORMATTER), LocalTime.MIN) : null;
+//    	} catch (DateTimeParseException e) {
+//    	    throw new IllegalArgumentException("Formato de fecha incorrecto. Usa dd-MM-yyyy");
+//    	}
+//    }
     
+    public LocalDateTime parsearFecha(String fecha) {
+        if (fecha == null) {
+            return null;
+        }
+
+        try {
+            // Verificar si la fecha está en formato yyyy-MM-dd
+            if (fecha.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                // Convertir de yyyy-MM-dd a dd-MM-yyyy
+                String[] partes = fecha.split("-");
+                fecha = partes[2] + "-" + partes[1] + "-" + partes[0]; // Reordenar a dd-MM-yyyy
+            }
+
+            // Parsear la fecha en el formato esperado (dd-MM-yyyy)
+            LocalDate localDate = LocalDate.parse(fecha, FORMATTER);
+            return LocalDateTime.of(localDate, LocalTime.MIN);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Formato de fecha incorrecto. Usa dd-MM-yyyy o yyyy-MM-dd");
+        }
+    }
+       
     public boolean existePorCuentaCorriente(Long id) {
     	return operacionRepository.existsByCuentaCorrienteId(id);
     }
-    
-    
+        
           
 }
 

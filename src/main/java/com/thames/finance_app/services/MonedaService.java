@@ -98,6 +98,11 @@ public class MonedaService {
             throw new BusinessException("Nombre ya registrado");
         }
     }
+
+	public Moneda buscarPorCodigo(String codigo) {
+		return  monedaRepository.findByCodigo(codigo)
+				.orElseThrow( () -> new EntityNotFoundException("Moneda con nombre: " + codigo + " no encontrada"));
+	}
 	
 	
 
