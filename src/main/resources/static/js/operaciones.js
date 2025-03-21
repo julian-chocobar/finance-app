@@ -1,65 +1,35 @@
 function mostrarModalOperacion(modo, id = null, tipo = "", nombreCliente = "", monedaOrigen = "", montoOrigen = "", 
-										monedaConversion = "", montoConversion = "", valorTipoCambio = "", nombreReferido = "", 
+										monedaConversion = "", valorTipoCambio = "", nombreReferido = "", 
 										puntosReferido = "", gananciaReferido = "", monedaReferido = "") {
-		    const form = document.getElementById("operacionForm");
+	const form = document.getElementById("operacionForm");
+	if (!form) {
+		console.error("Formulario de operación no encontrado");
+		return;
+	}
+	if (modo === "crear") {
+		form.action = "/operaciones"; // URL para crear una nueva operación
+		form.method = "post";
 
-		    if (!form) {
-		        console.error("Formulario de operación no encontrado");
-		        return;
-		    }
+	} else if (modo === "editar" && id) {
+		form.action = "/operaciones/editar/" + id; // URL con el ID en la ruta
+		form.method = "post";
+	}				
+	document.getElementById("nombreCliente").value = nombreCliente;		       		 
+	document.getElementById("tipo").value = tipo;		        
+	document.getElementById("monedaOrigen").value = monedaOrigen;		        
+	document.getElementById("montoOrigen").value = montoOrigen;		        
+	document.getElementById("monedaConversion").value = monedaConversion;		        
+	document.getElementById("valorTipoCambio").value = valorTipoCambio;
+	
+	document.getElementById("nombreReferido").value = (nombreReferido === "null") ? "" : nombreReferido;
+	document.getElementById("puntosReferido").value = (puntosReferido === "null") ? "" : puntosReferido;
+	document.getElementById("gananciaReferido").value = (gananciaReferido === "null") ? "" : gananciaReferido;
+	document.getElementById("monedaReferido").value =(monedaReferido === "null") ? "" :monedaReferido;					       
+	// Mostrar el modal
+	document.getElementById("modal-overlay").style.display = "block";
+}
 
-		    if (modo === "crear") {
-		        form.action = "/operaciones"; // URL para crear una nueva operación
-		        form.method = "post";
-
-		    } else if (modo === "editar" && id) {
-		        form.action = "/operaciones/editar/" + id; // URL con el ID en la ruta
-		        form.method = "post";
-			}
-				
-		            document.getElementById("nombreCliente").value = nombreCliente;		       		 
-		            document.getElementById("tipo").value = tipo;		        
-		            document.getElementById("monedaOrigen").value = monedaOrigen;		        
-		            document.getElementById("montoOrigen").value = montoOrigen;		        
-		            document.getElementById("monedaConversion").value = monedaConversion;		        
-		        	document.getElementById("valorTipoCambio").value = valorTipoCambio;
-		         	document.getElementById("montoConversion").value = montoConversion;
-						       
-				// Manejar el checkbox de referido
-				if (nombreReferido && nombreReferido.trim() !== "") {
-				    console.log(nombreReferido); // Para depuración
-				    if (document.getElementById("tieneReferido")) {
-				        document.getElementById("tieneReferido").checked = true;
-				    }
-				    if (document.getElementById("referidoFields")) {
-				        document.getElementById("referidoFields").style.display = "block";
-				    }
-				    if (document.getElementById("nombreReferido")) {
-				        document.getElementById("nombreReferido").value = nombreReferido;
-				    }
-				    if (document.getElementById("puntosReferido")) {
-				        document.getElementById("puntosReferido").value = puntosReferido;
-				    }
-				    if (document.getElementById("gananciaReferido")) {
-				        document.getElementById("gananciaReferido").value = gananciaReferido;
-				    }
-				    if (document.getElementById("monedaReferido")) {
-				        document.getElementById("monedaReferido").value = monedaReferido;
-				    }
-				} else {
-				    if (document.getElementById("tieneReferido")) {
-				        document.getElementById("tieneReferido").checked = false;
-				    }
-				    if (document.getElementById("referidoFields")) {
-				        document.getElementById("referidoFields").style.display = "none";
-				    }
-				}
-
-		    // Mostrar el modal
-		    document.getElementById("modal-overlay").style.display = "block";
-		}
-						
-		    
+							    
 		    function confirmarEliminacionOperacion(operacionId) {
 		        const confirmar = confirm("¿Estás seguro de que deseas eliminar esta operación?");
 		        if (confirmar) {
@@ -80,6 +50,8 @@ function mostrarModalOperacion(modo, id = null, tipo = "", nombreCliente = "", m
 		            });
 		        }
 		    }
+
+			
 		
 		function toggleSidebar() {
 		    const sidebar = document.getElementById("sidebar");
@@ -102,17 +74,6 @@ function mostrarModalOperacion(modo, id = null, tipo = "", nombreCliente = "", m
 		        document.getElementById("gananciaReferido").value = "";
 		        document.getElementById("monedaReferido").value = "";
 		    }
-		}
-
-		function procesarFormulario() {
-		    const checkbox = document.getElementById("tieneReferido");
-		    if (!checkbox.checked) {
-		        document.getElementById("nombreReferido").removeAttribute("name");
-		        document.getElementById("puntosReferido").removeAttribute("name");
-		        document.getElementById("gananciaReferido").removeAttribute("name");
-		        document.getElementById("monedaReferido").removeAttribute("name");
-		    }
-		    return true;
 		}
 		
 		function formatearNumero(input) {
@@ -164,18 +125,4 @@ function mostrarModalOperacion(modo, id = null, tipo = "", nombreCliente = "", m
 			    }
 		}
 		
-		document.getElementById("filtroForm").addEventListener("submit", function(event) {
-		    event.preventDefault(); // Evita el envío automático del formulario
 
-		    const formData = new FormData(this);
-		    let params = new URLSearchParams();
-
-		    formData.forEach((value, key) => {
-		        if (value.trim() !== "") { // Solo agrega parámetros con valores
-		            params.append(key, value);
-		        }
-		    });
-
-		    // Redirigir la página con los parámetros actualizados
-		    window.location.href = "/operaciones?" + params.toString();
-		});

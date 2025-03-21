@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import com.thames.finance_app.enums.TipoOperacion;
+import com.thames.finance_app.validations.ValidReferido;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +19,7 @@ import jakarta.validation.constraints.*;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
+@ValidReferido
 public class OperacionRequest {
 
     @NotNull(message = "El tipo de operación es obligatorio.")
@@ -51,14 +53,8 @@ public class OperacionRequest {
         
     private String monedaReferido;
     
-//  @NotNull(message = "El monto de conversión es obligatorio.")
-//  @Positive(message = "El monto de conversión debe ser mayor a cero.")
-//  private BigDecimal montoConversion;
-
-//  @NotNull(message = "El tipo de cambio es obligatorio.")
-//  @Positive(message = "El tipo de cambio debe ser mayor a cero.")
-//  private BigDecimal tipoCambio;
-
+    @Positive(message = "La ganancia debe ser mayor a cero.")
+    private BigDecimal gananciaReferido;
     
 	public BigDecimal getTotalPagosOrigen() {
         BigDecimal total = BigDecimal.ZERO;

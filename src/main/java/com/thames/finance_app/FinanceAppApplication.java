@@ -115,7 +115,7 @@ public class FinanceAppApplication {
     	    
     	    List<Titular> referidos = List.of(
     	    	    Titular.builder().tipo(TipoTitular.REFERIDO).nombre("Pedro Lopez").email("pedrolo@gmail.com").telefono("+54 9 11 1234 5678").direccion("Alberdi 444").build(),
-    	    	    Titular.builder().tipo(TipoTitular.REFERIDO).nombre("Maria Gonzalez").email("mariagonzalez@gmail.com").telefono("+54 9 11 2345 6789").direccion("San Martin 123").build()
+    	    	    Titular.builder().tipo(TipoTitular.REFERIDO).nombre("Maria Gonzalez").email(null).telefono("+54 9 11 2345 6789").direccion("San Martin 123").build()
 //    	    	    Titular.builder().tipo(TipoTitular.REFERIDO).nombre("Carlos Perez").email("carlosperez@gmail.com").telefono("+54 9 11 3456 7890").direccion("Belgrano 987").build(),
 //    	    	    Titular.builder().tipo(TipoTitular.REFERIDO).nombre("Lucia Ramirez").email("luciar@gmail.com").telefono("+54 9 11 4567 8901").direccion("Av. Rivadavia 321").build(),
 //    	    	    Titular.builder().tipo(TipoTitular.REFERIDO).nombre("Jorge Diaz").email("jorgediaz@gmail.com").telefono("+54 9 11 5678 9012").direccion("Colon 555").build(),

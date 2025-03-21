@@ -129,13 +129,13 @@ public class CtaCteService {
 	
     public void impactoOperacionReferido(Operacion operacion) {
     	CuentaCorriente cuentaReferido = operacion.getCuentaCorrienteReferido();
-        if (cuentaReferido == null || operacion.getGananciaReferido(operacion.getMontoOrigen()) == null 
-        	|| operacion.getGananciaReferido(operacion.getMontoOrigen()).compareTo(BigDecimal.ZERO) == 0) {
+        if (cuentaReferido == null || operacion.getGananciaReferido() == null 
+        	|| operacion.getGananciaReferido().compareTo(BigDecimal.ZERO) == 0) {
             return;
         }   
         Moneda monedaReferido = operacion.getMonedaReferido();
         BigDecimal saldoActual = cuentaReferido.getSaldoPorMoneda(monedaReferido);
-        cuentaReferido.setSaldoPorMoneda(monedaReferido, saldoActual.add(operacion.getGananciaReferido(operacion.getMontoOrigen())));
+        cuentaReferido.setSaldoPorMoneda(monedaReferido, saldoActual.add(operacion.getGananciaReferido()));
 	    
         movimientoCtaCteService.registrarMovimientoReferido(operacion);
         ctaCteRepository.save(cuentaReferido);       
@@ -143,13 +143,13 @@ public class CtaCteService {
     
     public void revertirImpactoOperacionReferido (Operacion operacion) {
     	CuentaCorriente cuentaReferido = operacion.getCuentaCorrienteReferido();
-        if (cuentaReferido == null || operacion.getGananciaReferido(operacion.getMontoOrigen()) == null 
-        	|| operacion.getGananciaReferido(operacion.getMontoOrigen()).compareTo(BigDecimal.ZERO) == 0) {
+        if (cuentaReferido == null || operacion.getGananciaReferido() == null 
+        	|| operacion.getGananciaReferido().compareTo(BigDecimal.ZERO) == 0) {
             return;
         }        
         Moneda monedaReferido = operacion.getMonedaReferido();
         BigDecimal saldoActual = cuentaReferido.getSaldoPorMoneda(monedaReferido);
-        cuentaReferido.setSaldoPorMoneda(monedaReferido, saldoActual.subtract(operacion.getGananciaReferido(operacion.getMontoOrigen())));
+        cuentaReferido.setSaldoPorMoneda(monedaReferido, saldoActual.subtract(operacion.getGananciaReferido()));
 	    
         movimientoCtaCteService.revertirRegistroMovimientoReferido(operacion);
         ctaCteRepository.save(cuentaReferido);

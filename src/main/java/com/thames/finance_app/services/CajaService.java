@@ -12,6 +12,7 @@ import com.thames.finance_app.exceptions.BusinessException;
 import com.thames.finance_app.mappers.CajaMapper;
 import com.thames.finance_app.models.Caja;
 import com.thames.finance_app.models.Moneda;
+import com.thames.finance_app.models.MovimientoCaja;
 import com.thames.finance_app.models.Operacion;
 import com.thames.finance_app.repositories.CajaRepository;
 import com.thames.finance_app.repositories.MovimientoCajaRepository;
@@ -110,6 +111,8 @@ public class CajaService {
         Caja cajaConversion = cajaRepository.findByMoneda(operacion.getMonedaConversion())
                 .orElseThrow(() -> new RuntimeException("Caja no encontrada"));
         
+        List<MovimientoCaja> movimientos = movimientoCajaRepository.findByOperacion(operacion);
+	  
         if (operacion.getTipo() == TipoOperacion.COMPRA) {
             actualizarSaldoReal(cajaOrigen, operacion.getMontoOrigen(), false); // Resta lo sumado en la compra
             actualizarSaldoDisponible(cajaOrigen, operacion.getTotalPagosOrigen(), false);
@@ -125,6 +128,10 @@ public class CajaService {
             actualizarSaldoReal(cajaConversion, operacion.getMontoConversion(), false); // Resta lo sumado en la venta
             actualizarSaldoDisponible(cajaConversion, operacion.getTotalPagosConversion(), false);
         }
+   
+        movimientoCajaRepository.deleteAll(movimientos);
+        cajaRepository.save(cajaOrigen);
+        cajaRepository.save(cajaConversion);       
     }
         
 	@Transactional

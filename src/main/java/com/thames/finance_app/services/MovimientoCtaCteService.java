@@ -63,13 +63,13 @@ public class MovimientoCtaCteService {
     
     public void registrarMovimientoReferido(Operacion operacion) {
     	MovimientoCtaCte ganancia = movimientoCtaCteMapper.toEntity(operacion, TipoMovimiento.INGRESO, 
-    										operacion.getMonedaReferido(), operacion.getGananciaReferido(operacion.getMontoOrigen()));
+    										operacion.getMonedaReferido(), operacion.getGananciaReferido());
     	registrarMovimiento(ganancia);
     }
     
     public void revertirRegistroMovimientoReferido(Operacion operacion) {
     	MovimientoCtaCte ganancia = movimientoCtaCteMapper.toEntity(operacion, TipoMovimiento.EGRESO, 
-    										operacion.getMonedaReferido(), operacion.getGananciaReferido(operacion.getMontoOrigen()));
+    										operacion.getMonedaReferido(), operacion.getGananciaReferido());
     	registrarMovimiento(ganancia);
     }
     

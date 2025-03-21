@@ -87,7 +87,7 @@ public class Operacion {
 	@JoinColumn(name = "moneda_referido_id", nullable = true)
 	private Moneda monedaReferido; 
 	
-//	private BigDecimal gananciaReferido;
+	private BigDecimal gananciaReferido;
 	
 	public BigDecimal getTotalPagosOrigen() {
         BigDecimal total = BigDecimal.ZERO;
@@ -121,9 +121,9 @@ public class Operacion {
 //		return this.montoOrigen.multiply(this.valorTipoCambio);		
 //	}
 	
-	public BigDecimal getGananciaReferido(BigDecimal monto) {
-		return monto.multiply(puntosReferido);
-	}
-	
+//	public BigDecimal getGananciaReferido(BigDecimal monto) {
+//		return monto.multiply(puntosReferido);
+//	}
+//	
 		
 }

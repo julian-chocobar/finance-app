@@ -41,6 +41,4 @@ public class OperacionResponse {
     private Moneda monedaReferido;
     
     
-//    private Long liquidadorId;
-//    private BigDecimal montoLiquidador;
 }
