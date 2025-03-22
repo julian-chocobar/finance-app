@@ -1,6 +1,7 @@
 package com.thames.finance_app.dtos;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.thames.finance_app.enums.TipoOperacion;
@@ -42,9 +43,11 @@ public class OperacionRequest {
     @NotNull(message = "La moneda de conversión es obligatoria.")
     private String monedaConversion;    
     
-    private List<PagoDTO> pagosOrigen;
+    @Builder.Default
+    private List<PagoDTO> pagosOrigen = new ArrayList<>();
     
-    private List<PagoDTO> pagosConversion; 
+    @Builder.Default
+    private List<PagoDTO> pagosConversion = new ArrayList<>();
 
     private String nombreReferido;
     

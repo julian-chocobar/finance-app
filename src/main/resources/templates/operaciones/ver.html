@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{layout :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Detalles de Operación</title>
+</head>
+<body>
+    <section>
+        <div class="container mt-4">
+            <div class="card">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">Detalles de Operación</h3>
+                    <div>
+                        <a th:href="@{/operaciones/{id}/editar(id=${operacion.id})}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                        <a th:href="@{/operaciones}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <h4 class="border-bottom pb-2">Datos Generales</h4>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>ID:</strong> <span th:text="${operacion.id}"></span></p>
+                            <p><strong>Cliente:</strong> <span th:text="${operacion.nombreCliente}"></span></p>
+                            <p><strong>Tipo:</strong> 
+                                <span th:if="${operacion.tipo == 'COMPRA'}" class="badge bg-success">Compra</span>
+                                <span th:if="${operacion.tipo == 'VENTA'}" class="badge bg-primary">Venta</span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Fecha de Creación:</strong> <span th:text="${#temporals.format(operacion.fechaCreacion, 'dd/MM/yyyy HH:mm')}"></span></p>
+                            <p><strong>Última Actualización:</strong> <span th:text="${operacion.fechaActualizacion != null ? #temporals.format(operacion.fechaActualizacion, 'dd/MM/yyyy HH:mm') : '-'}"></span></p>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <h4 class="border-bottom pb-2">Datos de Cambio</h4>
+                        </div>
+                        <div class="col-md-3">
+                            <p><strong>Moneda Origen:</strong> <span th:text="${operacion.monedaOrigen}"></span></p>
+                        </div>
+                        <div class="col-md-3">
+                            <p><strong>Monto Origen:</strong> <span th:text="${#numbers.formatDecimal(operacion.montoOrigen, 1, 2)}"></span></p>
+                        </div>
+                        <div class="col-md-3">
+                            <p><strong>Tipo de Cambio:</strong> <span th:text="${#numbers.formatDecimal(operacion.valorTipoCambio, 1, 4)}"></span></p>
+                        </div>
+                        <div class="col-md-3">
+                            <p><strong>Moneda Conversión:</strong> <span th:text="${operacion.monedaConversion}"></span></p>
+                        </div>
+                        <div class="col-md-3">
+                            <p><strong>Monto Calculado:</strong> <span th:text="${#numbers.formatDecimal(operacion.montoOrigen * operacion.valorTipoCambio, 1, 2)}"></span></p>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4" th:if="${operacion.nombreReferido != null}">
+                        <div class="col-md-12">
+                            <h4 class="border-bottom pb-2">Datos de Referido</h4>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Nombre:</strong> <span th:text="${operacion.nombreReferido}"></span></p>
+                        </div>
+                        <div class="col-md-2">
+                            <p><strong>Puntos:</strong> <span th:text="${operacion.puntosReferido != null ? #numbers.formatDecimal(operacion.puntosReferido, 1, 2) : '-'}"></span></p>
+                        </div>
+                        <div class="col-md-2">
+                            <p><strong>Ganancia:</strong> <span th:text="${operacion.gananciaReferido != null ? #numbers.formatDecimal(operacion.gananciaReferido, 1, 2) : '-'}"></span></p>
+                        </div>
+                        <div class="col-md-2">
+                            <p><strong>Moneda:</strong> <span th:text="${operacion.monedaReferido ?: '-'}"></span></p>
+                        </div>
+                    </div>
+                    
+                    <!-- Pagos Origen -->
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <h4 class="border-bottom pb-2">Pagos Origen</h4>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Tipo de Entrega</th>
+                                            <th>Valor</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="pago : ${operacion.pagosOrigen}">
+                                            <td th:text="${#temporals.format(pago.fecha, 'dd/MM/yyyy')}"></td>
+                                            <td>
+                                                <span th:if="${pago.tipoEntrega == 'TRANSFERENCIA'}">Transferencia</span>
+                                                <span th:if="${pago.tipoEntrega == 'OFICINA'}">Oficina</span>
+                                                <span th:if="${pago.tipoEntrega == 'DELIVERY'}">Delivery</span>
+                                                <span th:if="${pago.tipoEntrega == 'BANCO'}">Banco</span>
+                                            </td>
+                                            <td th:text="${#numbers.formatDecimal(pago.valor, 1, 2)}"></td>
+                                        </tr>
+                                        <tr th:if="${#lists.isEmpty(operacion.pagosOrigen)}">
+                                            <td colspan="3" class="text-center">No hay pagos registrados</td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="2" class="text-end fw-bold">Total:</td>
+                                            <td th:text="${#numbers.formatDecimal(#aggregates.sum(operacion.pagosOrigen.![valor]), 1, 2)}"></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Pagos Conversión -->
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <h4 class="border-bottom pb-2">Pagos Conversión</h4>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Tipo de Entrega</th>
+                                            <th>Valor</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="pago : ${operacion.pagosConversion}">
+                                            <td th:text="${#temporals.format(pago.fecha, 'dd/MM/yyyy')}"></td>
+                                            <td>
+                                                <span th:if="${pago.tipoEntrega == 'TRANSFERENCIA'}">Transferencia</span>
+                                                <span th:if="${pago.tipoEntrega == 'OFICINA'}">Oficina</span>
+                                                <span th:if="${pago.tipoEntrega == 'DELIVERY'}">Delivery</span>
+                                                <span th:if="${pago.tipoEntrega == 'BANCO'}">Banco</span>
+                                            </td>
+                                            <td th:text="${#numbers.formatDecimal(pago.valor, 1, 2)}"></td>
+                                        </tr>
+                                        <tr th:if="${#lists.isEmpty(operacion.pagosConversion)}">
+                                            <td colspan="3" class="text-center">No hay pagos registrados</td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="2" class="text-end fw-bold">Total:</td>
+                                            <td th:text="${#numbers.formatDecimal(#aggregates.sum(operacion.pagosConversion.![valor]), 1, 2)}"></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

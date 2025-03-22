@@ -1,296 +1,123 @@
 /* Estilos generales */
 body {
-    font-family: Arial, sans-serif;
     background-color: #f8f9fa;
-    margin: 0;
-    padding: 20px;
-    text-align: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-h1 {
-    color: #333;
-    margin-bottom: 20px;
-}
-#filtroForm {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 10px;
-    align-items: center;
-    margin-bottom: 15px;
-}
-#filtroForm input, #filtroForm select, #filtroForm button {
-    padding: 8px;
-    font-size: 14px;
-    width: 100%;
-}
-/* Contenedor principal */
-.header-container {
-    display: flex; /* Activa Flexbox */
-    justify-content: space-between; /* Distribuye los elementos en los extremos */
-    align-items: center; /* Alinea verticalmente los elementos */
-    width: 100%; /* Ocupa todo el ancho disponible */
-    margin-bottom: 20px; /* Espacio debajo del contenedor */
-}
-
-/* Estilos para el formulario de búsqueda */
-.form-busqueda {
-    display: flex; /* Coloca el campo y el botón en la misma línea */
-    align-items: center; /* Alinea verticalmente el campo y el botón */
-    margin-left: 0; /* Lo más a la izquierda posible */
-}
-
-.form-busqueda input[type="text"] {
-    width: 250px; /* Ancho del campo */
-    padding: 8px; /* Espaciado interno */
-    border: 1px solid #ccc; /* Borde del campo */
-    border-radius: 4px; /* Bordes redondeados */
-    margin-right: 10px; /* Espacio entre el campo y el botón */
-}
-
-.form-busqueda button {
-    padding: 8px 16px; /* Espaciado interno */
-    background-color: #007bff; /* Color de fondo */
-    color: white; /* Color del texto */
-    border: none; /* Sin borde */
-    border-radius: 4px; /* Bordes redondeados */
-    cursor: pointer; /* Cambia el cursor al pasar el mouse */
-}
-
-.form-busqueda button:hover {
-    background-color: #0056b3; /* Color de fondo al pasar el mouse */
-}
-
-/* Estilos para el botón "Nuevo Referido" */
-.btn-nuevo-referido-container {
-    margin-right: 0; /* Lo más a la derecha posible */
-}
-
-.btn-nuevo-referido-container button {
-    padding: 8px 16px; /* Espaciado interno */
-    background-color: #28a745; /* Color de fondo */
-    color: white; /* Color del texto */
-    border: none; /* Sin borde */
-    border-radius: 4px; /* Bordes redondeados */
-    cursor: pointer; /* Cambia el cursor al pasar el mouse */
-}
-
-.btn-nuevo-referido-container button:hover {
-    background-color: #218838; /* Color de fondo al pasar el mouse */
-}
-
-
-
-
-
-    /* Estilos para los botones con íconos */
-    button {
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 5px;
-        font-size: 18px; /* Tamaño del ícono */
-        color: #007bff; /* Color del ícono */
-    }
-
-    button:hover {
-        color: #0056b3; /* Color del ícono al pasar el mouse */
-    }
-
-    /* Estilo específico para el botón de eliminar */
-    button .fa-trash-alt {
-        color: #dc3545; /* Rojo para el ícono de eliminar */
-    }
-
-    button:hover .fa-trash-alt {
-        color: #c82333; /* Rojo más oscuro al pasar el mouse */
-    }
-
-/* Estilos para la barra lateral */
-#sidebar {
-    width: 250px;
-    height: 100%;
-    position: fixed;
-    top: 0;
-    left: -250px;
-    background-color: #333;
-    overflow-x: hidden;
-    transition: 0.5s;
-    padding-top: 60px;
-}
-
-#sidebar a {
-    padding: 10px 15px;
-    text-decoration: none;
-    font-size: 18px;
-    color: white;
-    display: block;
-    transition: 0.3s;
-}
-
-#sidebar a:hover {
-    background-color: #575757;
-}
-
-#sidebar .close-btn {
-    position: absolute;
-    top: 0;
-    right: 25px;
-    font-size: 36px;
-    margin-left: 50px;
-}
-
-#main {
-    transition: margin-left 0.5s;
-    padding: 16px;
-}
-
-.open-btn {
-    font-size: 30px;
-    cursor: pointer;
-    position: fixed;
-    left: 10px;
-    top: 10px;
-    z-index: 1000;
-}
-
-/* Estilos para el modal */
-#modal-overlay {
-    display: none; /* Oculto por defecto */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semitransparente */
-    z-index: 1000; /* Asegura que esté por encima de todo */
-}
-
-#modal-content {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%); /* Centra el modal */
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    z-index: 1001; /* Asegura que esté por encima del overlay */
-}
-
-/* Estilos para el botón de cerrar */
-#modal-close-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
+/* Estilos para las tarjetas */
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border-radius: 0.5rem;
     border: none;
-    font-size: 20px;
-    cursor: pointer;
+    margin-bottom: 1.5rem;
 }
 
-/* Estilos para la tabla */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-    background: white;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    overflow: hidden;
+.card-header {
+    border-top-left-radius: 0.5rem !important;
+    border-top-right-radius: 0.5rem !important;
+    font-weight: 600;
 }
 
-th, td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
+/* Estilos para los botones */
+.btn {
+    border-radius: 0.25rem;
+    padding: 0.375rem 0.75rem;
+    font-weight: 500;
 }
 
-th {
-    background-color: #007bff;
-    color: white;
-    font-weight: bold;
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
 }
 
-tr:hover {
-    background-color: #f1f1f1;
-    transition: 0.3s;
+/* Estilos para las tablas */
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    font-weight: 600;
+    vertical-align: middle;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+/* Estilos para los formularios */
+.form-label {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.form-control, .form-select {
+    border-radius: 0.25rem;
+    padding: 0.375rem 0.75rem;
+    border: 1px solid #ced4da;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
 /* Estilos para la paginación */
-.pagination {
-    margin-top: 20px;
+.pagination .page-link {
+    color: #0d6efd;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
 }
 
-.pagination a, .pagination span {
-    color: #007bff;
-    text-decoration: none;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    margin: 0 4px;
-    border-radius: 5px;
-    font-size: 14px;
-    transition: background-color 0.3s;
-}
-
-.pagination a:hover {
-    background-color: #007bff;
+.pagination .page-item.active .page-link {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
     color: white;
 }
 
-/* Estilos para el formulario de creación de referidos */
-button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: background 0.3s;
+.pagination .page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    background-color: #fff;
+    border-color: #dee2e6;
 }
 
-button:hover {
-    background-color: #0056b3;
+/* Estilos para los badges */
+.badge {
+    padding: 0.35em 0.65em;
+    font-weight: 500;
+    border-radius: 0.25rem;
 }
 
-
-button {
-    padding: 5px 10px;
-    margin: 2px;
-    cursor: pointer;
-    border: none;
-    border-radius: 4px;
-    color: white;
+/* Estilos para el navbar */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-
-form {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    max-width: 400px;
-    margin: 20px auto;
-    text-align: left;
+.navbar-brand {
+    font-weight: 600;
 }
 
-label {
+/* Estilos para el footer */
+footer {
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para los iconos */
+.fas {
+    margin-right: 0.25rem;
+}
+
+/* Estilos para los campos requeridos */
+.form-label.required:after {
+    content: " *";
+    color: red;
+}
+
+/* Estilos para los mensajes de error */
+.invalid-feedback {
     display: block;
-    margin-top: 10px;
-    font-weight: bold;
-}
-
-input {
     width: 100%;
-    padding: 8px;
-    margin-top: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-}
-
-input:focus {
-    border-color: #007bff;
-    outline: none;
-    box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #dc3545;
 }

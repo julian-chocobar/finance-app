@@ -95,14 +95,14 @@ public class OperacionController {
         model.addAttribute("clienteNombre", clienteNombre);
 
         // Devolver el nombre de la vista
-        return "operaciones";
+        return "operaciones/lista";
     }
    
   
     @PostMapping
     public String crearOperacion(@ModelAttribute OperacionRequest request) {
         operacionService.crearOperacion(request);
-        return "redirect:/operaciones";
+        return "redirect:/operaciones/crear";
     }
 
     @GetMapping("/{id}")
@@ -114,7 +114,7 @@ public class OperacionController {
     @PostMapping("/editar/{id}")
     public String actualizarOperacion(@PathVariable Long id, @ModelAttribute OperacionRequest request) {
         operacionService.actualizarOperacion(id, request);
-        return "redirect:/operaciones";
+        return "redirect:/operaciones/editar";
     }
 
     @DeleteMapping("/{id}")

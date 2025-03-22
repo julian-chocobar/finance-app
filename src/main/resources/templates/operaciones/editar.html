@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{layout :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Editar Operación</title>
+</head>
+<body>
+    <section>
+        <div class="container mt-4">
+            <div class="card">
+                <div class="card-header bg-warning">
+                    <h3 class="mb-0">Editar Operación</h3>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/operaciones/{id}/actualizar(id=${operacion.id})}" th:object="${operacion}" method="post" id="formOperacion">
+                        <input type="hidden" th:field="*{id}">
+                        
+                        <!-- El contenido del formulario es idéntico al de crear.html -->
+                        <!-- Reutilizamos el mismo código del formulario de crear.html -->
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <h4 class="border-bottom pb-2">Datos Generales</h4>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="nombreCliente" class="form-label">Nombre del Cliente *</label>
+                                <input type="text" class="form-control" id="nombreCliente" th:field="*{nombreCliente}" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('nombreCliente')}" th:errors="*{nombreCliente}"></div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="tipo" class="form-label">Tipo de Operación *</label>
+                                <select class="form-select" id="tipo" th:field="*{tipo}" required>
+                                    <option value="">Seleccione...</option>
+                                    <option value="COMPRA">Compra</option>
+                                    <option value="VENTA">Venta</option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('tipo')}" th:errors="*{tipo}"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <h4 class="border-bottom pb-2">Datos de Cambio</h4>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="monedaOrigen" class="form-label">Moneda Origen *</label>
+                                <input type="text" class="form-control" id="monedaOrigen" th:field="*{monedaOrigen}" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('monedaOrigen')}" th:errors="*{monedaOrigen}"></div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="montoOrigen" class="form-label">Monto Origen *</label>
+                                <input type="number" step="0.01" class="form-control" id="montoOrigen" th:field="*{montoOrigen}" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('montoOrigen')}" th:errors="*{montoOrigen}"></div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="valorTipoCambio" class="form-label">Valor Tipo de Cambio *</label>
+                                <input type="number" step="0.0001" class="form-control" id="valorTipoCambio" th:field="*{valorTipoCambio}" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('valorTipoCambio')}" th:errors="*{valorTipoCambio}"></div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="monedaConversion" class="form-label">Moneda Conversión *</label>
+                                <input type="text" class="form-control" id="monedaConversion" th:field="*{monedaConversion}" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('monedaConversion')}" th:errors="*{monedaConversion}"></div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="montoCalculado" class="form-label">Monto Calculado</label>
+                                <input type="text" class="form-control" id="montoCalculado" readonly>
+                            </div>
+                        </div>
+                        
+                        <!-- Resto del formulario idéntico al de crear.html -->
+                        <!-- Datos de Referido -->
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <h4 class="border-bottom pb-2">Datos de Referido</h4>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="nombreReferido" class="form-label">Nombre del Referido</label>
+                                <input type="text" class="form-control" id="nombreReferido" th:field="*{nombreReferido}">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('nombreReferido')}" th:errors="*{nombreReferido}"></div>
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label for="puntosReferido" class="form-label">Puntos</label>
+                                <input type="number" step="0.01" class="form-control" id="puntosReferido" th:field="*{puntosReferido}">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('puntosReferido')}" th:errors="*{puntosReferido}"></div>
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label for="gananciaReferido" class="form-label">Ganancia</label>
+                                <input type="number" step="0.01" class="form-control" id="gananciaReferido" th:field="*{gananciaReferido}">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('gananciaReferido')}" th:errors="*{gananciaReferido}"></div>
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label for="monedaReferido" class="form-label">Moneda</label>
+                                <input type="text" class="form-control" id="monedaReferido" th:field="*{monedaReferido}">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('monedaReferido')}" th:errors="*{monedaReferido}"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Pagos Origen -->
+                        <div class="row mb-4">
+                            <div class="col-md-12 d-flex justify-content-between align-items-center">
+                                <h4 class="border-bottom pb-2">Pagos Origen</h4>
+                                <button type="button" class="btn btn-sm btn-success" id="agregarPagoOrigen">
+                                    <i class="fas fa-plus"></i> Agregar Pago
+                                </button>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" id="tablaPagosOrigen">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Fecha</th>
+                                                <th>Tipo de Entrega</th>
+                                                <th>Valor</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="pago, stat : *{pagosOrigen}">
+                                                <td>
+                                                    <input type="date" class="form-control" th:field="*{pagosOrigen[__${stat.index}__].fecha}" required>
+                                                </td>
+                                                <td>
+                                                    <select class="form-select" th:field="*{pagosOrigen[__${stat.index}__].tipoEntrega}" required>
+                                                        <option value="">Seleccione...</option>
+                                                        <option value="TRANSFERENCIA">Transferencia</option>
+                                                        <option value="OFICINA">Oficina</option>
+                                                        <option value="DELIVERY">Delivery</option>
+                                                        <option value="BANCO">Banco</option>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <input type="number" step="0.01" class="form-control pago-origen-valor" 
+                                                           th:field="*{pagosOrigen[__${stat.index}__].valor}" required>
+                                                </td>
+                                                <td>
+                                                    <button type="button" class="btn btn-sm btn-danger eliminar-pago-origen">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <tr th:if="${#lists.isEmpty(operacion.pagosOrigen)}">
+                                                <td colspan="4" class="text-center">No hay pagos registrados</td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td colspan="2" class="text-end fw-bold">Total:</td>
+                                                <td id="totalPagosOrigen">0.00</td>
+                                                <td></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Pagos Conversión -->
+                        <div class="row mb-4">
+                            <div class="col-md-12 d-flex justify-content-between align-items-center">
+                                <h4 class="border-bottom pb-2">Pagos Conversión</h4>
+                                <button type="button" class="btn btn-sm btn-success" id="agregarPagoConversion">
+                                    <i class="fas fa-plus"></i> Agregar Pago
+                                </button>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" id="tablaPagosConversion">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Fecha</th>
+                                                <th>Tipo de Entrega</th>
+                                                <th>Valor</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="pago, stat : *{pagosConversion}">
+                                                <td>
+                                                    <input type="date" class="form-control" th:field="*{pagosConversion[__${stat.index}__].fecha}" required>
+                                                </td>
+                                                <td>
+                                                    <select class="form-select" th:field="*{pagosConversion[__${stat.index}__].tipoEntrega}" required>
+                                                        <option value="">Seleccione...</option>
+                                                        <option value="TRANSFERENCIA">Transferencia</option>
+                                                        <option value="OFICINA">Oficina</option>
+                                                        <option value="DELIVERY">Delivery</option>
+                                                        <option value="BANCO">Banco</option>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <input type="number" step="0.01" class="form-control pago-conversion-valor" 
+                                                           th:field="*{pagosConversion[__${stat.index}__].valor}" required>
+                                                </td>
+                                                <td>
+                                                    <button type="button" class="btn btn-sm btn-danger eliminar-pago-conversion">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <tr th:if="${#lists.isEmpty(operacion.pagosConversion)}">
+                                                <td colspan="4" class="text-center">No hay pagos registrados</td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td colspan="2" class="text-end fw-bold">Total:</td>
+                                                <td id="totalPagosConversion">0.00</td>
+                                                <td></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-12 text-end">
+                                <a th:href="@{/operaciones}" class="btn btn-secondary">Cancelar</a>
+                                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

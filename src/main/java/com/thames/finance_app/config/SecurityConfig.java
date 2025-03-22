@@ -32,6 +32,8 @@ public class SecurityConfig {
                 .requestMatchers("/cajas/**").permitAll()
                 .requestMatchers("/tipoCambio/**").permitAll()
                 
+                
+                
         );
 
 		return http.build();

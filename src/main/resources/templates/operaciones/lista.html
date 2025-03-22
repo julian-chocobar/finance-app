@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{layout :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Listado de Operaciones</title>
+</head>
+<body>
+    <section>
+        <div class="container mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Operaciones</h2>
+                <a th:href="@{/operaciones/crear}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Nueva Operación
+                </a>
+            </div>
+            
+            <!-- Filtros -->
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Filtros</h5>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/operaciones}" method="get" class="row g-3">
+                        <div class="col-md-3">
+                            <label for="nombreCliente" class="form-label">Cliente</label>
+                            <input type="text" class="form-control" id="nombreCliente" name="nombreCliente" 
+                                   th:value="${param.nombreCliente}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="tipo" class="form-label">Tipo</label>
+                            <select class="form-select" id="tipo" name="tipo">
+                                <option value="">Todos</option>
+                                <option value="COMPRA" th:selected="${param.tipo == 'COMPRA'}">Compra</option>
+                                <option value="VENTA" th:selected="${param.tipo == 'VENTA'}">Venta</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="monedaOrigen" class="form-label">Moneda Origen</label>
+                            <input type="text" class="form-control" id="monedaOrigen" name="monedaOrigen" 
+                                   th:value="${param.monedaOrigen}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="monedaConversion" class="form-label">Moneda Conversión</label>
+                            <input type="text" class="form-control" id="monedaConversion" name="monedaConversion" 
+                                   th:value="${param.monedaConversion}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="fechaDesde" class="form-label">Fecha Desde</label>
+                            <input type="date" class="form-control" id="fechaDesde" name="fechaDesde" 
+                                   th:value="${param.fechaDesde}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="fechaHasta" class="form-label">Fecha Hasta</label>
+                            <input type="date" class="form-control" id="fechaHasta" name="fechaHasta" 
+                                   th:value="${param.fechaHasta}">
+                        </div>
+                        <div class="col-12 text-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                            <a th:href="@{/operaciones}" class="btn btn-secondary">
+                                <i class="fas fa-undo"></i> Limpiar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Tabla de operaciones -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Cliente</th>
+                                    <th>Tipo</th>
+                                    <th>Moneda Origen</th>
+                                    <th>Monto Origen</th>
+                                    <th>Tipo Cambio</th>
+                                    <th>Moneda Conversión</th>
+                                    <th>Referido</th>
+                                    <th>Fecha</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${operaciones.empty}">
+                                    <td colspan="10" class="text-center">No hay operaciones disponibles</td>
+                                </tr>
+                                <tr th:each="operacion : ${operaciones}">
+                                    <td th:text="${operacion.id}"></td>
+                                    <td th:text="${operacion.nombreCliente}"></td>
+                                    <td>
+                                        <span th:if="${operacion.tipo == 'COMPRA'}" class="badge bg-success">Compra</span>
+                                        <span th:if="${operacion.tipo == 'VENTA'}" class="badge bg-primary">Venta</span>
+                                    </td>
+                                    <td th:text="${operacion.monedaOrigen}"></td>
+                                    <td th:text="${#numbers.formatDecimal(operacion.montoOrigen, 1, 2)}"></td>
+                                    <td th:text="${#numbers.formatDecimal(operacion.valorTipoCambio, 1, 4)}"></td>
+                                    <td th:text="${operacion.monedaConversion}"></td>
+                                    <td th:text="${operacion.nombreReferido ?: '-'}"></td>
+                                    <td th:text="${#temporals.format(operacion.fechaCreacion, 'dd/MM/yyyy')}"></td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a th:href="@{/operaciones/{id}(id=${operacion.id})}" 
+                                               class="btn btn-sm btn-info" title="Ver">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a th:href="@{/operaciones/{id}/editar(id=${operacion.id})}" 
+                                               class="btn btn-sm btn-warning" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-danger" title="Eliminar"
+                                                    th:onclick="'confirmarEliminar(' + ${operacion.id} + ')'">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Paginación -->
+                    <div th:replace="~{fragments/paginacion :: paginacion}"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal de confirmación para eliminar -->
+        <div class="modal fade" id="eliminarModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirmar eliminación</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        ¿Está seguro que desea eliminar esta operación? Esta acción no se puede deshacer.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <form id="formEliminar" th:action="@{/operaciones/{id}/eliminar}" method="post">
+                            <input type="hidden" name="_method" value="DELETE">
+                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

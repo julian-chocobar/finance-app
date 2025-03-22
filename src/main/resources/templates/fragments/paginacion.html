@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <div th:fragment="paginacion">
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div>
+                <span>Mostrando <span th:text="${operaciones.numberOfElements}"></span> de <span th:text="${operaciones.totalElements}"></span> operaciones</span>
+            </div>
+            <nav th:if="${operaciones.totalPages > 1}">
+                <ul class="pagination mb-0">
+                    <li class="page-item" th:classappend="${operaciones.first ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/operaciones(page=0, size=${operaciones.size}, nombreCliente=${param.nombreCliente}, tipo=${param.tipo}, monedaOrigen=${param.monedaOrigen}, monedaConversion=${param.monedaConversion}, fechaDesde=${param.fechaDesde}, fechaHasta=${param.fechaHasta})}" aria-label="Primera">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item" th:classappend="${operaciones.first ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/operaciones(page=${operaciones.number - 1}, size=${operaciones.size}, nombreCliente=${param.nombreCliente}, tipo=${param.tipo}, monedaOrigen=${param.monedaOrigen}, monedaConversion=${param.monedaConversion}, fechaDesde=${param.fechaDesde}, fechaHasta=${param.fechaHasta})}" aria-label="Anterior">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, operaciones.totalPages - 1)}" 
+                        th:if="${i >= operaciones.number - 2 and i <= operaciones.number + 2}"
+                        th:classappend="${i == operaciones.number ? 'active' : ''}">
+                        <a class="page-link" th:href="@{/operaciones(page=${i}, size=${operaciones.size}, nombreCliente=${param.nombreCliente}, tipo=${param.tipo}, monedaOrigen=${param.monedaOrigen}, monedaConversion=${param.monedaConversion}, fechaDesde=${param.fechaDesde}, fechaHasta=${param.fechaHasta})}" th:text="${i + 1}"></a>
+                    </li>
+                    <li class="page-item" th:classappend="${operaciones.last ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/operaciones(page=${operaciones.number + 1}, size=${operaciones.size}, nombreCliente=${param.nombreCliente}, tipo=${param.tipo}, monedaOrigen=${param.monedaOrigen}, monedaConversion=${param.monedaConversion}, fechaDesde=${param.fechaDesde}, fechaHasta=${param.fechaHasta})}" aria-label="Siguiente">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item" th:classappend="${operaciones.last ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/operaciones(page=${operaciones.totalPages - 1}, size=${operaciones.size}, nombreCliente=${param.nombreCliente}, tipo=${param.tipo}, monedaOrigen=${param.monedaOrigen}, monedaConversion=${param.monedaConversion}, fechaDesde=${param.fechaDesde}, fechaHasta=${param.fechaHasta})}" aria-label="Última">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</body>
+</html>
