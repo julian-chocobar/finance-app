@@ -36,71 +36,72 @@
     <div id="modal-content">
         <button id="modal-close-btn" onclick="ocultarModal()">&times;</button>
         <form id="operacionForm" method="post" onsubmit="return procesarFormulario()">
-            <label>Cliente:</label>
-            <input type="text" id="nombreCliente" name="nombreCliente" required>
+            <!-- Contenedor del formulario con scroll -->
+            <div class="form-container">
+                <label>Cliente:</label>
+                <input type="text" id="nombreCliente" name="nombreCliente" required>
 
-            <label>Tipo de Operación:</label>
-            <select id="tipo" name="tipo" required onchange="actualizarTipoCambio()">
-                <option value="COMPRA">Compra</option>
-                <option value="VENTA">Venta</option>
-            </select>
+                <label>Tipo de Operación:</label>
+                <select id="tipo" name="tipo" required onchange="actualizarTipoCambio()">
+                    <option value="COMPRA">Compra</option>
+                    <option value="VENTA">Venta</option>
+                </select>
 
-            <label>Moneda Origen:</label>
-            <select id="monedaOrigen" name="monedaOrigen" required onchange="actualizarTipoCambio()">
-                <option value="USD">USD</option>
-                <option value="EUR">EUR</option>
-                <option value="BRL">BRL</option>
-                <option value="ARS">ARS</option>
-            </select>
+                <label>Moneda Origen:</label>
+                <select id="monedaOrigen" name="monedaOrigen" required onchange="actualizarTipoCambio()">
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="BRL">BRL</option>
+                    <option value="ARS">ARS</option>
+                </select>
 
-            <label>Monto Origen:</label>
-            <input type="number" id="montoOrigen" name="montoOrigen" step="0.01" required>
+                <label>Monto Origen:</label>
+                <input type="number" id="montoOrigen" name="montoOrigen" step="0.01" required>
 
-            <label>Moneda Conversión:</label>
-            <select id="monedaConversion" name="monedaConversion" required onchange="actualizarTipoCambio()">
-                <option value="USD">USD</option>
-                <option value="EUR">EUR</option>
-                <option value="BRL">BRL</option>
-                <option value="ARS">ARS</option>
-            </select>
+                <label>Moneda Conversión:</label>
+                <select id="monedaConversion" name="monedaConversion" required onchange="actualizarTipoCambio()">
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="BRL">BRL</option>
+                    <option value="ARS">ARS</option>
+                </select>
 
-            <label>Tipo de Cambio:</label>
-            <input type="number" id="valorTipoCambio" name="valorTipoCambio" step="0.0001" placeholder="Esperando...">
+                <label>Tipo de Cambio:</label>
+                <input type="number" id="valorTipoCambio" name="valorTipoCambio" step="0.0001" placeholder="Esperando...">
 
-            <label>Referido:</label>
-            <input type="text" id="nombreReferido" name="nombreReferido">
+                <label>Referido:</label>
+                <input type="text" id="nombreReferido" name="nombreReferido">
 
-            <label>Puntos Referido:</label>
-            <input type="number" id="puntosReferido" name="puntosReferido" step="0.01">
+                <label>Puntos Referido:</label>
+                <input type="number" id="puntosReferido" name="puntosReferido" step="0.01">
 
-            <label>Ganancia Referido:</label>
-            <input type="number" id="gananciaReferido" name="gananciaReferido" step="0.01">
+                <label>Ganancia Referido:</label>
+                <input type="number" id="gananciaReferido" name="gananciaReferido" step="0.01">
 
-            <label>Moneda Ganancia Referido:</label>
-            <select id="monedaReferido" name="monedaReferido">
-                <option value="USD">USD</option>
-                <option value="EUR">EUR</option>
-                <option value="BRL">BRL</option>
-                <option value="ARS">ARS</option>
-            </select>
+                <label>Moneda Ganancia Referido:</label>
+                <select id="monedaReferido" name="monedaReferido">
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="BRL">BRL</option>
+                    <option value="ARS">ARS</option>
+                </select>
 
-            <!-- Sección para agregar pagos -->
-            <div id="pagosSection">
+                <!-- Sección de Pagos Origen -->
                 <h3>Pagos Origen</h3>
-                <div id="pagosOrigenContainer">
-                    <!-- Los pagos se agregarán aquí dinámicamente -->
-                </div>
+                <div id="pagosOrigenContainer"></div>
                 <button type="button" onclick="agregarPagoOrigen()">Agregar Pago Origen</button>
 
-                <h3>Pagos Montos</h3>
-                <div id="pagosMontosContainer">
-                    <!-- Los pagos se agregarán aquí dinámicamente -->
-                </div>
-                <button type="button" onclick="agregarPagoMonto()">Agregar Pago Monto</button>
+                <!-- Sección de Pagos Montos -->
+                <h3>Pagos Conversion</h3>
+                <div id="pagosMontosContainer"></div>
+                <button type="button" onclick="agregarPagoMonto()">Agregar Pago Conversion</button>
             </div>
 
-            <button type="submit">Guardar</button>
-            <button type="button" onclick="ocultarModal()">Cancelar</button>
+            <!-- Botones de acción (fuera del contenedor con scroll) -->
+            <div class="form-actions">
+                <button type="submit">Guardar</button>
+                <button type="button" onclick="ocultarModal()">Cancelar</button>
+            </div>
         </form>
     </div>
 </div>
@@ -368,13 +369,50 @@
 			    }
 		}
 		
+        function agregarPagoOrigen() {
+        const container = document.getElementById('pagosOrigenContainer');
+        const pagoHTML = `
+            <div class="pago">
+                <select name="tipoEntregaOrigen">
+                    <option value="TRANSFERENCIA">Transferencia</option>
+                    <option value="OFICINA">Oficina</option>
+                    <option value="DELIVERY">Delivery</option>
+                    <option value="BANCO">Banco</option>
+                </select>
+                <input type="number" name="valorOrigen" step="0.01" placeholder="Valor" required>
+                <button type="button" onclick="eliminarPago(this)">Eliminar</button>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', pagoHTML);
+    }
 
+    function agregarPagoMonto() {
+        const container = document.getElementById('pagosMontosContainer');
+        const pagoHTML = `
+            <div class="pago">
+                <select name="tipoEntregaMonto">
+                    <option value="TRANSFERENCIA">Transferencia</option>
+                    <option value="OFICINA">Oficina</option>
+                    <option value="DELIVERY">Delivery</option>
+                    <option value="BANCO">Banco</option>
+                </select>
+                <input type="number" name="valorMonto" step="0.01" placeholder="Valor" required>
+                <button type="button" onclick="eliminarPago(this)">Eliminar</button>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', pagoHTML);
+    }
+
+    function eliminarPago(button) {
+        const pagoDiv = button.parentElement;
+        pagoDiv.remove();
+    }
 
 </script>
 
 <style>
 	/* Estilos generales */
-body {
+    body {
     font-family: Arial, sans-serif;
     background-color: #f8f9fa;
     margin: 0;
@@ -639,15 +677,25 @@ button {
 }
 
 
-form {
+.form-container {
+    overflow-y:  scroll; /* Hace que el contenido sea desplazable */
+    flex-grow: 1; /* Ocupa el espacio disponible */
+    padding-right: 10px; /* Evita que el scroll tape los campos */
     background: white;
-    padding: 20px;
+    padding: 10;
     border-radius: 8px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    max-width: 400px;
-    margin: 20px auto;
+    max-width: 600px;
+    max-height: 500px;
+    margin: 10px auto;
     text-align: left;
 }
+
+    /* Estilos para los botones de acción */
+    .form-actions {
+        margin-top: 20px;
+        text-align: right;
+    }
 
 label {
     display: block;
