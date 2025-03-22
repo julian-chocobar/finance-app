@@ -1,7 +1,8 @@
-function mostrarModalOperacion(modo, id = null, tipo = "", nombreCliente = "", monedaOrigen = "", montoOrigen = "", 
+	function mostrarModalOperacion(modo, id = null, tipo = "", nombreCliente = "", monedaOrigen = "", montoOrigen = "", 
 										monedaConversion = "", valorTipoCambio = "", nombreReferido = "", 
 										puntosReferido = "", gananciaReferido = "", monedaReferido = "") {
 	const form = document.getElementById("operacionForm");
+	
 	if (!form) {
 		console.error("Formulario de operación no encontrado");
 		return;
@@ -24,7 +25,7 @@ function mostrarModalOperacion(modo, id = null, tipo = "", nombreCliente = "", m
 	document.getElementById("nombreReferido").value = (nombreReferido === "null") ? "" : nombreReferido;
 	document.getElementById("puntosReferido").value = (puntosReferido === "null") ? "" : puntosReferido;
 	document.getElementById("gananciaReferido").value = (gananciaReferido === "null") ? "" : gananciaReferido;
-	document.getElementById("monedaReferido").value =(monedaReferido === "null") ? "" :monedaReferido;					       
+	document.getElementById("monedaReferido").value =(monedaReferido === "null") ? "" :monedaReferido;				       
 	// Mostrar el modal
 	document.getElementById("modal-overlay").style.display = "block";
 }
@@ -85,8 +86,8 @@ function mostrarModalOperacion(modo, id = null, tipo = "", nombreCliente = "", m
 		        });
 		    }
 		}
-			
-			
+						
+
 		function actualizarTipoCambio() {
 			const monedaOrigen = document.getElementById("monedaOrigen").value;
 			const monedaConversion = document.getElementById("monedaConversion").value;
@@ -124,5 +125,56 @@ function mostrarModalOperacion(modo, id = null, tipo = "", nombreCliente = "", m
 			            });
 			    }
 		}
-		
 
+
+
+		
+        function agregarPagoOrigen() {
+        const container = document.getElementById('pagosOrigenContainer');
+        const pagoHTML = `
+            <div class="pago">
+                <select name="tipoEntregaOrigen">
+                    <option value="TRANSFERENCIA">Transferencia</option>
+                    <option value="OFICINA">Oficina</option>
+                    <option value="DELIVERY">Delivery</option>
+                    <option value="BANCO">Banco</option>
+                </select>
+                <input type="number" name="valorOrigen" step="0.01" placeholder="Valor" required>
+                <button type="button" onclick="eliminarPago(this)">Eliminar</button>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', pagoHTML);
+    }
+
+    function agregarPagoMonto() {
+        const container = document.getElementById('pagosMontosContainer');
+        const pagoHTML = `
+            <div class="pago">
+                <select name="tipoEntregaMonto">
+                    <option value="TRANSFERENCIA">Transferencia</option>
+                    <option value="OFICINA">Oficina</option>
+                    <option value="DELIVERY">Delivery</option>
+                    <option value="BANCO">Banco</option>
+                </select>
+                <input type="number" name="valorMonto" step="0.01" placeholder="Valor" required>
+                <button type="button" onclick="eliminarPago(this)">Eliminar</button>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', pagoHTML);
+    }
+
+    function eliminarPago(button) {
+        const pagoDiv = button.parentElement;
+        pagoDiv.remove();
+    }
+    
+     function togglePagos(id) {
+        const element = document.getElementById(id);
+        if (element.style.display === "none") {
+            element.style.display = "block";
+        } else {
+            element.style.display = "none";
+        }
+    }
+    
+    

@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.thames.finance_app.models.Moneda;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,7 +37,8 @@ public class OperacionResponse {
     private String nombreReferido;
     private BigDecimal puntosReferido;
     private BigDecimal gananciaReferido;
-    private Moneda monedaReferido;
+    private String monedaReferido;
+    private String estado;
     
     
 }

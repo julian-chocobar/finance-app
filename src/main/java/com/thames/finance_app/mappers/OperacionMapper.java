@@ -95,13 +95,14 @@ public class OperacionMapper {
                 
                 .pagosConversion(pagoMapper.toPagoResponseList(operacion.getPagosConversion()))
                 .totalPagosConversion(totalEjecutadoConversion)
+                .estado(operacion.getEstado())
                 .build();
         
         if (operacion.getCuentaCorrienteReferido() != null) {
         	String nombreReferido = operacion.getCuentaCorrienteReferido().getTitular().getNombre();
         	operacionResponse.setNombreReferido(nombreReferido);
         	operacionResponse.setPuntosReferido(operacion.getPuntosReferido());
-        	operacionResponse.setMonedaReferido(operacion.getMonedaReferido());
+        	operacionResponse.setMonedaReferido(operacion.getMonedaReferido().getCodigo());
         	operacionResponse.setGananciaReferido(operacion.getMontoOrigen());
         	
         }
@@ -113,10 +114,8 @@ public class OperacionMapper {
     	CuentaCorriente cuentaCliente = clienteService
     									.obtenerPorNombre(request
     									.getNombreCliente()).getCuentaCorriente();
-    	CuentaCorriente cuentaReferido = Optional.ofNullable(referidoService
-    														.obtenerPorNombre(request
-    														.getNombreReferido())
-    														.getCuentaCorriente()).orElse(null);
+    	
+
     	Moneda monedaOrigen = monedaRepository
     			.findByCodigo(request.getMonedaOrigen())
     			.orElseThrow(() -> new RuntimeException("Moneda no encontrada"));
@@ -137,7 +136,13 @@ public class OperacionMapper {
         operacion.setValorTipoCambio(request.getValorTipoCambio());
         operacion.setCuentaCorriente(cuentaCliente);
         
-        if(request.getNombreReferido() !=null) {     	
+        if(request.getNombreReferido() !=null) {  
+      	
+        	CuentaCorriente cuentaReferido = Optional.ofNullable(referidoService
+					.obtenerPorNombre(request
+					.getNombreReferido())
+					.getCuentaCorriente()).orElse(null);
+        	
         	Moneda monedaReferido = monedaRepository
         			.findByCodigo(request.getMonedaReferido())
         			.orElseThrow(() -> new RuntimeException("Moneda no encontrada"));

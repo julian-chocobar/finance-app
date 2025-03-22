@@ -14,20 +14,20 @@ public class TitularMapper {
 	public Titular toEntityCliente(TitularRequest request) {
         return Titular.builder()
         		.tipo(TipoTitular.CLIENTE)
-                .nombre(request.getNombre())
-                .telefono(request.getTelefono())
-                .email(request.getEmail())
-                .direccion(request.getDireccion())
+                .nombre(normalizar(request.getNombre()))
+                .telefono(normalizar(request.getTelefono()))
+                .email(normalizar(request.getEmail()))
+                .direccion(normalizar(request.getDireccion()))
                 .build();
     }
 	
 	public Titular toEntityReferido(TitularRequest request) {
         return Titular.builder()
-        		.tipo(TipoTitular.REFERIDO)
-                .nombre(request.getNombre())
-                .telefono(request.getTelefono())
-                .email(request.getEmail())
-                .direccion(request.getDireccion())
+        		.tipo((TipoTitular.REFERIDO))
+                .nombre(normalizar(request.getNombre()))
+                .telefono(normalizar(request.getTelefono()))
+                .email(normalizar(request.getEmail()))
+                .direccion(normalizar(request.getDireccion()))
                 .build();
     }
 
@@ -45,6 +45,10 @@ public class TitularMapper {
 	            .build();
 	}
 
+	// Método auxiliar para convertir "null" en null real
+	private String normalizar(String valor) {
+	    return (valor == null || valor.trim().isEmpty() || "null".equalsIgnoreCase(valor.trim())) ? null : valor;
+	}
 
 	public void updateEntity(Titular clienteExistente, TitularRequest clienteRequest) {
 			

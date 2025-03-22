@@ -108,6 +108,14 @@ public class Operacion {
         }
         return total;
 	}
+	
+	public String getEstado() {
+		if (estaCompleta()) {
+			return "COMPLETA";
+		}else {
+			return "PARCIAL";
+		}
+	}
 		
 	public boolean estaCompleta() {
 		if ( getTotalPagosOrigen().compareTo(montoOrigen) == 0 

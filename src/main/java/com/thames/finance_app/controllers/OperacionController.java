@@ -18,6 +18,7 @@ import com.thames.finance_app.specifications.OperacionSpecification;
 
 import lombok.RequiredArgsConstructor;
 
+import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -35,11 +36,6 @@ public class OperacionController {
     private final OperacionService operacionService;
     private final MonedaService monedaService;
     
-    @InitBinder
-    public void initBinder(WebDataBinder binder) {
-        binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
-    }
-
     @GetMapping
     public String listarOperaciones(
             @RequestParam(required = false) String fechaInicio,
@@ -118,7 +114,7 @@ public class OperacionController {
     @PostMapping("/editar/{id}")
     public String actualizarOperacion(@PathVariable Long id, @ModelAttribute OperacionRequest request) {
         operacionService.actualizarOperacion(id, request);
-        return "redirect:/referidos";
+        return "redirect:/operaciones";
     }
 
     @DeleteMapping("/{id}")
@@ -198,6 +194,21 @@ public class OperacionController {
     public ResponseEntity<OperacionResponse> quitarPagoConversion(@PathVariable Long id, @RequestBody PagoDTO pagoRequest) {
         OperacionResponse response = operacionService.quitarPagoConversion(id, pagoRequest);
         return ResponseEntity.ok(response);
+    }
+    
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
+        binder.registerCustomEditor(String.class, new PropertyEditorSupport() {
+            @Override
+            public void setAsText(String text) {
+                if (text == null || text.trim().isEmpty() || "null".equalsIgnoreCase(text.trim())) {
+                    setValue(null);
+                } else {
+                    setValue(text);
+                }
+            }
+        });
     }
 }
 

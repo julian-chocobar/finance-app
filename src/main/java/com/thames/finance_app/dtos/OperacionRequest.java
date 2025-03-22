@@ -40,7 +40,7 @@ public class OperacionRequest {
     private BigDecimal valorTipoCambio;
 
     @NotNull(message = "La moneda de conversión es obligatoria.")
-    private String monedaConversion;
+    private String monedaConversion;    
     
     private List<PagoDTO> pagosOrigen;
     

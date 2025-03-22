@@ -1,5 +1,7 @@
 package com.thames.finance_app.controllers;
 
+import java.beans.PropertyEditorSupport;
+
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,12 +30,7 @@ import lombok.RequiredArgsConstructor;
 public class ReferidoController {
 	
 	private final ReferidoService referidoService;
-	
-    @InitBinder
-    public void initBinder(WebDataBinder binder) {
-        binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
-    }
-		
+			
     @GetMapping
     public String obtenerTodos(@RequestParam(required = false) String nombre, Pageable pageable, Model model) {
         Page<TitularResponse> referidos = (nombre == null || nombre.isEmpty())
@@ -67,5 +64,20 @@ public class ReferidoController {
 	    referidoService.eliminar(id);
 	    return ResponseEntity.ok().build(); // Retorna un código 200 (OK)
 	}
+	
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
+        binder.registerCustomEditor(String.class, new PropertyEditorSupport() {
+            @Override
+            public void setAsText(String text) {
+                if (text == null || text.trim().isEmpty() || "null".equalsIgnoreCase(text.trim())) {
+                    setValue(null);
+                } else {
+                    setValue(text);
+                }
+            }
+        });
+    }
 
 }

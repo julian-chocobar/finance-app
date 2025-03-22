@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Operaciones</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/css/styles.css}"> 
+    <link rel="stylesheet" th:href="@{/css/operaciones-style.css}"> 
 
 	
 </head>
@@ -23,7 +23,6 @@
 	<a href="/referidos">Referidos</a>
 </div>
 
-    <div id="main">
         <h1>Operaciones</h1>
        
 		    <!-- Botón "Nueva Operación" -->
@@ -57,6 +56,9 @@
 
                 <label>Monto Origen:</label>
                 <input type="number" id="montoOrigen" name="montoOrigen" step="0.01" required>
+                
+                <label>Tipo de Cambio:</label>
+                <input type="number" id="valorTipoCambio" name="valorTipoCambio" step="0.0001" placeholder="Esperando...">
 
                 <label>Moneda Conversión:</label>
                 <select id="monedaConversion" name="monedaConversion" required onchange="actualizarTipoCambio()">
@@ -65,9 +67,7 @@
                     <option value="BRL">BRL</option>
                     <option value="ARS">ARS</option>
                 </select>
-
-                <label>Tipo de Cambio:</label>
-                <input type="number" id="valorTipoCambio" name="valorTipoCambio" step="0.0001" placeholder="Esperando...">
+                
 
                 <label>Referido:</label>
                 <input type="text" id="nombreReferido" name="nombreReferido">
@@ -106,8 +106,7 @@
     </div>
 </div>
 
-
-        
+      
 		<!-- Filtros en formato grid -->
 		<form id="filtroForm" th:action="@{/operaciones}" method="get" class="flex gap-4">
 		    <input type="date" name="fechaInicio" th:value="${fechaInicio}" placeholder="Fecha inicio">
@@ -143,51 +142,97 @@
 		</form>
 
 
-		       <!-- Tabla de operaciones -->
-		       <div th:if="${operaciones != null and not #lists.isEmpty(operaciones)}">
-		           <table>
-		               <thead>
-		                   <tr>
-		                       <th>Fecha</th>
-		                       <th>Tipo</th>
-		                       <th>Cliente</th>
-		                       <th>Monto Origen</th>
-		                       <th>TC</th>
-		                       <th>Monto Conversión</th>
-		                       <th>Referido</th>
-		                       <th>Estado</th>
-		                       <th>Acciones</th>		                       
-		                   </tr>
-		               </thead>
-		               <tbody>
-		                   <tr th:each="operacion : ${operaciones}">
-							<td th:text="${#temporals.format(operacion.fecha, 'dd-MM-yyyy HH:mm')}"></td>
-		                       <td th:text="${operacion.tipo}"></td>
-		                       <td th:text="${operacion.nombreCliente}"></td>
-		                       <td th:text="${#numbers.formatDecimal(operacion.montoOrigen, 1, 2, 'COMMA')}"></td>
-							   <td th:text="${operacion.valorTipoCambio}"></td>
-		                       <td th:text="${#numbers.formatDecimal(operacion.montoConversion, 1, 2, 'COMMA')}"></td>
-							   <td th:text="${operacion.nombreReferido}"></td>
-							   <td th:text="${operacion.estado}"></td>
-		                       <td>
-									<!-- Botón de Editar con ícono -->
-									<button th:attr="onclick=|mostrarModalOperacion('editar', '${operacion.id}', '${operacion.tipo}', 
-												'${operacion.nombreCliente}', '${operacion.monedaOrigen}', '${operacion.montoOrigen}', 
-												'${operacion.monedaConversion}', '${operacion.valorTipoCambio}', 
-												'${operacion.nombreReferido}', '${operacion.puntosReferido}', '${operacion.gananciaReferido}', 
-												'${operacion.monedaReferido}')|">
-									    <i class="fas fa-edit"></i>
-									</button>
+<!-- Tabla de operaciones -->
+<div th:if="${operaciones != null and not #lists.isEmpty(operaciones)}">
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Tipo</th>
+                <th>Cliente</th>
+                <th>Monto Origen</th>
+                <th>TC</th>
+                <th>Monto Conversión</th>
+                <th>Referido</th>
+                <th>Estado</th>
+                <th>Acciones</th>                       
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="operacion, opStat : ${operaciones}">
+                <td th:text="${#temporals.format(operacion.fecha, 'dd-MM-yyyy HH:mm')}"></td>
+                <td th:text="${operacion.tipo}"></td>
+                <td th:text="${operacion.nombreCliente}"></td>
+                <td>
+                    <div th:text="${#numbers.formatDecimal(operacion.montoOrigen, 1, 2, 'COMMA')}"></div>
+                    <button type="button" class="btn-ver-pagos" th:onclick="'togglePagos(\'pagosOrigen_' + ${opStat.index} + '\')'">
+                        Ver pagos origen
+                    </button>
+                    <div th:id="'pagosOrigen_' + ${opStat.index}" class="pagos-detalle" style="display: none;">
+                        <table class="pagos-tabla">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Tipo Entrega</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="pago : ${operacion.pagosOrigen}">
+                                    <td th:text="${#temporals.format(pago.fecha, 'dd-MM-yyyy HH:mm')}"></td>
+                                    <td th:text="${pago.tipoEntrega}"></td>
+                                    <td th:text="${#numbers.formatDecimal(pago.valor, 1, 2, 'COMMA')}"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </td>
+                <td th:text="${operacion.valorTipoCambio}"></td>
+                <td>
+                    <div th:text="${#numbers.formatDecimal(operacion.montoConversion, 1, 2, 'COMMA')}"></div>
+                    <button type="button" class="btn-ver-pagos" th:onclick="'togglePagos(\'pagosConversion_' + ${opStat.index} + '\')'">
+                        Ver pagos conversión
+                    </button>
+                    <div th:id="'pagosConversion_' + ${opStat.index}" class="pagos-detalle" style="display: none;">
+                        <table class="pagos-tabla">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Tipo Entrega</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="pago : ${operacion.pagosConversion}">
+                                    <td th:text="${#temporals.format(pago.fecha, 'dd-MM-yyyy HH:mm')}"></td>
+                                    <td th:text="${pago.tipoEntrega}"></td>
+                                    <td th:text="${#numbers.formatDecimal(pago.valor, 1, 2, 'COMMA')}"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </td>
+                <td th:text="${operacion.nombreReferido}"></td>
+                <td th:text="${operacion.estado}"></td>
+                <td>
+                    <!-- Botón de Editar con ícono -->
+                    <button th:attr="onclick=|mostrarModalOperacion('editar', '${operacion.id}', '${operacion.tipo}', 
+                                '${operacion.nombreCliente}', '${operacion.monedaOrigen}', '${operacion.montoOrigen}', 
+                                '${operacion.monedaConversion}', '${operacion.valorTipoCambio}', 
+                                '${operacion.nombreReferido}', '${operacion.puntosReferido}', '${operacion.gananciaReferido}', 
+                                '${operacion.monedaReferido}')|">
+                        <i class="fas fa-edit"></i>
+                    </button>
 
-									<!-- Botón de Eliminar con ícono -->
-									<button th:attr="onclick=|confirmarEliminacionOperacion('${operacion.id}')|">
-									    <i class="fas fa-trash-alt"></i>
-								</button>
-		                       </td>
-		                   </tr>
-		               </tbody>
-		           </table>
-		       </div>
+                    <!-- Botón de Eliminar con ícono -->
+                    <button th:attr="onclick=|confirmarEliminacionOperacion('${operacion.id}')|">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>	       
 		           
 
 		   <!-- Paginación -->
@@ -242,483 +287,14 @@
 		       <p>Total de operaciones: <span th:text="${operaciones.totalElements}">0</span></p>
 		   </div>
 <script>
-	function mostrarModalOperacion(modo, id = null, tipo = "", nombreCliente = "", monedaOrigen = "", montoOrigen = "", 
-										monedaConversion = "", valorTipoCambio = "", nombreReferido = "", 
-										puntosReferido = "", gananciaReferido = "", monedaReferido = "") {
-	const form = document.getElementById("operacionForm");
-	if (!form) {
-		console.error("Formulario de operación no encontrado");
-		return;
-	}
-	if (modo === "crear") {
-		form.action = "/operaciones"; // URL para crear una nueva operación
-		form.method = "post";
 
-	} else if (modo === "editar" && id) {
-		form.action = "/operaciones/editar/" + id; // URL con el ID en la ruta
-		form.method = "post";
-	}				
-	document.getElementById("nombreCliente").value = nombreCliente;		       		 
-	document.getElementById("tipo").value = tipo;		        
-	document.getElementById("monedaOrigen").value = monedaOrigen;		        
-	document.getElementById("montoOrigen").value = montoOrigen;		        
-	document.getElementById("monedaConversion").value = monedaConversion;		        
-	document.getElementById("valorTipoCambio").value = valorTipoCambio;
-	
-	document.getElementById("nombreReferido").value = (nombreReferido === "null") ? "" : nombreReferido;
-	document.getElementById("puntosReferido").value = (puntosReferido === "null") ? "" : puntosReferido;
-	document.getElementById("gananciaReferido").value = (gananciaReferido === "null") ? "" : gananciaReferido;
-	document.getElementById("monedaReferido").value =(monedaReferido === "null") ? "" :monedaReferido;					       
-	// Mostrar el modal
-	document.getElementById("modal-overlay").style.display = "block";
-}
-
-							    
-		    function confirmarEliminacionOperacion(operacionId) {
-		        const confirmar = confirm("¿Estás seguro de que deseas eliminar esta operación?");
-		        if (confirmar) {
-		            fetch(`/operaciones/${operacionId}`, {
-		                method: 'DELETE',
-		                headers: { 'Content-Type': 'application/json' },
-		            })
-		            .then(response => {
-		                if (response.ok) {
-		                    window.location.reload();
-		                } else {
-		                    alert("Hubo un error al eliminar la operación.");
-		                }
-		            })
-		            .catch(error => {
-		                console.error("Error:", error);
-		                alert("Hubo un error al eliminar la operación.");
-		            });
-		        }
-		    }
-
-			
-		
-		function toggleSidebar() {
-		    const sidebar = document.getElementById("sidebar");
-		    sidebar.style.left = sidebar.style.left === "0px" ? "-250px" : "0px";
-		}
-
-		function ocultarModal() {
-		    document.getElementById("modal-overlay").style.display = "none";
-		}
-
-		function toggleReferido() {
-		    const checkbox = document.getElementById("tieneReferido");
-		    const referidoFields = document.getElementById("referidoFields");
-		    if (checkbox.checked) {
-		        referidoFields.style.display = "block";
-		    } else {
-		        referidoFields.style.display = "none";
-		        document.getElementById("nombreReferido").value = "";
-		        document.getElementById("puntosReferido").value = "";
-		        document.getElementById("gananciaReferido").value = "";
-		        document.getElementById("monedaReferido").value = "";
-		    }
-		}
-		
-		function formatearNumero(input) {
-		    let value = input.value.replace(/,/g, '');
-		    if (!isNaN(value) && value !== "") {
-		        input.value = parseFloat(value).toLocaleString('en-US', {
-		            minimumFractionDigits: 2,
-		            maximumFractionDigits: 2
-		        });
-		    }
-		}
-			
-			
-		function actualizarTipoCambio() {
-			const monedaOrigen = document.getElementById("monedaOrigen").value;
-			const monedaConversion = document.getElementById("monedaConversion").value;
-			const tipoOperacion = document.getElementById("tipo").value;
-			const tipoCambioInput = document.getElementById("valorTipoCambio");
-
-			 if (monedaOrigen === monedaConversion && monedaOrigen !== "" && monedaConversion !== "") {
-			        tipoCambioInput.value = "";
-			        tipoCambioInput.placeholder = "Error: Monedas iguales";
-			        tipoCambioInput.style.border = "2px solid red";
-			        return;
-			    } else {
-			        tipoCambioInput.placeholder = "Esperando...";
-			        tipoCambioInput.style.border = "";
-			    }
-
-			 if (monedaOrigen && monedaConversion && tipoOperacion) {
-			        console.log(`Solicitando tipo de cambio para ${monedaOrigen} → ${monedaConversion} (Compra: ${tipoOperacion === 'COMPRA'})`);
-
-			 	fetch(`/tipoCambio/obtener?monedaOrigen=${monedaOrigen}&monedaConversion=${monedaConversion}&esCompra=${tipoOperacion === 'COMPRA'}`)
-			    	.then(response => {
-			                if (!response.ok) {
-			                    throw new Error("No se pudo obtener el tipo de cambio");
-			                }
-			                return response.json();
-			            })
-			       .then(data => {
-			                console.log("Tipo de Cambio recibido:", data.valor);
-			                tipoCambioInput.value = data.valor;
-			            })
-			       .catch(error => {
-			                console.error("Error obteniendo tipo de cambio:", error);
-			                tipoCambioInput.value = "";
-			                tipoCambioInput.placeholder = "Error al obtener TC";
-			            });
-			    }
-		}
-		
-        function agregarPagoOrigen() {
-        const container = document.getElementById('pagosOrigenContainer');
-        const pagoHTML = `
-            <div class="pago">
-                <select name="tipoEntregaOrigen">
-                    <option value="TRANSFERENCIA">Transferencia</option>
-                    <option value="OFICINA">Oficina</option>
-                    <option value="DELIVERY">Delivery</option>
-                    <option value="BANCO">Banco</option>
-                </select>
-                <input type="number" name="valorOrigen" step="0.01" placeholder="Valor" required>
-                <button type="button" onclick="eliminarPago(this)">Eliminar</button>
-            </div>
-        `;
-        container.insertAdjacentHTML('beforeend', pagoHTML);
-    }
-
-    function agregarPagoMonto() {
-        const container = document.getElementById('pagosMontosContainer');
-        const pagoHTML = `
-            <div class="pago">
-                <select name="tipoEntregaMonto">
-                    <option value="TRANSFERENCIA">Transferencia</option>
-                    <option value="OFICINA">Oficina</option>
-                    <option value="DELIVERY">Delivery</option>
-                    <option value="BANCO">Banco</option>
-                </select>
-                <input type="number" name="valorMonto" step="0.01" placeholder="Valor" required>
-                <button type="button" onclick="eliminarPago(this)">Eliminar</button>
-            </div>
-        `;
-        container.insertAdjacentHTML('beforeend', pagoHTML);
-    }
-
-    function eliminarPago(button) {
-        const pagoDiv = button.parentElement;
-        pagoDiv.remove();
-    }
 
 </script>
 
-<style>
-	/* Estilos generales */
-    body {
-    font-family: Arial, sans-serif;
-    background-color: #f8f9fa;
-    margin: 0;
-    padding: 20px;
-    text-align: center;
-}
-
-h1 {
-    color: #333;
-    margin-bottom: 20px;
-}
-#filtroForm {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 10px;
-    align-items: center;
-    margin-bottom: 15px;
-}
-#filtroForm input, #filtroForm select, #filtroForm button {
-    padding: 8px;
-    font-size: 14px;
-    width: 100%;
-}
-/* Contenedor principal */
-.header-container {
-    display: flex; /* Activa Flexbox */
-    justify-content: space-between; /* Distribuye los elementos en los extremos */
-    align-items: center; /* Alinea verticalmente los elementos */
-    width: 100%; /* Ocupa todo el ancho disponible */
-    margin-bottom: 20px; /* Espacio debajo del contenedor */
-}
-
-/* Estilos para el formulario de búsqueda */
-.form-busqueda {
-    display: flex; /* Coloca el campo y el botón en la misma línea */
-    align-items: center; /* Alinea verticalmente el campo y el botón */
-    margin-left: 0; /* Lo más a la izquierda posible */
-}
-
-.form-busqueda input[type="text"] {
-    width: 250px; /* Ancho del campo */
-    padding: 8px; /* Espaciado interno */
-    border: 1px solid #ccc; /* Borde del campo */
-    border-radius: 4px; /* Bordes redondeados */
-    margin-right: 10px; /* Espacio entre el campo y el botón */
-}
-
-.form-busqueda button {
-    padding: 8px 16px; /* Espaciado interno */
-    background-color: #007bff; /* Color de fondo */
-    color: white; /* Color del texto */
-    border: none; /* Sin borde */
-    border-radius: 4px; /* Bordes redondeados */
-    cursor: pointer; /* Cambia el cursor al pasar el mouse */
-}
-
-.form-busqueda button:hover {
-    background-color: #0056b3; /* Color de fondo al pasar el mouse */
-}
-
-/* Estilos para el botón "Nuevo Referido" */
-.btn-nuevo-referido-container {
-    margin-right: 0; /* Lo más a la derecha posible */
-}
-
-.btn-nuevo-referido-container button {
-    padding: 8px 16px; /* Espaciado interno */
-    background-color: #28a745; /* Color de fondo */
-    color: white; /* Color del texto */
-    border: none; /* Sin borde */
-    border-radius: 4px; /* Bordes redondeados */
-    cursor: pointer; /* Cambia el cursor al pasar el mouse */
-}
-
-.btn-nuevo-referido-container button:hover {
-    background-color: #218838; /* Color de fondo al pasar el mouse */
-}
-
-
-
-
-
-    /* Estilos para los botones con íconos */
-    button {
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 5px;
-        font-size: 18px; /* Tamaño del ícono */
-        color: #007bff; /* Color del ícono */
-    }
-
-    button:hover {
-        color: #0056b3; /* Color del ícono al pasar el mouse */
-    }
-
-    /* Estilo específico para el botón de eliminar */
-    button .fa-trash-alt {
-        color: #dc3545; /* Rojo para el ícono de eliminar */
-    }
-
-    button:hover .fa-trash-alt {
-        color: #c82333; /* Rojo más oscuro al pasar el mouse */
-    }
-
-/* Estilos para la barra lateral */
-#sidebar {
-    width: 250px;
-    height: 100%;
-    position: fixed;
-    top: 0;
-    left: -250px;
-    background-color: #333;
-    overflow-x: hidden;
-    transition: 0.5s;
-    padding-top: 60px;
-}
-
-#sidebar a {
-    padding: 10px 15px;
-    text-decoration: none;
-    font-size: 18px;
-    color: white;
-    display: block;
-    transition: 0.3s;
-}
-
-#sidebar a:hover {
-    background-color: #575757;
-}
-
-#sidebar .close-btn {
-    position: absolute;
-    top: 0;
-    right: 25px;
-    font-size: 36px;
-    margin-left: 50px;
-}
-
-#main {
-    transition: margin-left 0.5s;
-    padding: 16px;
-}
-
-.open-btn {
-    font-size: 30px;
-    cursor: pointer;
-    position: fixed;
-    left: 10px;
-    top: 10px;
-    z-index: 1000;
-}
-
-/* Estilos para el modal */
-#modal-overlay {
-    display: none; /* Oculto por defecto */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semitransparente */
-    z-index: 1000; /* Asegura que esté por encima de todo */
-}
-
-#modal-content {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%); /* Centra el modal */
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    z-index: 1001; /* Asegura que esté por encima del overlay */
-}
-
-/* Estilos para el botón de cerrar */
-#modal-close-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-}
-
-/* Estilos para la tabla */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-    background: white;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-th, td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-}
-
-th {
-    background-color: #007bff;
-    color: white;
-    font-weight: bold;
-}
-
-tr:hover {
-    background-color: #f1f1f1;
-    transition: 0.3s;
-}
-
-/* Estilos para la paginación */
-.pagination {
-    margin-top: 20px;
-}
-
-.pagination a, .pagination span {
-    color: #007bff;
-    text-decoration: none;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    margin: 0 4px;
-    border-radius: 5px;
-    font-size: 14px;
-    transition: background-color 0.3s;
-}
-
-.pagination a:hover {
-    background-color: #007bff;
-    color: white;
-}
-
-/* Estilos para el formulario de creación de referidos */
-button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: background 0.3s;
-}
-
-button:hover {
-    background-color: #0056b3;
-}
-
-
-button {
-    padding: 5px 10px;
-    margin: 2px;
-    cursor: pointer;
-    border: none;
-    border-radius: 4px;
-    color: white;
-}
-
-
-.form-container {
-    overflow-y:  scroll; /* Hace que el contenido sea desplazable */
-    flex-grow: 1; /* Ocupa el espacio disponible */
-    padding-right: 10px; /* Evita que el scroll tape los campos */
-    background: white;
-    padding: 10;
-    border-radius: 8px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    max-width: 600px;
-    max-height: 500px;
-    margin: 10px auto;
-    text-align: left;
-}
-
-    /* Estilos para los botones de acción */
-    .form-actions {
-        margin-top: 20px;
-        text-align: right;
-    }
-
-label {
-    display: block;
-    margin-top: 10px;
-    font-weight: bold;
-}
-
-input {
-    width: 100%;
-    padding: 8px;
-    margin-top: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-}
-
-input:focus {
-    border-color: #007bff;
-    outline: none;
-    box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
-}
-</style>
-
 </body>	
+
+<style>
+
+</style>
 
 </html>
