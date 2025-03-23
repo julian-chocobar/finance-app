@@ -10,7 +10,6 @@ import com.thames.finance_app.validations.ValidReferido;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import jakarta.validation.constraints.*;
@@ -19,7 +18,6 @@ import jakarta.validation.constraints.*;
 @Setter
 @AllArgsConstructor
 @Builder
-@NoArgsConstructor
 @ValidReferido
 public class OperacionRequest {
 
@@ -58,6 +56,12 @@ public class OperacionRequest {
     
     @Positive(message = "La ganancia debe ser mayor a cero.")
     private BigDecimal gananciaReferido;
+    
+    // Constructor para asegurar inicialización
+    public OperacionRequest() {
+        if (this.pagosOrigen == null) this.pagosOrigen = new ArrayList<>();
+        if (this.pagosConversion == null) this.pagosConversion = new ArrayList<>();
+    }
     
 	public BigDecimal getTotalPagosOrigen() {
         BigDecimal total = BigDecimal.ZERO;

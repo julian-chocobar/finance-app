@@ -2,12 +2,15 @@ package com.thames.finance_app.mappers;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
 import com.thames.finance_app.dtos.OperacionRequest;
 import com.thames.finance_app.dtos.OperacionResponse;
+import com.thames.finance_app.dtos.PagoDTO;
 import com.thames.finance_app.enums.TipoOperacion;
 import com.thames.finance_app.enums.TipoPago;
 import com.thames.finance_app.models.CuentaCorriente;
@@ -43,7 +46,7 @@ public class OperacionMapper {
     			.orElseThrow(() -> new RuntimeException("Moneda no encontrada"));
     
     	Operacion operacion = Operacion.builder()
-                .fecha(LocalDateTime.now())
+                .fechaCreacion(LocalDateTime.now())
                 .tipo(request.getTipo())
                 .cuentaCorriente(cuentaCliente)
                 .monedaOrigen(monedaOrigen)
@@ -79,7 +82,8 @@ public class OperacionMapper {
     	    	
         OperacionResponse operacionResponse = OperacionResponse.builder()
                 .id(operacion.getId())
-                .fecha(operacion.getFecha())
+                .fechaCreacion(operacion.getFechaCreacion())
+                .fechaActualizacion(operacion.getFechaActualizacion())
                 .nombreCliente(nombreCliente)
                 .tipo(operacion.getTipo().toString())
                 .monedaOrigen(operacion.getMonedaOrigen().getCodigo())
@@ -108,6 +112,43 @@ public class OperacionMapper {
         }
         return operacionResponse;
     }
+    
+    public OperacionRequest toRequest(Operacion operacion) {
+        OperacionRequest request = new OperacionRequest();
+
+        // Mapear los campos básicos
+        request.setTipo(operacion.getTipo());
+        request.setNombreCliente(operacion.getCuentaCorriente().getTitular().getNombre());
+        request.setMonedaOrigen(operacion.getMonedaOrigen().getCodigo());
+        request.setMontoOrigen(operacion.getMontoOrigen());
+        request.setValorTipoCambio(operacion.getValorTipoCambio());
+        request.setMonedaConversion(operacion.getMonedaConversion().getCodigo());
+
+        // Mapear los pagos de origen y conversión
+        if (operacion.getPagosOrigen() != null) {
+            List<PagoDTO> pagosOrigenDTO = operacion.getPagosOrigen().stream()
+                .map(pago -> pagoMapper.toDTO(pago)) // Asume que tienes un PagoMapper para convertir Pago a PagoDTO
+                .collect(Collectors.toList());
+            request.setPagosOrigen(pagosOrigenDTO);
+        }
+
+        if (operacion.getPagosConversion() != null) {
+            List<PagoDTO> pagosConversionDTO = operacion.getPagosConversion().stream()
+                .map(pago -> pagoMapper.toDTO(pago)) // Asume que tienes un PagoMapper para convertir Pago a PagoDTO
+                .collect(Collectors.toList());
+            request.setPagosConversion(pagosConversionDTO);
+        }
+
+        // Mapear los campos relacionados con el referido si existen
+        if (operacion.getCuentaCorrienteReferido() != null) {
+            request.setNombreReferido(operacion.getCuentaCorrienteReferido().getTitular().getNombre());
+            request.setMonedaReferido(operacion.getMonedaReferido().getCodigo());
+            request.setPuntosReferido(operacion.getPuntosReferido());
+            request.setGananciaReferido(operacion.getMontoOrigen()); // Asume que la ganancia del referido es el monto de origen
+        }
+
+        return request;
+    }
 
    
     public Operacion updateEntity(Operacion operacion, OperacionRequest request) {
@@ -124,6 +165,7 @@ public class OperacionMapper {
     			.findByCodigo(request.getMonedaConversion())
     			.orElseThrow(() -> new RuntimeException("Moneda no encontrada"));
     	
+    	operacion.setFechaActualizacion(LocalDateTime.now());
         operacion.setTipo(request.getTipo());
         operacion.setMonedaOrigen(monedaOrigen);
         operacion.setMontoOrigen(request.getMontoOrigen());

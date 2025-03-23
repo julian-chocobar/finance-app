@@ -58,7 +58,7 @@ public class MovimientoCajaService {
 	private MovimientoCaja toMovimientoCaja(Operacion operacion, TipoMovimiento tipo, 
 			Caja caja, BigDecimal monto, BigDecimal montoEjecutado) {	
 		return MovimientoCaja.builder()
-						.fecha(operacion.getFecha())
+						.fecha(operacion.getFechaCreacion())
 						.tipoMovimiento(tipo)
 						.caja(caja)
 						.operacion(operacion)

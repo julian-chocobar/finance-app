@@ -27,7 +27,7 @@ public class MovimientoCtaCteMapper {
     public MovimientoCtaCte toEntity (Operacion operacion, TipoMovimiento tipo,
 			Moneda moneda, BigDecimal monto) {
 		return MovimientoCtaCte.builder()
-				.fecha(operacion.getFecha())
+				.fecha(operacion.getFechaCreacion())
 				.tipoMovimiento(tipo)
 				.cuentaCorriente(operacion.getCuentaCorriente())
 				.operacion(operacion)

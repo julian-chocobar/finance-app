@@ -10,6 +10,7 @@ import com.thames.finance_app.dtos.OperacionRequest;
 import com.thames.finance_app.dtos.OperacionResponse;
 import com.thames.finance_app.dtos.PagoDTO;
 import com.thames.finance_app.enums.TipoOperacion;
+import com.thames.finance_app.mappers.OperacionMapper;
 import com.thames.finance_app.models.Moneda;
 import com.thames.finance_app.models.Operacion;
 import com.thames.finance_app.services.MonedaService;
@@ -21,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.data.domain.Page;
@@ -34,6 +36,7 @@ import org.springframework.data.jpa.domain.Specification;
 public class OperacionController {
 
     private final OperacionService operacionService;
+    private final OperacionMapper operacionMapper;
     private final MonedaService monedaService;
     
     @GetMapping
@@ -99,67 +102,58 @@ public class OperacionController {
     }
    
   
-    @PostMapping
+    @GetMapping("/crear")
+    public String mostrarFormularioCrear(Model model) {
+    	// Crear una nueva instancia vacía de Operacion
+        OperacionRequest operacion = new OperacionRequest();
+        
+        // Agregar la operación al modelo para que Thymeleaf pueda usarla en el formulario
+        model.addAttribute("operacion", operacion);
+        return "operaciones/crear";
+    }
+    
+    @PostMapping("/guardar")
     public String crearOperacion(@ModelAttribute OperacionRequest request) {
         operacionService.crearOperacion(request);
-        return "redirect:/operaciones/crear";
+        return "redirect:/operaciones";
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OperacionResponse> obtenerOperacion(@PathVariable Long id) {
-        OperacionResponse response = operacionService.obtenerOperacion(id);
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping("/editar/{id}")
-    public String actualizarOperacion(@PathVariable Long id, @ModelAttribute OperacionRequest request) {
-        operacionService.actualizarOperacion(id, request);
-        return "redirect:/operaciones/editar";
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarOperacion(@PathVariable Long id) {
-        operacionService.eliminarOperacion(id);
-        return ResponseEntity.noContent().build();
+    public String obtenerOperacion(@PathVariable Long id, Model model) {
+        OperacionResponse operacionResponse = operacionService.obtenerResponsePorId(id);
+        model.addAttribute("operacion", operacionResponse);
+        return "operaciones/ver";
     }
     
-//    @GetMapping()
-//    public ResponseEntity<Page<OperacionResponse>> listarOperaciones(
-//            @RequestParam(required = false) String fechaInicio,
-//            @RequestParam(required = false) String fechaFin,
-//            @RequestParam(required = false) String monto,
-//            @RequestParam(required = false) String moneda,
-//            @RequestParam(required = false) String tipo,
-//            @RequestParam(required = false) Long clienteId,
-//            Pageable pageable) {
-//
-//        // Parseo de parámetros
-//        LocalDateTime fechaInicioParsed = operacionService.parsearFecha(fechaInicio);
-//        LocalDateTime fechaFinParsed = operacionService.parsearFecha(fechaFin);
-//        BigDecimal montoParsed = (monto != null) ? new BigDecimal(monto) : null;
-//        TipoOperacion tipoParsed = (tipo != null) ? TipoOperacion.valueOf(tipo) : null;
-//
-//        // Buscar la moneda si está presente
-//        Moneda monedaParsed = null;
-//        if (moneda != null && !moneda.isEmpty()) {
-//            monedaParsed = monedaService.buscarPorNombre(moneda);        }
-//
-//        // Crear la Specification usando OperacionSpecification
-//        Specification<Operacion> spec = OperacionSpecification.filtrarPorParametros(
-//                fechaInicioParsed,
-//                fechaFinParsed,
-//                montoParsed,
-//                monedaParsed,
-//                tipoParsed,
-//                clienteId
-//        );
-//
-//        // Llamar al servicio con la Specification y el Pageable
-//        Page<OperacionResponse> operaciones = operacionService.listarOperaciones(spec, pageable);
-//
-//        return ResponseEntity.ok(operaciones);
-//    }
+    
+    @GetMapping("/{id}/editar")
+    public String mostrarFormularioEditar(@PathVariable Long id, Model model) {
+    	 // 1️⃣ Buscar la operación por ID en el servicio
+        Operacion operacion = operacionService.obtenerPorId(id);
 
+        // 2️⃣ Convertir la operación a un objeto OperacionRequest
+        OperacionRequest operacionRequest = operacionMapper.toRequest(operacion);
+
+        // 3️⃣ Agregar datos adicionales si se necesitan en el formulario
+        List<String> tiposOperacion = List.of("COMPRA", "VENTA"); // Simulación de lista de tipos
+        model.addAttribute("tiposOperacion", tiposOperacion);
+        model.addAttribute("operacionId", operacion.getId());
+        model.addAttribute("operacion", operacionRequest);
+        return "operaciones/editar";
+    }
+
+    @PostMapping("/{id}/actualizar")
+    public String actualizarOperacion(@PathVariable Long id, @ModelAttribute OperacionRequest request) {
+        operacionService.actualizarOperacion(id, request);
+        return "redirect:/operaciones";
+    }
+
+    @PostMapping("/{id}/eliminar")
+    public String eliminarOperacion(@PathVariable Long id) {
+        operacionService.eliminarOperacion(id);
+        return "redirect:/operaciones";
+    }
+   
     @PatchMapping("/{id}/monto-origen")
     public ResponseEntity<OperacionResponse> cambiarMontoOrigen(@PathVariable Long id, @RequestBody OperacionRequest request) {
         OperacionResponse response = operacionService.cambiarMontoOrigen(id, request);

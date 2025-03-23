@@ -11,30 +11,32 @@
                 <div class="card-header bg-warning">
                     <h3 class="mb-0">Editar Operación</h3>
                 </div>
-                <div class="card-body">
-                    <form th:action="@{/operaciones/{id}/actualizar(id=${operacion.id})}" th:object="${operacion}" method="post" id="formOperacion">
-                        <input type="hidden" th:field="*{id}">
-                        
-                        <!-- El contenido del formulario es idéntico al de crear.html -->
-                        <!-- Reutilizamos el mismo código del formulario de crear.html -->
-                        <div class="row mb-4">
-                            <div class="col-md-12">
-                                <h4 class="border-bottom pb-2">Datos Generales</h4>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="nombreCliente" class="form-label">Nombre del Cliente *</label>
-                                <input type="text" class="form-control" id="nombreCliente" th:field="*{nombreCliente}" required>
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('nombreCliente')}" th:errors="*{nombreCliente}"></div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="tipo" class="form-label">Tipo de Operación *</label>
-                                <select class="form-select" id="tipo" th:field="*{tipo}" required>
-                                    <option value="">Seleccione...</option>
-                                    <option value="COMPRA">Compra</option>
-                                    <option value="VENTA">Venta</option>
-                                </select>
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('tipo')}" th:errors="*{tipo}"></div>
-                            </div>
+			    <div class="card-body">
+			    <!-- Acción del formulario corregida -->
+			    	<form th:action="@{/operaciones/{id}/actualizar(id=${operacionId})}" 
+			          										th:object="${operacion}" 
+													          method="post" 
+													          id="formOperacion">
+			        
+			        <!-- No es necesario incluir el ID en un input oculto -->
+			        <div class="row mb-4">
+				            <div class="col-md-12">
+				                <h4 class="border-bottom pb-2">Datos Generales</h4>
+				            </div>
+				            <div class="col-md-6 mb-3">
+				                <label for="nombreCliente" class="form-label">Nombre del Cliente *</label>
+				                <input type="text" class="form-control" id="nombreCliente" th:field="*{nombreCliente}" required>
+				                <div class="invalid-feedback" th:if="${#fields.hasErrors('nombreCliente')}" th:errors="*{nombreCliente}"></div>
+				            </div>
+				            <div class="col-md-6 mb-3">
+				                <label for="tipo" class="form-label">Tipo de Operación *</label>
+				                <select class="form-select" id="tipo" th:field="*{tipo}" required>
+				                    <option value="">Seleccione...</option>
+				                    <!-- Ahora los tipos de operación vienen del modelo -->
+				                    <option th:each="tipo : ${tiposOperacion}" th:value="${tipo}" th:text="${tipo}"></option>
+				                </select>
+				                <div class="invalid-feedback" th:if="${#fields.hasErrors('tipo')}" th:errors="*{tipo}"></div>
+				            </div>
                         </div>
                         
                         <div class="row mb-4">

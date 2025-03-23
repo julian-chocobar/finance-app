@@ -46,7 +46,9 @@ public class Operacion {
 			allocationSize = 1)
 	private Long id;
 	
-	private LocalDateTime fecha;
+	private LocalDateTime fechaCreacion;
+	
+	private LocalDateTime fechaActualizacion;
 	
 	@Enumerated(EnumType.STRING)
 	private TipoOperacion tipo;

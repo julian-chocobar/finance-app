@@ -241,3 +241,13 @@ document.addEventListener('DOMContentLoaded', function() {
         bsModal.show();
     };
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".btnEliminar").forEach(button => {
+        button.addEventListener("click", function () {
+            let id = this.getAttribute("data-id"); // Obtiene el ID de la operación
+            let form = document.getElementById("formEliminar");
+            form.setAttribute("action", `/operaciones/${id}/eliminar`); // Actualiza la acción del formulario
+        });
+    });
+});

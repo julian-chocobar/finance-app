@@ -65,10 +65,16 @@ public class OperacionService {
         return operacionMapper.toResponse(operacion);
     }
        
-    public OperacionResponse obtenerOperacion(Long id) {
+    public OperacionResponse obtenerResponsePorId(Long id) {
         Optional<Operacion> operacion = operacionRepository.findById(id);
         return operacion.map(operacionMapper::toResponse)
                 .orElseThrow(() -> new RuntimeException("Operación no encontrada"));
+    }
+    
+    public Operacion obtenerPorId(Long id) {
+       Operacion operacion = operacionRepository.findById(id)
+        		.orElseThrow(() -> new RuntimeException("Operación no encontrada"));
+        return operacion;
     }
 
     public void eliminarOperacion(Long id) {

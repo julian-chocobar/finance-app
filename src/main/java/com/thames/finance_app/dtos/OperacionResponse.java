@@ -19,7 +19,8 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OperacionResponse {
     private Long id;
-    private LocalDateTime fecha;
+    private LocalDateTime fechaCreacion;
+    private LocalDateTime fechaActualizacion;
     private String tipo;
     private String nombreCliente;
     private String monedaOrigen;
