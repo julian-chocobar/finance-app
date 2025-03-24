@@ -56,5 +56,7 @@ public class PagoMapper {
   public void vincularConOperacion(Pago pago, Operacion operacion) {
 	  
   }
+  
+  
 
 }
