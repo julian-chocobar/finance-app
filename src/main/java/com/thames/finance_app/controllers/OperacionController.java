@@ -1,6 +1,5 @@
 package com.thames.finance_app.controllers;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
@@ -8,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 
 import com.thames.finance_app.dtos.OperacionRequest;
 import com.thames.finance_app.dtos.OperacionResponse;
-import com.thames.finance_app.dtos.PagoDTO;
 import com.thames.finance_app.enums.TipoOperacion;
 import com.thames.finance_app.mappers.OperacionMapper;
 import com.thames.finance_app.models.Moneda;
@@ -123,8 +121,7 @@ public class OperacionController {
         OperacionResponse operacionResponse = operacionService.obtenerResponsePorId(id);
         model.addAttribute("operacion", operacionResponse);
         return "operaciones/ver";
-    }
-    
+    }  
     
     @GetMapping("/{id}/editar")
     public String mostrarFormularioEditar(@PathVariable Long id, Model model) {
@@ -154,42 +151,6 @@ public class OperacionController {
         return "redirect:/operaciones";
     }
    
-    @PatchMapping("/{id}/monto-origen")
-    public ResponseEntity<OperacionResponse> cambiarMontoOrigen(@PathVariable Long id, @RequestBody OperacionRequest request) {
-        OperacionResponse response = operacionService.cambiarMontoOrigen(id, request);
-        return ResponseEntity.ok(response);
-    }
-
-    @PatchMapping("/{id}/cliente")
-    public ResponseEntity<OperacionResponse> cambiarCliente(@PathVariable Long id, @RequestBody OperacionRequest request) {
-        OperacionResponse response = operacionService.cambiarCliente(id, request);
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping("/{id}/pagos/origen")
-    public ResponseEntity<OperacionResponse> agregarPagoOrigen(@PathVariable Long id, @RequestBody PagoDTO pagoRequest) {
-        OperacionResponse response = operacionService.agregarPagoOrigen(id, pagoRequest);
-        return ResponseEntity.ok(response);
-    }
-
-    @DeleteMapping("/{id}/pagos/origen")
-    public ResponseEntity<OperacionResponse> quitarPagoOrigen(@PathVariable Long id, @RequestBody PagoDTO pagoRequest) {
-        OperacionResponse response = operacionService.quitarPagoOrigen(id, pagoRequest);
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping("/{id}/pagos/conversion")
-    public ResponseEntity<OperacionResponse> agregarPagoConversion(@PathVariable Long id, @RequestBody PagoDTO pagoRequest) {
-        OperacionResponse response = operacionService.agregarPagoConversion(id, pagoRequest);
-        return ResponseEntity.ok(response);
-    }
-
-    @DeleteMapping("/{id}/pagos/conversion")
-    public ResponseEntity<OperacionResponse> quitarPagoConversion(@PathVariable Long id, @RequestBody PagoDTO pagoRequest) {
-        OperacionResponse response = operacionService.quitarPagoConversion(id, pagoRequest);
-        return ResponseEntity.ok(response);
-    }
-    
     @InitBinder
     public void initBinder(WebDataBinder binder) {
         binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
