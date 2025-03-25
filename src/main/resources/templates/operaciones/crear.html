@@ -91,18 +91,13 @@
                         
                         <!-- Pagos Origen -->
                         <div class="row mb-4">
-                            <div class="col-md-12 d-flex justify-content-between align-items-center">
-                                <h4 class="border-bottom pb-2">Pagos Origen</h4>
-                                <button type="button" class="btn btn-sm btn-success" id="agregarPagoOrigen">
-                                    <i class="fas fa-plus"></i> Agregar Pago
-                                </button>
-                            </div>
                             <div class="col-md-12">
+                                <h4 class="border-bottom pb-2">Pagos Origen</h4>
                                 <div class="table-responsive">
-                                    <table class="table table-bordered" id="tablaPagosOrigen">
-                                        <thead class="table-light">
+                                    <table class="table table-striped" id="tablaPagosOrigen">
+                                        <thead>
                                             <tr>
-                                                <th>Fecha</th>
+                                                <th>Fecha y Hora</th>
                                                 <th>Tipo de Entrega</th>
                                                 <th>Valor</th>
                                                 <th>Acciones</th>
@@ -111,7 +106,7 @@
                                         <tbody>
                                             <tr th:each="pago, stat : *{pagosOrigen}">
                                                 <td>
-                                                    <input type="date" class="form-control" th:field="*{pagosOrigen[__${stat.index}__].fecha}" required>
+                                                    <input type="datetime-local" class="form-control" th:field="*{pagosOrigen[__${stat.index}__].fecha}" required>
                                                 </td>
                                                 <td>
                                                     <select class="form-select" th:field="*{pagosOrigen[__${stat.index}__].tipoEntrega}" required>
@@ -145,23 +140,23 @@
                                         </tfoot>
                                     </table>
                                 </div>
+                                <div class="text-end mb-3">
+                                    <button type="button" class="btn btn-sm btn-success" id="agregarPagoOrigen">
+                                        <i class="fas fa-plus"></i> Agregar Pago
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         
                         <!-- Pagos Conversión -->
                         <div class="row mb-4">
-                            <div class="col-md-12 d-flex justify-content-between align-items-center">
-                                <h4 class="border-bottom pb-2">Pagos Conversión</h4>
-                                <button type="button" class="btn btn-sm btn-success" id="agregarPagoConversion">
-                                    <i class="fas fa-plus"></i> Agregar Pago
-                                </button>
-                            </div>
                             <div class="col-md-12">
+                                <h4 class="border-bottom pb-2">Pagos Conversión</h4>
                                 <div class="table-responsive">
-                                    <table class="table table-bordered" id="tablaPagosConversion">
-                                        <thead class="table-light">
+                                    <table class="table table-striped" id="tablaPagosConversion">
+                                        <thead>
                                             <tr>
-                                                <th>Fecha</th>
+                                                <th>Fecha y Hora</th>
                                                 <th>Tipo de Entrega</th>
                                                 <th>Valor</th>
                                                 <th>Acciones</th>
@@ -170,7 +165,7 @@
                                         <tbody>
                                             <tr th:each="pago, stat : *{pagosConversion}">
                                                 <td>
-                                                    <input type="date" class="form-control" th:field="*{pagosConversion[__${stat.index}__].fecha}" required>
+                                                    <input type="datetime-local" class="form-control" th:field="*{pagosConversion[__${stat.index}__].fecha}" required>
                                                 </td>
                                                 <td>
                                                     <select class="form-select" th:field="*{pagosConversion[__${stat.index}__].tipoEntrega}" required>
@@ -203,6 +198,11 @@
                                             </tr>
                                         </tfoot>
                                     </table>
+                                </div>
+                                <div class="text-end mb-3">
+                                    <button type="button" class="btn btn-sm btn-success" id="agregarPagoConversion">
+                                        <i class="fas fa-plus"></i> Agregar Pago
+                                    </button>
                                 </div>
                             </div>
                         </div>

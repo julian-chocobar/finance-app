@@ -5,6 +5,19 @@ document.addEventListener('DOMContentLoaded', function() {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
 
+    // Función para formatear fecha y hora
+    function formatDateTime(date) {
+        const pad = (num) => String(num).padStart(2, '0');
+        const d = new Date(date);
+        return `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
+    // Función para obtener fecha y hora actual en formato ISO
+    function getCurrentDateTime() {
+        const now = new Date();
+        return now.toISOString().slice(0, 16); // Formato: YYYY-MM-DDThh:mm
+    }
+
     // Función para calcular el monto de conversión
     function calcularMontoConversion() {
         const montoOrigen = parseFloat(document.getElementById('montoOrigen').value) || 0;
@@ -82,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             nuevaFila.innerHTML = `
                 <td>
-                    <input type="date" class="form-control" name="pagosOrigen[${numFilas}].fecha" required>
+                    <input type="datetime-local" class="form-control" name="pagosOrigen[${numFilas}].fecha" required>
                 </td>
                 <td>
                     <select class="form-select" name="pagosOrigen[${numFilas}].tipoEntrega" required>
@@ -103,10 +116,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 </td>
             `;
             
-            // Establecer la fecha actual por defecto
-            const fechaInput = nuevaFila.querySelector('input[type="date"]');
-            const hoy = new Date().toISOString().split('T')[0];
-            fechaInput.value = hoy;
+            // Establecer la fecha y hora actual por defecto
+            const fechaInput = nuevaFila.querySelector('input[type="datetime-local"]');
+            fechaInput.value = getCurrentDateTime();
             
             actualizarTotalPagosOrigen();
         });
@@ -127,7 +139,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             nuevaFila.innerHTML = `
                 <td>
-                    <input type="date" class="form-control" name="pagosConversion[${numFilas}].fecha" required>
+                    <input type="datetime-local" class="form-control" name="pagosConversion[${numFilas}].fecha" required>
                 </td>
                 <td>
                     <select class="form-select" name="pagosConversion[${numFilas}].tipoEntrega" required>
@@ -148,10 +160,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 </td>
             `;
             
-            // Establecer la fecha actual por defecto
-            const fechaInput = nuevaFila.querySelector('input[type="date"]');
-            const hoy = new Date().toISOString().split('T')[0];
-            fechaInput.value = hoy;
+            // Establecer la fecha y hora actual por defecto
+            const fechaInput = nuevaFila.querySelector('input[type="datetime-local"]');
+            fechaInput.value = getCurrentDateTime();
             
             actualizarTotalPagosConversion();
         });

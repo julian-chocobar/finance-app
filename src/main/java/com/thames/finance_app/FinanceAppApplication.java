@@ -22,6 +22,9 @@ import com.thames.finance_app.models.Operacion;
 import com.thames.finance_app.models.TipoCambio;
 import com.thames.finance_app.repositories.CajaRepository;
 import com.thames.finance_app.repositories.TitularRepository;
+
+import io.github.cdimascio.dotenv.Dotenv;
+
 import com.thames.finance_app.repositories.CtaCteRepository;
 import com.thames.finance_app.repositories.MonedaRepository;
 import com.thames.finance_app.repositories.OperacionRepository;
@@ -31,6 +34,13 @@ import com.thames.finance_app.repositories.TipoCambioRepository;
 public class FinanceAppApplication {
 
 	public static void main(String[] args) {
+		Dotenv dotenv = Dotenv.load();
+		// Pasar variables al sistema (opcional, pero útil)
+		System.setProperty("SP_PASSWORD", dotenv.get("SP_PASSWORD"));
+		System.setProperty("DB_URL", dotenv.get("DB_URL"));
+		System.setProperty("DB_USER_NAME", dotenv.get("DB_USER_NAME"));
+		System.setProperty("DB_PASSWORD", dotenv.get("DB_PASSWORD"));
+
 		SpringApplication.run(FinanceAppApplication.class, args);
 	}
 	
