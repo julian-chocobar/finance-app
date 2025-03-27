@@ -54,6 +54,9 @@ public class FinanceAppApplication {
         	// CREAR MONEDAS        	
         	Moneda dolar = Moneda.builder().nombre("DOLARES").codigo("USD").build();  
         	monedaRepository.save(dolar);
+
+			Moneda dolarCaraChica = Moneda.builder().nombre("DOLARES CARA CHICA").codigo("USDcc").build();  
+        	monedaRepository.save(dolarCaraChica);
         	
         	Moneda peso = Moneda.builder().nombre("PESO").codigo("ARS").build();  
         	monedaRepository.save(peso);
@@ -79,6 +82,14 @@ public class FinanceAppApplication {
         	
         	Caja cajaDolares = Caja.builder()
         			.nombre("DOLARES")
+					.saldoReal(BigDecimal.ZERO)
+					.saldoDisponible(BigDecimal.ZERO)
+					.moneda(dolar)
+					.build();
+        	cajaRepository.save(cajaDolares);
+
+			Caja cajaDolaresCaraChica = Caja.builder()
+        			.nombre("DOLARES CARA CHICA")
 					.saldoReal(BigDecimal.ZERO)
 					.saldoDisponible(BigDecimal.ZERO)
 					.moneda(dolar)

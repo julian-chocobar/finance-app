@@ -2,75 +2,97 @@ package com.thames.finance_app.mappers;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
-import com.thames.finance_app.dtos.CtaCteRequest;
-import com.thames.finance_app.dtos.CtaCteResponse;
+import com.thames.finance_app.dtos.CtaCteDTO;
 import com.thames.finance_app.dtos.MovimientoCtaCteDTO;
-import com.thames.finance_app.models.Titular;
-import com.thames.finance_app.services.MonedaService;
+import com.thames.finance_app.enums.TipoMovimiento;
+import com.thames.finance_app.exceptions.BusinessException;
 
 import lombok.RequiredArgsConstructor;
 
 import com.thames.finance_app.models.CuentaCorriente;
 import com.thames.finance_app.models.Moneda;
 import com.thames.finance_app.models.MovimientoCtaCte;
+import com.thames.finance_app.models.Operacion;
+import com.thames.finance_app.models.Titular;
+import com.thames.finance_app.repositories.MonedaRepository;
+import com.thames.finance_app.repositories.TitularRepository;
 
 @Component
 @RequiredArgsConstructor
-public class CtaCteMapper {
+public class CtaCteMapper {	
 	
-	private final MonedaService monedaService;
-	
+	private final TitularRepository titularRepository;
+	private final MonedaRepository monedaRepository;
 
-    public CtaCteResponse toResponse(CuentaCorriente cuenta) {
-        return CtaCteResponse.builder()
+    public CtaCteDTO toDTO(CuentaCorriente cuenta) {
+        return CtaCteDTO.builder()
                 .id(cuenta.getId())
-                .clienteId(cuenta.getTitular().getId())
+                .titularNombre(cuenta.getTitular().getNombre())
                 .saldoPorMoneda(new HashMap<>(cuenta.getSaldos())) // Copia el mapa para evitar modificaciones accidentales
                 .build();
     }
 
-    public CtaCteResponse toResponse2(CuentaCorriente cuentaCorriente, Page<MovimientoCtaCte> movimientos) {
-        return CtaCteResponse.builder()
+    public CtaCteDTO toDTO(CuentaCorriente cuentaCorriente, Page<MovimientoCtaCte> movimientos) {
+        return CtaCteDTO.builder()
                 .id(cuentaCorriente.getId())
-                .clienteId(cuentaCorriente.getTitular().getId())
+                .titularNombre(cuentaCorriente.getTitular().getNombre())
                 .saldoPorMoneda(new HashMap<>(cuentaCorriente.getSaldos()))
                 .movimientos(movimientos.getContent().stream()
-                        .map(this::toMovimientoResponse)
+                        .map(this::toMovimientoDTO)
                         .toList())
                 .totalMovimientos(movimientos.getTotalElements())
                 .totalPaginas(movimientos.getTotalPages())
                 .build();
     }
+    
 
-    public MovimientoCtaCteDTO toMovimientoResponse(MovimientoCtaCte movimiento) {
+    public MovimientoCtaCteDTO toMovimientoDTO(MovimientoCtaCte movimiento) {
         return MovimientoCtaCteDTO.builder()
                 .id(movimiento.getId())
+                .nombreTitular(movimiento.getCuentaCorriente().getTitular().getNombre())
                 .tipo(movimiento.getTipoMovimiento())
-                .moneda(movimiento.getMoneda())
+                .moneda(movimiento.getMoneda().getCodigo())
                 .monto(movimiento.getMonto())
                 .fecha(movimiento.getFecha())
                 .build();
     }
-
-    public CuentaCorriente toEntity(CtaCteRequest request, Titular cliente) {
-    	// Obtener todas las monedas desde la base de datos
-        List<Moneda> monedas = monedaService.listarTodas(); 
-
-        // Inicializar los saldos con BigDecimal.ZERO para cada moneda
-        Map<Moneda, BigDecimal> saldosIniciales = new HashMap<>();
-        for (Moneda moneda : monedas) {
-            saldosIniciales.put(moneda, BigDecimal.ZERO);
-        }
-
-        return CuentaCorriente.builder()
-                .titular(cliente)
-                .saldos(saldosIniciales)
-                .build();
+    
+    public MovimientoCtaCte toMovimientoEntity(MovimientoCtaCteDTO dto) {
+    	
+    	Titular titular = titularRepository.findByNombre(dto.getNombreTitular())
+    			.orElseThrow(() -> new BusinessException("Titular no encontrado"));
+    	
+    	Moneda moneda = monedaRepository.findByCodigo(dto.getMoneda())
+    			.orElseThrow(() -> new BusinessException("Titular no encontrado"));
+    			
+    	
+    	return MovimientoCtaCte.builder()
+    			.id(dto.getId())
+    			.fecha(dto.getFecha())
+    			.cuentaCorriente(titular.getCuentaCorriente())
+    			.moneda(moneda)
+    			.monto(dto.getMonto())
+    			
+    			.build();
     }
+    
+    public MovimientoCtaCte toMovimientoEntity (Operacion operacion, TipoMovimiento tipo,
+			Moneda moneda, BigDecimal monto) {
+		return MovimientoCtaCte.builder()
+				.fecha(operacion.getFechaCreacion())
+				.tipoMovimiento(tipo)
+				.cuentaCorriente(operacion.getCuentaCorriente())
+				.operacion(operacion)
+				.moneda(moneda)
+				.monto(monto)
+				.build();	
+	}
+    
+    
+
+
 }

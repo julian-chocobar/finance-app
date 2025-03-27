@@ -16,7 +16,6 @@ import lombok.NoArgsConstructor;
 public class PagoDTO {
     private Long id;
     private LocalDateTime fecha;
-    
     private TipoEntrega tipoEntrega;
     private BigDecimal valor;
 }

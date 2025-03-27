@@ -39,7 +39,14 @@
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label for="monedaOrigen" class="form-label">Moneda Origen *</label>
-                                <input type="text" class="form-control" id="monedaOrigen" th:field="*{monedaOrigen}" required>
+                                <input type="text" class="form-control" id="monedaOrigen" th:field="*{monedaOrigen}" list="monedasList" required>
+                                <datalist id="monedasList">
+                                    <option value="USD">
+                                    <option value="ARS">
+                                    <option value="EUR">
+                                    <option value="BRL">
+                                    <option value="USDcc">
+                                </datalist>
                                 <div class="invalid-feedback" th:if="${#fields.hasErrors('monedaOrigen')}" th:errors="*{monedaOrigen}"></div>
                             </div>
                             <div class="col-md-3 mb-3">
@@ -54,7 +61,7 @@
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label for="monedaConversion" class="form-label">Moneda Conversión *</label>
-                                <input type="text" class="form-control" id="monedaConversion" th:field="*{monedaConversion}" required>
+                                <input type="text" class="form-control" id="monedaConversion" th:field="*{monedaConversion}" list="monedasList" required>
                                 <div class="invalid-feedback" th:if="${#fields.hasErrors('monedaConversion')}" th:errors="*{monedaConversion}"></div>
                             </div>
                             <div class="col-md-3 mb-3">
@@ -84,7 +91,7 @@
                             </div>
                             <div class="col-md-2 mb-3">
                                 <label for="monedaReferido" class="form-label">Moneda</label>
-                                <input type="text" class="form-control" id="monedaReferido" th:field="*{monedaReferido}">
+                                <input type="text" class="form-control" id="monedaReferido" th:field="*{monedaReferido}" list="monedasList">
                                 <div class="invalid-feedback" th:if="${#fields.hasErrors('monedaReferido')}" th:errors="*{monedaReferido}"></div>
                             </div>
                         </div>

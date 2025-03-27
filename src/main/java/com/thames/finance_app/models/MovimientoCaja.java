@@ -44,7 +44,7 @@ public class MovimientoCaja {
 	private LocalDateTime fecha;
 	
 	@Enumerated(EnumType.STRING)
-	private TipoMovimiento tipoMovimiento;
+	private TipoMovimiento tipo;
 	
 	@ManyToOne
     @JoinColumn(name = "caja_id", nullable = true)

@@ -70,7 +70,8 @@ public class OperacionController {
         }
 
         // Crear la Specification usando OperacionSpecification
-        Specification<Operacion> spec = OperacionSpecification.filtrarPorParametros(
+        Specification<Operacion> spec = OperacionSpecification
+        		.filtrarPorParametros(
                 fechaInicioParsed,
                 fechaFinParsed,
                 montoOrigenParsed,
@@ -99,7 +100,6 @@ public class OperacionController {
         return "operaciones/lista";
     }
    
-  
     @GetMapping("/crear")
     public String mostrarFormularioCrear(Model model) {
     	// Crear una nueva instancia vacía de Operacion
@@ -117,7 +117,7 @@ public class OperacionController {
     }
 
     @GetMapping("/{id}")
-    public String obtenerOperacion(@PathVariable Long id, Model model) {
+    public String verOperacion(@PathVariable Long id, Model model) {
         OperacionResponse operacionResponse = operacionService.obtenerResponsePorId(id);
         model.addAttribute("operacion", operacionResponse);
         return "operaciones/ver";

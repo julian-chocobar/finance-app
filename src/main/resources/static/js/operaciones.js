@@ -18,24 +18,114 @@ document.addEventListener('DOMContentLoaded', function() {
         return now.toISOString().slice(0, 16); // Formato: YYYY-MM-DDThh:mm
     }
 
+    // Variables globales para elementos del formulario
+    const monedaOrigenInput = document.getElementById('monedaOrigen');
+    const monedaConversionInput = document.getElementById('monedaConversion');
+    const tipoOperacionSelect = document.getElementById('tipo');
+    const tipoCambioInput = document.getElementById('valorTipoCambio');
+    const montoOrigenInput = document.getElementById('montoOrigen');
+    const montoCalculadoInput = document.getElementById('montoCalculado');
+    const puntosReferidoInput = document.getElementById('puntosReferido');
+    const gananciaReferidoInput = document.getElementById('gananciaReferido');
+
+    // Función para obtener y actualizar el tipo de cambio
+    function actualizarTipoCambio() {
+        // Validar monedas iguales
+        if (monedaOrigenInput.value === monedaConversionInput.value && monedaOrigenInput.value !== '' && monedaConversionInput.value !== '') {
+            tipoCambioInput.value = '';
+            tipoCambioInput.placeholder = 'Error: Monedas iguales';
+            tipoCambioInput.classList.add('is-invalid');
+            return;
+        } else {
+            tipoCambioInput.placeholder = 'Esperando...';
+            tipoCambioInput.classList.remove('is-invalid');
+        }
+
+        // Solo consultar si tenemos todos los datos necesarios
+        if (monedaOrigenInput.value && monedaConversionInput.value && tipoOperacionSelect.value) {
+            console.log(`Solicitando tipo de cambio para ${monedaOrigenInput.value} → ${monedaConversionInput.value} (${tipoOperacionSelect.value})`);
+
+            // Solo actualizar si el campo no está siendo editado manualmente
+            if (!tipoCambioInput.dataset.editadoManualmente) {
+                fetch(`/tipoCambio/obtener?monedaOrigen=${monedaOrigenInput.value}&monedaConversion=${monedaConversionInput.value}&esCompra=${tipoOperacionSelect.value === 'COMPRA'}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('No se pudo obtener el tipo de cambio');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        tipoCambioInput.value = data.valor;
+                        tipoCambioInput.classList.remove('is-invalid');
+                        // Recalcular monto de conversión
+                        calcularMontoConversion();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        tipoCambioInput.placeholder = 'Error al obtener tipo de cambio';
+                        tipoCambioInput.classList.add('is-invalid');
+                    });
+            }
+        }
+    }
+
+    // Eventos para actualizar tipo de cambio
+    if (monedaOrigenInput && monedaConversionInput && tipoOperacionSelect) {
+        monedaOrigenInput.addEventListener('change', actualizarTipoCambio);
+        monedaConversionInput.addEventListener('change', actualizarTipoCambio);
+        tipoOperacionSelect.addEventListener('change', actualizarTipoCambio);
+        
+        // Marcar cuando el usuario edita manualmente el tipo de cambio
+        tipoCambioInput.addEventListener('input', function(e) {
+            e.target.dataset.editadoManualmente = true;
+            e.target.classList.remove('is-invalid');
+        });
+        
+        // Actualizar al cargar la página
+        actualizarTipoCambio();
+    }
+
     // Función para calcular el monto de conversión
     function calcularMontoConversion() {
-        const montoOrigen = parseFloat(document.getElementById('montoOrigen').value) || 0;
-        const tipoCambio = parseFloat(document.getElementById('valorTipoCambio').value) || 0;
+        const montoOrigen = parseFloat(montoOrigenInput.value) || 0;
+        const tipoCambio = parseFloat(tipoCambioInput.value) || 0;
         const montoCalculado = montoOrigen * tipoCambio;
-        document.getElementById('montoCalculado').value = montoCalculado.toFixed(2);
+        montoCalculadoInput.value = montoCalculado.toFixed(2);
     }
 
     // Eventos para calcular el monto de conversión
-    const montoOrigenInput = document.getElementById('montoOrigen');
-    const tipoCambioInput = document.getElementById('valorTipoCambio');
-    
     if (montoOrigenInput && tipoCambioInput) {
         montoOrigenInput.addEventListener('input', calcularMontoConversion);
         tipoCambioInput.addEventListener('input', calcularMontoConversion);
         
         // Calcular al cargar la página
         calcularMontoConversion();
+    }
+
+    // Función para calcular la ganancia del referido
+    function calcularGananciaReferido() {
+        const puntosReferido = parseFloat(puntosReferidoInput.value) || 0;
+        const montoOrigen = parseFloat(montoOrigenInput.value) || 0;
+        const gananciaCalculada = puntosReferido * montoOrigen;
+        
+        // Solo actualizar si el campo no está siendo editado manualmente
+        if (!gananciaReferidoInput.dataset.editadoManualmente) {
+            gananciaReferidoInput.value = gananciaCalculada.toFixed(2);
+        }
+    }
+
+    // Eventos para calcular la ganancia del referido
+    if (puntosReferidoInput) {
+        puntosReferidoInput.addEventListener('input', calcularGananciaReferido);
+        montoOrigenInput.addEventListener('input', calcularGananciaReferido);
+        
+        // Marcar cuando el usuario edita manualmente la ganancia
+        gananciaReferidoInput.addEventListener('input', function(e) {
+            e.target.dataset.editadoManualmente = true;
+        });
+        
+        // Calcular al cargar la página
+        calcularGananciaReferido();
     }
 
     // Función para actualizar el total de pagos origen

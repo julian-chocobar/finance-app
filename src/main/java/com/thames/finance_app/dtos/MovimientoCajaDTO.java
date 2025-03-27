@@ -1,6 +1,5 @@
 package com.thames.finance_app.dtos;
 
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -15,14 +14,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class MovimientoCtaCteDTO {
-   
-	private Long id;
-	private LocalDateTime fecha;
-	private String nombreTitular;
+public class MovimientoCajaDTO {
+    private Long id;
+    private LocalDateTime fecha;
     private TipoMovimiento tipo;
-    private String moneda;
+    private String nombreCaja;
+    private Long idOperacion;
     private BigDecimal monto;
-    
-	
+    private BigDecimal montoEjecutado;
 }

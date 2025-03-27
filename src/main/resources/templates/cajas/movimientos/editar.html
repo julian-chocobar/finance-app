@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{layout :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Editar Movimiento de Caja</title>
+</head>
+<body>
+    <section>
+        <div class="container mt-4">
+            <div class="card">
+                <div class="card-header bg-warning">
+                    <h3 class="mb-0">Editar Movimiento de Caja</h3>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/cajas/{nombre}/movimientos/{id}/actualizar(nombre=${nombreCaja}, id=${movimientoId})}" th:object="${movimientoRequest}" method="post" id="formMovimiento">
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <h4 class="border-bottom pb-2">Datos del Movimiento</h4>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="fecha" class="form-label">Fecha y Hora *</label>
+                                <input type="datetime-local" class="form-control" id="fecha" th:field="*{fecha}" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('fecha')}" th:errors="*{fecha}"></div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="tipo" class="form-label">Tipo *</label>
+                                <select class="form-select" id="tipo" th:field="*{tipo}" required>
+                                    <option value="">Seleccione...</option>
+                                    <option value="INGRESO">Ingreso</option>
+                                    <option value="EGRESO">Egreso</option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('tipo')}" th:errors="*{tipo}"></div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="monto" class="form-label">Monto *</label>
+                                <input type="number" step="0.01" class="form-control" id="monto" th:field="*{monto}" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('monto')}" th:errors="*{monto}"></div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="montoEjecutado" class="form-label">Monto Ejecutado *</label>
+                                <input type="number" step="0.01" class="form-control" id="montoEjecutado" th:field="*{montoEjecutado}" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('montoEjecutado')}" th:errors="*{montoEjecutado}"></div>
+                                <small class="form-text text-muted">El monto ejecutado no puede ser menor que el monto.</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="idOperacion" class="form-label">ID Operación</label>
+                                <input type="text" class="form-control" id="idOperacion" th:field="*{idOperacion}">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('idOperacion')}" th:errors="*{idOperacion}"></div>
+                                <small class="form-text text-muted">Opcional. Relaciona este movimiento con una operación existente.</small>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-12 text-end">
+                                <a th:href="@{/cajas/{nombre}(nombre=${nombreCaja})}" class="btn btn-secondary">Cancelar</a>
+                                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const montoInput = document.getElementById('monto');
+            const montoEjecutadoInput = document.getElementById('montoEjecutado');
+            
+            // Función para validar que montoEjecutado >= monto
+            function validarMontos() {
+                const monto = parseFloat(montoInput.value) || 0;
+                const montoEjecutado = parseFloat(montoEjecutadoInput.value) || 0;
+                
+                if (montoEjecutado < monto) {
+                    montoEjecutadoInput.setCustomValidity('El monto ejecutado no puede ser menor que el monto');
+                } else {
+                    montoEjecutadoInput.setCustomValidity('');
+                }
+            }
+            
+            // Eventos para validar los montos
+            montoInput.addEventListener('input', validarMontos);
+            montoEjecutadoInput.addEventListener('input', validarMontos);
+            
+            // Validar al cargar la página
+            validarMontos();
+            
+            // Validar antes de enviar el formulario
+            document.getElementById('formMovimiento').addEventListener('submit', function(e) {
+                validarMontos();
+                if (!this.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

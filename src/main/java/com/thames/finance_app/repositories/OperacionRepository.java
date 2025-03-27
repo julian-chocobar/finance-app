@@ -19,6 +19,7 @@ public interface OperacionRepository extends JpaRepository<Operacion, Long>{
 	Page<Operacion> findAll(Specification<Operacion> spec, Pageable pageable);
 
 	boolean existsByMonedaOrigen(Moneda moneda);
+	
 	boolean existsByMonedaConversion(Moneda moneda);
 
 	boolean existsByCuentaCorriente(CuentaCorriente cuenta);

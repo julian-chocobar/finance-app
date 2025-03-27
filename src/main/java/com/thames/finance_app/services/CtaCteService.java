@@ -5,7 +5,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.thames.finance_app.dtos.CtaCteResponse;
+import com.thames.finance_app.dtos.CtaCteDTO;
+import com.thames.finance_app.dtos.MovimientoCtaCteDTO;
 import com.thames.finance_app.enums.TipoMovimiento;
 import com.thames.finance_app.enums.TipoOperacion;
 import com.thames.finance_app.exceptions.BusinessException;
@@ -36,11 +37,16 @@ public class CtaCteService {
     private final MovimientoCtaCteService movimientoCtaCteService;
     private final CtaCteMapper ctaCteMapper;    
    
+    public MovimientoCtaCteDTO crearMovimiento(MovimientoCtaCteDTO dto) {
+    	MovimientoCtaCte movimiento = ctaCteMapper.toMovimientoEntity(dto);
+    	movimientoCtaCteService.impactoMovimiento(movimiento);
+    	return dto; 	
+    }
 
-    public CtaCteResponse obtenerResponsePorId(Long cuentaId) {
+    public CtaCteDTO obtenerResponsePorId(Long cuentaId) {
         CuentaCorriente cuenta = ctaCteRepository.findById(cuentaId)
                 .orElseThrow(() -> new BusinessException("Cuenta Corriente no encontrada"));
-        return ctaCteMapper.toResponse(cuenta);
+        return ctaCteMapper.toDTO(cuenta);
     }
     
     public CuentaCorriente obtenerCuentaPorId(Long cuentaId) {
@@ -49,12 +55,12 @@ public class CtaCteService {
         return cuenta;
     }
 
-    public CtaCteResponse obtenerResponsePorTitularId(Long titularId) {
+    public CtaCteDTO obtenerResponsePorTitularId(Long titularId) {
     	Titular titular = titularRepository.findById(titularId)
     			.orElseThrow(() -> new BusinessException("Cliente no encontrado"));
         CuentaCorriente cuenta = ctaCteRepository.findByTitular(titular)
                 .orElseThrow(() -> new BusinessException("Cuenta Corriente no encontrada para el cliente"));
-        return ctaCteMapper.toResponse(cuenta);
+        return ctaCteMapper.toDTO(cuenta);
     }
     
     public CuentaCorriente obtenerEntidadPorTitularId(Long titularId) {
@@ -100,7 +106,7 @@ public class CtaCteService {
 	    
 	    Caja origen = cajaService.obtenerPorMoneda(operacion.getMonedaOrigen());
 	    Caja conversion = 	cajaService.obtenerPorMoneda(operacion.getMonedaConversion());	
-	    movimientoCtaCteService.registrarMovimientos(operacion, origen, conversion);
+	    movimientoCtaCteService.registrarMovimientosOperacion(operacion, origen, conversion);
 	    ctaCteRepository.save(cuentaCliente);
 	}
 	
@@ -155,7 +161,7 @@ public class CtaCteService {
         ctaCteRepository.save(cuentaReferido);
     }
 
-	public CtaCteResponse actualizarSaldos(Long id, BigDecimal monto, Moneda moneda, TipoMovimiento tipo) {
+	public CtaCteDTO actualizarSaldos(Long id, BigDecimal monto, Moneda moneda, TipoMovimiento tipo) {
 		CuentaCorriente cuenta = ctaCteRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("Cuenta Corriente no encontrada"));
 	    BigDecimal saldoActual = cuenta.getSaldoPorMoneda(moneda);
@@ -166,7 +172,7 @@ public class CtaCteService {
 		    cuenta.setSaldoPorMoneda(moneda, saldoActual.subtract(monto));
 	    }
 	    ctaCteRepository.save(cuenta);
-	    return ctaCteMapper.toResponse(cuenta);	
+	    return ctaCteMapper.toDTO(cuenta);	
 	    		
 	}
 	

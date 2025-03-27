@@ -1,16 +1,23 @@
 package com.thames.finance_app.services;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import com.thames.finance_app.dtos.MovimientoCajaDTO;
 import com.thames.finance_app.enums.TipoMovimiento;
 import com.thames.finance_app.enums.TipoOperacion;
+import com.thames.finance_app.mappers.CajaMapper;
 import com.thames.finance_app.models.Caja;
 import com.thames.finance_app.models.MovimientoCaja;
 import com.thames.finance_app.models.Operacion;
 import com.thames.finance_app.repositories.CajaRepository;
 import com.thames.finance_app.repositories.MovimientoCajaRepository;
+import com.thames.finance_app.specifications.MovimientoCajaSpecification;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,6 +27,16 @@ public class MovimientoCajaService {
 	
 	private final MovimientoCajaRepository movimientoCajaRepository;
 	private final CajaRepository cajaRepository;
+	private final CajaMapper cajaMapper;
+	
+	
+	public Page<MovimientoCajaDTO> obtenerMovimientosFiltrados(String nombreCaja, String tipo, Date fechaInicio,
+			Date fechaFin, BigDecimal monto, String moneda, Pageable pageable) {
+		
+		Specification <MovimientoCaja> spec =
+				MovimientoCajaSpecification.filtrarMovimientos(nombreCaja,tipo, fechaInicio, fechaFin, monto, moneda);
+		return movimientoCajaRepository.findAll(spec, pageable).map(cajaMapper::toMovimientoDTO);
+	}
 	
     public void registrarMovimientos(Operacion operacion, Caja cajaOrigen, Caja cajaConversion) {
         if (operacion.getTipo() == TipoOperacion.COMPRA) {
@@ -44,6 +61,7 @@ public class MovimientoCajaService {
             registrarMovimiento(ingreso);
         }
     }
+    
 	
 	private void registrarMovimiento(MovimientoCaja movimiento) {
 	        // Guardamos el movimiento en la base de datos
@@ -59,11 +77,11 @@ public class MovimientoCajaService {
 			Caja caja, BigDecimal monto, BigDecimal montoEjecutado) {	
 		return MovimientoCaja.builder()
 						.fecha(operacion.getFechaCreacion())
-						.tipoMovimiento(tipo)
+						.tipo(tipo)
 						.caja(caja)
 						.operacion(operacion)
 						.monto(monto)
-						.montoEjecutado(montoEjecutado)
+						.montoEjecutado(montoEjecutado)	
 						.build();	
 	}
 

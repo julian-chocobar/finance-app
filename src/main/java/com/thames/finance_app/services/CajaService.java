@@ -4,9 +4,14 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.thames.finance_app.dtos.CajaDTO;
+import com.thames.finance_app.dtos.MovimientoCajaDTO;
+import com.thames.finance_app.enums.TipoMovimiento;
 import com.thames.finance_app.enums.TipoOperacion;
 import com.thames.finance_app.exceptions.BusinessException;
 import com.thames.finance_app.mappers.CajaMapper;
@@ -30,6 +35,20 @@ public class CajaService {
     private final MovimientoCajaRepository movimientoCajaRepository;
     private final CajaMapper cajaMapper;
     
+    public MovimientoCajaDTO crearMovimiento(MovimientoCajaDTO dto) {
+    	MovimientoCaja movimiento = cajaMapper.toMovimientoEntity(dto);    	
+    	Caja caja = movimiento.getCaja();
+		if(movimiento.getTipo() == TipoMovimiento.INGRESO) {
+			 actualizarSaldoReal(caja, movimiento.getMonto(), true); 
+	         actualizarSaldoDisponible(caja, movimiento.getMontoEjecutado(),true);
+		} else if (movimiento.getTipo() == TipoMovimiento.EGRESO) {
+			actualizarSaldoReal(caja, movimiento.getMonto(), false); 
+	        actualizarSaldoDisponible(caja, movimiento.getMontoEjecutado(),false);
+		} else {
+	        throw new IllegalArgumentException("Tipo de movimiento no válido.");
+		}	
+    	return dto;
+    }
 
 	public List<CajaDTO> obtenerTodas() {		
 		List<Caja> cajas = cajaRepository.findAll();
@@ -38,10 +57,21 @@ public class CajaService {
 				.collect(Collectors.toList());
 	}
 	
+	public Page<CajaDTO> listarCajas(Specification<Caja> spec, Pageable pageable){
+		return cajaRepository.findAll(spec,pageable).map(cajaMapper::toDTO);
+	}
+	
 	public CajaDTO obtenerPorID(Long id) {
 		Caja caja = cajaRepository.findById(id)
-				.orElseThrow( () -> new EntityNotFoundException("Cliente con id: " + id + " no encontrado"));
+				.orElseThrow( () -> new EntityNotFoundException("Caja con id: " + id + " no encontrado"));
 		return cajaMapper.toDTO(caja);	
+	}
+	
+
+	public CajaDTO obtenerPorNombre(String nombre) {
+		Caja caja = cajaRepository.findByNombre(nombre)
+				.orElseThrow( () -> new EntityNotFoundException("Caja con nombre: " + nombre + " no encontrado"));
+		return cajaMapper.toDTO(caja);
 	}
 	
 	@Transactional
@@ -51,6 +81,7 @@ public class CajaService {
 		cajaRepository.save(caja);
 		return cajaMapper.toDTO(caja);
 	}
+	
 	
     public boolean existeNombre(String nombre) {
         return cajaRepository.findByNombre(nombre).isPresent();
@@ -158,8 +189,6 @@ public class CajaService {
 	public Caja obtenerPorMoneda(Moneda moneda) {
 		return cajaRepository.findByMoneda(moneda).orElseThrow(() -> new RuntimeException("Caja no encontrada"));
 	}
-
-
 
 		
 }

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{layout :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Listado de Cajas</title>
+</head>
+<body>
+    <section>
+        <div class="container mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Cajas</h2>
+                <a th:href="@{/cajas/crear}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Nueva Caja
+                </a>
+            </div>
+            
+            <!-- Filtros -->
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Filtros</h5>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/cajas}" method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="nombre" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="nombre" name="nombre" 
+                                   th:value="${param.nombre}">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="moneda" class="form-label">Moneda</label>
+                            <input type="text" class="form-control" id="moneda" name="moneda" 
+                                   th:value="${param.moneda}" list="monedasList">
+                            <datalist id="monedasList">
+                                <option value="USD">
+                                <option value="ARS">
+                                <option value="EUR">
+                                <option value="BRL">
+                                <option value="USDcc">
+                            </datalist>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="saldoMinimo" class="form-label">Saldo Mínimo</label>
+                            <input type="number" step="0.01" class="form-control" id="saldoMinimo" name="saldoMinimo" 
+                                   th:value="${param.saldoMinimo}">
+                        </div>
+                        <div class="col-12 text-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                            <a th:href="@{/cajas}" class="btn btn-secondary">
+                                <i class="fas fa-undo"></i> Limpiar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Tabla de cajas -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Moneda</th>
+                                    <th>Saldo Real</th>
+                                    <th>Saldo Disponible</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${cajas.empty}">
+                                    <td colspan="5" class="text-center">No hay cajas disponibles</td>
+                                </tr>
+                                <tr th:each="caja : ${cajas}">
+                                    <td th:text="${caja.nombre}"></td>
+                                    <td th:text="${caja.moneda}"></td>
+                                    <td th:text="${#numbers.formatDecimal(caja.saldoReal, 1, 2)}"></td>
+                                    <td th:text="${#numbers.formatDecimal(caja.saldoDisponible, 1, 2)}"></td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a th:href="@{/cajas/{nombre}(nombre=${caja.nombre})}" 
+                                               class="btn btn-sm btn-info" title="Ver">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a th:href="@{/cajas/{nombre}/editar(nombre=${caja.nombre})}" 
+                                               class="btn btn-sm btn-warning" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-danger btnEliminar"
+                                                    th:data-id="${caja.nombre}" data-bs-toggle="modal" 
+                                                    data-bs-target="#eliminarModal" title="Eliminar">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Paginación -->
+                    <div th:if="${cajas.totalPages > 1}" class="d-flex justify-content-between align-items-center mt-3">
+                        <div>
+                            <span>Mostrando <span th:text="${cajas.numberOfElements}"></span> de <span th:text="${cajas.totalElements}"></span> cajas</span>
+                        </div>
+                        <nav>
+                            <ul class="pagination mb-0">
+                                <li class="page-item" th:classappend="${cajas.first ? 'disabled' : ''}">
+                                    <a class="page-link" th:href="@{/cajas(page=0, size=${cajas.size}, nombre=${param.nombre}, moneda=${param.moneda}, saldoMinimo=${param.saldoMinimo})}" aria-label="Primera">
+                                        <span aria-hidden="true">&laquo;&laquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item" th:classappend="${cajas.first ? 'disabled' : ''}">
+                                    <a class="page-link" th:href="@{/cajas(page=${cajas.number - 1}, size=${cajas.size}, nombre=${param.nombre}, moneda=${param.moneda}, saldoMinimo=${param.saldoMinimo})}" aria-label="Anterior">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item" th:each="i : ${#numbers.sequence(0, cajas.totalPages - 1)}" 
+                                    th:if="${i >= cajas.number - 2 and i <= cajas.number + 2}"
+                                    th:classappend="${i == cajas.number ? 'active' : ''}">
+                                    <a class="page-link" th:href="@{/cajas(page=${i}, size=${cajas.size}, nombre=${param.nombre}, moneda=${param.moneda}, saldoMinimo=${param.saldoMinimo})}" th:text="${i + 1}"></a>
+                                </li>
+                                <li class="page-item" th:classappend="${cajas.last ? 'disabled' : ''}">
+                                    <a class="page-link" th:href="@{/cajas(page=${cajas.number + 1}, size=${cajas.size}, nombre=${param.nombre}, moneda=${param.moneda}, saldoMinimo=${param.saldoMinimo})}" aria-label="Siguiente">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item" th:classappend="${cajas.last ? 'disabled' : ''}">
+                                    <a class="page-link" th:href="@{/cajas(page=${cajas.totalPages - 1}, size=${cajas.size}, nombre=${param.nombre}, moneda=${param.moneda}, saldoMinimo=${param.saldoMinimo})}" aria-label="Última">
+                                        <span aria-hidden="true">&raquo;&raquo;</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal de confirmación para eliminar -->
+        <div class="modal fade" id="eliminarModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirmar eliminación</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>¿Está seguro que desea eliminar esta caja? Esta acción no se puede deshacer.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <form id="formEliminar" method="post">
+                            <input type="hidden" name="_method" value="DELETE">
+                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script th:inline="javascript">
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".btnEliminar").forEach(button => {
+                button.addEventListener("click", function () {
+                    let nombre = this.getAttribute("data-id");
+                    let form = document.getElementById("formEliminar");
+                    form.setAttribute("action", `/cajas/${nombre}/eliminar`);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

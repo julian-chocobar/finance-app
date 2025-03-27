@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{layout :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Nueva Caja</title>
+</head>
+<body>
+    <section>
+        <div class="container mt-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Nueva Caja</h3>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/cajas/guardar}" th:object="${caja}" method="post" id="formCaja">
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <h4 class="border-bottom pb-2">Datos de la Caja</h4>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="nombre" class="form-label">Nombre *</label>
+                                <input type="text" class="form-control" id="nombre" th:field="*{nombre}" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="moneda" class="form-label">Moneda *</label>
+                                <input type="text" class="form-control" id="moneda" th:field="*{moneda}" list="monedasList" required>
+                                <datalist id="monedasList">
+                                    <option value="USD">
+                                    <option value="ARS">
+                                    <option value="EUR">
+                                    <option value="BRL">
+                                    <option value="USDcc">
+                                </datalist>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('moneda')}" th:errors="*{moneda}"></div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="saldoReal" class="form-label">Saldo Real *</label>
+                                <input type="number" step="0.01" class="form-control" id="saldoReal" th:field="*{saldoReal}" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('saldoReal')}" th:errors="*{saldoReal}"></div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="saldoDisponible" class="form-label">Saldo Disponible *</label>
+                                <input type="number" step="0.01" class="form-control" id="saldoDisponible" th:field="*{saldoDisponible}" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('saldoDisponible')}" th:errors="*{saldoDisponible}"></div>
+                                <small class="form-text text-muted">El saldo disponible no puede ser mayor que el saldo real.</small>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-12 text-end">
+                                <a th:href="@{/cajas}" class="btn btn-secondary">Cancelar</a>
+                                <button type="submit" class="btn btn-primary">Guardar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const saldoRealInput = document.getElementById('saldoReal');
+            const saldoDisponibleInput = document.getElementById('saldoDisponible');
+            
+            // Función para validar que saldoDisponible <= saldoReal
+            function validarSaldos() {
+                const saldoReal = parseFloat(saldoRealInput.value) || 0;
+                const saldoDisponible = parseFloat(saldoDisponibleInput.value) || 0;
+                
+                if (saldoDisponible > saldoReal) {
+                    saldoDisponibleInput.setCustomValidity('El saldo disponible no puede ser mayor que el saldo real');
+                } else {
+                    saldoDisponibleInput.setCustomValidity('');
+                }
+            }
+            
+            // Eventos para validar los saldos
+            saldoRealInput.addEventListener('input', validarSaldos);
+            saldoDisponibleInput.addEventListener('input', validarSaldos);
+            
+            // Validar al cargar la página
+            validarSaldos();
+            
+            // Validar antes de enviar el formulario
+            document.getElementById('formCaja').addEventListener('submit', function(e) {
+                validarSaldos();
+                if (!this.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
