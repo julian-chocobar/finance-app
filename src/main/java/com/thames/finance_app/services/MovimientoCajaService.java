@@ -1,7 +1,6 @@
 package com.thames.finance_app.services;
 
 import java.math.BigDecimal;
-import java.sql.Date;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +16,6 @@ import com.thames.finance_app.models.MovimientoCaja;
 import com.thames.finance_app.models.Operacion;
 import com.thames.finance_app.repositories.CajaRepository;
 import com.thames.finance_app.repositories.MovimientoCajaRepository;
-import com.thames.finance_app.specifications.MovimientoCajaSpecification;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,11 +28,7 @@ public class MovimientoCajaService {
 	private final CajaMapper cajaMapper;
 	
 	
-	public Page<MovimientoCajaDTO> obtenerMovimientosFiltrados(String nombreCaja, String tipo, Date fechaInicio,
-			Date fechaFin, BigDecimal monto, String moneda, Pageable pageable) {
-		
-		Specification <MovimientoCaja> spec =
-				MovimientoCajaSpecification.filtrarMovimientos(nombreCaja,tipo, fechaInicio, fechaFin, monto, moneda);
+	public Page<MovimientoCajaDTO> obtenerMovimientosFiltrados(Specification<MovimientoCaja> spec, Pageable pageable) {
 		return movimientoCajaRepository.findAll(spec, pageable).map(cajaMapper::toMovimientoDTO);
 	}
 	

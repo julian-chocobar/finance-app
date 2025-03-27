@@ -7,6 +7,7 @@ import com.thames.finance_app.dtos.CajaDTO;
 import com.thames.finance_app.dtos.MovimientoCajaDTO;
 import com.thames.finance_app.exceptions.BusinessException;
 import com.thames.finance_app.models.Caja;
+import com.thames.finance_app.models.Moneda;
 import com.thames.finance_app.models.MovimientoCaja;
 import com.thames.finance_app.models.Operacion;
 import com.thames.finance_app.repositories.CajaRepository;
@@ -85,6 +86,23 @@ public class CajaMapper {
 				.monto(dto.getMonto())
 				.montoEjecutado(dto.getMontoEjecutado())	
 				.build();
+	}
+
+	public Caja updateEntity(Caja caja, CajaDTO dto) {
+		Caja cajaEntidad = cajaRepository.findByNombre(dto.getNombre())
+				.orElseThrow(() -> new BusinessException("Caja no encontrada"));
+		
+		Moneda moneda = monedaRepository
+    			.findByCodigo(dto.getMoneda())
+    			.orElseThrow(() -> new RuntimeException("Moneda no encontrada"));
+		
+		caja.setId(cajaEntidad.getId());
+		caja.setNombre(dto.getNombre());
+		caja.setSaldoReal(dto.getSaldoReal());
+		caja.setSaldoDisponible(dto.getSaldoDisponible());
+		caja.setMoneda(moneda);
+		
+		return caja;
 	}
 
 }

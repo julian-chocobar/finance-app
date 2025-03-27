@@ -61,10 +61,15 @@ public class CajaService {
 		return cajaRepository.findAll(spec,pageable).map(cajaMapper::toDTO);
 	}
 	
-	public CajaDTO obtenerPorID(Long id) {
+	public CajaDTO obtenerPorId(Long id) {
 		Caja caja = cajaRepository.findById(id)
 				.orElseThrow( () -> new EntityNotFoundException("Caja con id: " + id + " no encontrado"));
 		return cajaMapper.toDTO(caja);	
+	}
+	
+	public Caja obtenerEntidadPorId(Long id) {
+		return cajaRepository.findById(id)
+				.orElseThrow( () -> new EntityNotFoundException("Caja con id: " + id + " no encontrado"));
 	}
 	
 
@@ -72,6 +77,11 @@ public class CajaService {
 		Caja caja = cajaRepository.findByNombre(nombre)
 				.orElseThrow( () -> new EntityNotFoundException("Caja con nombre: " + nombre + " no encontrado"));
 		return cajaMapper.toDTO(caja);
+	}
+	
+	public Caja obtenerEntidadPorNombre(String nombre) {
+		return cajaRepository.findByNombre(nombre)
+				.orElseThrow( () -> new EntityNotFoundException("Caja con nombre: " + nombre + " no encontrado"));
 	}
 	
 	@Transactional
@@ -93,7 +103,13 @@ public class CajaService {
         }
     }
 	
-
+    public CajaDTO actualizarCaja(Long id, CajaDTO dto) {
+    	Caja vieja = cajaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Caja no encontrada"));
+    	Caja nueva = cajaMapper.updateEntity(vieja, dto);
+    	cajaRepository.save(nueva);
+    	return cajaMapper.toDTO(nueva);
+    }
 	
 	public void eliminar(Long id) {
 	    Caja caja = cajaRepository.findById(id)

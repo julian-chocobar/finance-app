@@ -1,7 +1,6 @@
 package com.thames.finance_app;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -12,16 +11,17 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import com.thames.finance_app.dtos.OperacionRequest;
 import com.thames.finance_app.enums.TipoOperacion;
 import com.thames.finance_app.enums.TipoTitular;
 import com.thames.finance_app.models.Caja;
 import com.thames.finance_app.models.Titular;
 import com.thames.finance_app.models.CuentaCorriente;
 import com.thames.finance_app.models.Moneda;
-import com.thames.finance_app.models.Operacion;
 import com.thames.finance_app.models.TipoCambio;
 import com.thames.finance_app.repositories.CajaRepository;
 import com.thames.finance_app.repositories.TitularRepository;
+import com.thames.finance_app.services.OperacionService;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
@@ -48,7 +48,8 @@ public class FinanceAppApplication {
 	@Bean
     CommandLineRunner init(CajaRepository cajaRepository, TipoCambioRepository tipoCambioRepository,
     						TitularRepository clienteRepository, CtaCteRepository ctaCteRepository,
-    						MonedaRepository monedaRepository, OperacionRepository operacionRepository) {
+    						MonedaRepository monedaRepository, OperacionRepository operacionRepository,
+    						OperacionService operacionService) {
         return args -> {
         	        	       	
         	// CREAR MONEDAS        	
@@ -92,9 +93,9 @@ public class FinanceAppApplication {
         			.nombre("DOLARES CARA CHICA")
 					.saldoReal(BigDecimal.ZERO)
 					.saldoDisponible(BigDecimal.ZERO)
-					.moneda(dolar)
+					.moneda(dolarCaraChica)
 					.build();
-        	cajaRepository.save(cajaDolares);
+        	cajaRepository.save(cajaDolaresCaraChica);
         	
         	Caja cajaReales = Caja.builder()
         			.nombre("REALES")
@@ -175,19 +176,16 @@ public class FinanceAppApplication {
     	    	    clienteRepository.save(referido);
     	    	}
     	    
-    	    
-    	       Operacion operacion = Operacion.builder()
-    	    		   	.fechaCreacion(LocalDateTime.now() )
-    	        		.tipo(TipoOperacion.COMPRA)
-    	        		.cuentaCorriente(cuentaJuan)
-    	        		.monedaOrigen(dolar)
-    	        		.montoOrigen(new BigDecimal("100"))
-    	        		.valorTipoCambio(new BigDecimal("0.85"))
-    	        		.monedaConversion(euro)
-    	        		.montoConversion(new BigDecimal("100").multiply(new BigDecimal("0.85")))
-    	        		
-    	        		.build();
-    	        operacionRepository.save(operacion);
+    	    	
+    	    	OperacionRequest operacionRequest = OperacionRequest.builder()
+    	    			.tipo(TipoOperacion.COMPRA)
+    	    			.nombreCliente("Juan Suarez")
+    	    			.monedaOrigen("USD")
+    	    			.montoOrigen(new BigDecimal("1000"))
+    	    			.valorTipoCambio(new BigDecimal("0.85"))
+    	    			.monedaConversion("EUR")
+    	    			.build();	    
+    	       operacionService.crearOperacion(operacionRequest);
     	       
         	        	
         };
