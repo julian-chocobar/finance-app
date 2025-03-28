@@ -1,6 +1,11 @@
 package com.thames.finance_app.services;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +32,7 @@ public class MovimientoCajaService {
 	private final CajaRepository cajaRepository;
 	private final CajaMapper cajaMapper;
 	
+	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 	
 	public Page<MovimientoCajaDTO> obtenerMovimientosFiltrados(Specification<MovimientoCaja> spec, Pageable pageable) {
 		return movimientoCajaRepository.findAll(spec, pageable).map(cajaMapper::toMovimientoDTO);
@@ -67,6 +73,19 @@ public class MovimientoCajaService {
 	        cajaRepository.save(caja);
 	}
 
+	public LocalDateTime parsearFecha(String fecha) {
+        if (fecha == null) {
+            return null;
+        }
+
+        try {
+            LocalDate localDate = LocalDate.parse(fecha, FORMATTER);
+            return LocalDateTime.of(localDate, LocalTime.MIN);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Formato de fecha incorrecto. Usa yyyy-MM-dd");
+        }
+    }
+	
 	private MovimientoCaja toMovimientoCaja(Operacion operacion, TipoMovimiento tipo, 
 			Caja caja, BigDecimal monto, BigDecimal montoEjecutado) {	
 		return MovimientoCaja.builder()

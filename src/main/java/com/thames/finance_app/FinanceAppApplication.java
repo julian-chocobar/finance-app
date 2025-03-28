@@ -53,10 +53,10 @@ public class FinanceAppApplication {
         return args -> {
         	        	       	
         	// CREAR MONEDAS        	
-        	Moneda dolar = Moneda.builder().nombre("DOLARES").codigo("USD").build();  
+        	Moneda dolar = Moneda.builder().nombre("DOLAR").codigo("USD").build();  
         	monedaRepository.save(dolar);
 
-			Moneda dolarCaraChica = Moneda.builder().nombre("DOLARES CARA CHICA").codigo("USDcc").build();  
+			Moneda dolarCaraChica = Moneda.builder().nombre("DOLARcc").codigo("USDcc").build();  
         	monedaRepository.save(dolarCaraChica);
         	
         	Moneda peso = Moneda.builder().nombre("PESO").codigo("ARS").build();  
@@ -90,7 +90,7 @@ public class FinanceAppApplication {
         	cajaRepository.save(cajaDolares);
 
 			Caja cajaDolaresCaraChica = Caja.builder()
-        			.nombre("DOLARES CARA CHICA")
+        			.nombre("DOLAREScc")
 					.saldoReal(BigDecimal.ZERO)
 					.saldoDisponible(BigDecimal.ZERO)
 					.moneda(dolarCaraChica)
@@ -186,6 +186,37 @@ public class FinanceAppApplication {
     	    			.monedaConversion("EUR")
     	    			.build();	    
     	       operacionService.crearOperacion(operacionRequest);
+    	       operacionService.crearOperacion(operacionRequest);
+    	       operacionService.crearOperacion(operacionRequest);
+    	       operacionService.crearOperacion(operacionRequest);
+    	       operacionService.crearOperacion(operacionRequest);
+    	       operacionService.crearOperacion(operacionRequest);
+    	       operacionService.crearOperacion(operacionRequest);
+    	       operacionService.crearOperacion(operacionRequest);
+    	       operacionService.crearOperacion(operacionRequest);
+    	       operacionService.crearOperacion(operacionRequest);
+    	       operacionService.crearOperacion(operacionRequest);
+    	       operacionService.crearOperacion(operacionRequest);
+    	       operacionService.crearOperacion(operacionRequest);
+    	       operacionService.crearOperacion(operacionRequest);
+    	       operacionService.crearOperacion(operacionRequest);
+    	       operacionService.crearOperacion(operacionRequest);
+    	       operacionService.crearOperacion(operacionRequest);
+    	       operacionService.crearOperacion(operacionRequest);
+    	       operacionService.crearOperacion(operacionRequest);
+    	       operacionService.crearOperacion(operacionRequest);
+    	       operacionService.crearOperacion(operacionRequest);
+    	       operacionService.crearOperacion(operacionRequest);
+    	       operacionService.crearOperacion(operacionRequest);
+    	       operacionService.crearOperacion(operacionRequest);
+    	       operacionService.crearOperacion(operacionRequest);
+    	       operacionService.crearOperacion(operacionRequest);
+    	       operacionService.crearOperacion(operacionRequest);
+    	       operacionService.crearOperacion(operacionRequest);
+    	       operacionService.crearOperacion(operacionRequest);
+    	       operacionService.crearOperacion(operacionRequest);
+
+    	       
     	       
         	        	
         };

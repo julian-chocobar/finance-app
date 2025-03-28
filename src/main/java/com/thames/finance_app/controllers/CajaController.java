@@ -1,11 +1,7 @@
 package com.thames.finance_app.controllers;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
@@ -40,7 +36,6 @@ public class CajaController {
 
 	private final CajaService cajaService;
 	private final MovimientoCajaService movimientoCajaService;
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 	
     @GetMapping
     public String listarCajas(Model model, 
@@ -53,12 +48,12 @@ public class CajaController {
                              @RequestParam(required = false) String tipo,
                              @RequestParam(required = false) String montoMinimo,
                              @RequestParam(required = false) String montoMaximo,
-                             @RequestParam(required = false) Long idOperacion,
+                             @RequestParam(required = false) String idOperacion,
                              @Qualifier("cajasPageable") @PageableDefault(size = 10) Pageable cajasPageable,
                              @Qualifier("movimientosPageable") @PageableDefault(size = 20) Pageable movimientosPageable) {
         
         // Parsear datos de caja
-        BigDecimal saldoMinimoParsed = (saldoMinimo != null) ? new BigDecimal(saldoMinimo) : null;
+        BigDecimal saldoMinimoParsed = (saldoMinimo != null && !saldoMinimo.isEmpty()) ? new BigDecimal(saldoMinimo) : null;
         
         // Obtener cajas paginadas
         Specification<Caja> specCaja = CajaSpecification
@@ -67,18 +62,27 @@ public class CajaController {
         model.addAttribute("cajas", cajas);
         
         // Parsear datos de movimientos
-        BigDecimal montoMinimoParsed = (montoMinimo != null) ? new BigDecimal(montoMinimo) : null;
-        BigDecimal montoMaximoParsed = (montoMaximo != null) ? new BigDecimal(montoMaximo) : null;
-        LocalDateTime fechaInicioParsed = parsearFecha(fechaDesde);
-        LocalDateTime fechaFinParsed = parsearFecha(fechaHasta);
+        Long idOperacionParsed = (idOperacion != null && !idOperacion.isEmpty()) ? Long.parseLong(idOperacion) : null;
+        BigDecimal montoMinimoParsed = (montoMinimo != null && !montoMinimo.isEmpty()) ? new BigDecimal(montoMinimo) : null;
+        BigDecimal montoMaximoParsed = (montoMaximo != null && !montoMaximo.isEmpty()) ? new BigDecimal(montoMaximo) : null;
+        LocalDateTime fechaInicioParsed = movimientoCajaService.parsearFecha(fechaDesde);
+        LocalDateTime fechaFinParsed = movimientoCajaService.parsearFecha(fechaHasta);
         
         // Obtener movimientos paginados
         Specification<MovimientoCaja> specMovimiento = MovimientoCajaSpecification
                 .filtrarMovimientos(nombreCaja, tipo, fechaInicioParsed, fechaFinParsed, 
-                                  montoMinimoParsed, montoMaximoParsed, idOperacion);    
+                                  montoMinimoParsed, montoMaximoParsed, idOperacionParsed);    
         Page<MovimientoCajaDTO> movimientos = movimientoCajaService.obtenerMovimientosFiltrados(specMovimiento, movimientosPageable);
-        model.addAttribute("movimientos", movimientos);
         
+        // Formatear fechas para la paginación
+        if (fechaDesde != null) {
+            model.addAttribute("fechaDesdeFormatted", fechaDesde);
+        }
+        if (fechaHasta != null) {
+            model.addAttribute("fechaHastaFormatted", fechaHasta);
+        }
+        
+        model.addAttribute("movimientos", movimientos);
         return "cajas/lista";
     }
 	
@@ -90,24 +94,26 @@ public class CajaController {
 		@RequestParam(required = false) String tipo,
         @RequestParam(required = false) String montoMinimo,
         @RequestParam(required = false) String montoMaximo,
-		@RequestParam(required = false) Long idOperacion,
+		@RequestParam(required = false) String idOperacion,
 		Pageable pageable,
 		Model model){
 		
 		CajaDTO caja = cajaService.obtenerPorNombre(nombre);
 		
-		BigDecimal montoMinimoParsed = (montoMinimo != null) ? new BigDecimal(montoMinimo) : null ;
-		BigDecimal montoMaximoParsed = (montoMaximo != null) ? new BigDecimal(montoMaximo) : null ;
-        LocalDateTime fechaInicioParsed = parsearFecha(fechaDesde);
-        LocalDateTime fechaFinParsed = parsearFecha(fechaHasta);
+		Long idOperacionParsed = (idOperacion != null && !idOperacion.isEmpty()) ? Long.parseLong(idOperacion) : null;
+		BigDecimal montoMinimoParsed = (montoMinimo != null && !montoMinimo.isEmpty()) ? new BigDecimal(montoMinimo) : null;
+		BigDecimal montoMaximoParsed = (montoMaximo != null && !montoMaximo.isEmpty()) ? new BigDecimal(montoMaximo) : null;
+        LocalDateTime fechaInicioParsed = movimientoCajaService.parsearFecha(fechaDesde);
+        LocalDateTime fechaFinParsed = movimientoCajaService.parsearFecha(fechaHasta);
 		
 		Specification<MovimientoCaja> specMovimiento = MovimientoCajaSpecification
 				.filtrarMovimientos(
-						nombre, tipo, fechaInicioParsed, fechaFinParsed, montoMinimoParsed, montoMaximoParsed, idOperacion);	
+						nombre, tipo, fechaInicioParsed, fechaFinParsed, montoMinimoParsed, montoMaximoParsed, idOperacionParsed);	
 				
         Page<MovimientoCajaDTO> movimientos = movimientoCajaService.obtenerMovimientosFiltrados(specMovimiento, pageable);
-        model.addAttribute("movimientos", movimientos);	
+		
 		model.addAttribute("caja", caja);
+        model.addAttribute("movimientos", movimientos);
         return "cajas/ver";
 	}
 	
@@ -157,25 +163,4 @@ public class CajaController {
 		cajaService.eliminar(caja.getId());
         return "cajas";
 	}
-	
-    public LocalDateTime parsearFecha(String fecha) {
-        if (fecha == null) {
-            return null;
-        }
-
-        try {
-            // Verificar si la fecha está en formato yyyy-MM-dd
-            if (fecha.matches("\\d{4}-\\d{2}-\\d{2}")) {
-                // Convertir de yyyy-MM-dd a dd-MM-yyyy
-                String[] partes = fecha.split("-");
-                fecha = partes[2] + "-" + partes[1] + "-" + partes[0]; // Reordenar a dd-MM-yyyy
-            }
-
-            // Parsear la fecha en el formato esperado (dd-MM-yyyy)
-            LocalDate localDate = LocalDate.parse(fecha, FORMATTER);
-            return LocalDateTime.of(localDate, LocalTime.MIN);
-        } catch (DateTimeParseException e) {
-            throw new IllegalArgumentException("Formato de fecha incorrecto. Usa dd-MM-yyyy o yyyy-MM-dd");
-        }
-    }
 }

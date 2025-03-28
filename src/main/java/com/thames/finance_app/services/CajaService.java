@@ -113,7 +113,7 @@ public class CajaService {
 	
 	public void eliminar(Long id) {
 	    Caja caja = cajaRepository.findById(id)
-	        .orElseThrow(() -> new EntityNotFoundException("Caja no encontrado"));
+	        .orElseThrow(() -> new EntityNotFoundException("Caja no encontrada"));
         boolean tieneMovimientos = movimientoCajaRepository.existsByCajaId(id);
         if (tieneMovimientos) {
             throw new IllegalStateException("No se puede eliminar la caja porque tiene movimientos registrados.");
