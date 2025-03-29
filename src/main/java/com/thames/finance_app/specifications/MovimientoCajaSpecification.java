@@ -12,12 +12,12 @@ import com.thames.finance_app.models.MovimientoCaja;
 import jakarta.persistence.criteria.Predicate;
 
 public class MovimientoCajaSpecification {
-	
+
     @SuppressWarnings("unused")
 	public static Specification<MovimientoCaja> filtrarMovimientos(
             String nombreCaja, String tipo, LocalDateTime fechaDesde, LocalDateTime fechaHasta,
             BigDecimal montoMinimo, BigDecimal montoMaximo, Long idOperacion) {
-        
+
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -43,7 +43,7 @@ public class MovimientoCajaSpecification {
             if (montoMinimo != null) {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("monto"), montoMinimo));
             }
-            
+
             if (montoMaximo != null) {
                 predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("monto"), montoMaximo));
             }
@@ -51,7 +51,7 @@ public class MovimientoCajaSpecification {
                 predicates.add(criteriaBuilder.equal(root.get("idOperacion"), idOperacion));
             }
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-           
+
         };
     }
 

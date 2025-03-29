@@ -24,22 +24,22 @@ public class OperacionResponse {
     private String tipo;
     private String nombreCliente;
     private String monedaOrigen;
-    private BigDecimal montoOrigen;  
+    private BigDecimal montoOrigen;
     private String monedaConversion;
     private BigDecimal montoConversion;
     private BigDecimal valorTipoCambio;
-    
+
     private List<PagoDTO> pagosOrigen;
     private BigDecimal totalPagosOrigen;
-    
+
     private List<PagoDTO> pagosConversion;
     private BigDecimal totalPagosConversion;
-    
+
     private String nombreReferido;
     private BigDecimal puntosReferido;
     private BigDecimal gananciaReferido;
     private String monedaReferido;
     private String estado;
-    
-    
+
+
 }

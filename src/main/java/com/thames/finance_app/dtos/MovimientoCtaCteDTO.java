@@ -16,13 +16,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MovimientoCtaCteDTO {
-   
+
 	private Long id;
 	private LocalDateTime fecha;
 	private String nombreTitular;
     private TipoMovimiento tipo;
     private String moneda;
     private BigDecimal monto;
-    
-	
+
+
 }

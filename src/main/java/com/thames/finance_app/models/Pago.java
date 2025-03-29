@@ -19,7 +19,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor; 
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "pagos_operacion")
@@ -28,7 +28,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Pago {
-	
+
 	@Id
 	@GeneratedValue(
 			strategy = GenerationType.SEQUENCE,
@@ -38,19 +38,19 @@ public class Pago {
 			sequenceName = "pagos_operacion_sequence",
 			allocationSize = 1)
 	private Long id;
-	
+
 	private LocalDateTime fecha;
-	
+
 	@Enumerated(EnumType.STRING)
 	private TipoEntrega tipoEntrega;
-	
+
 	private BigDecimal valor;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "operacion_id", nullable = false)
 	private Operacion operacion;
-	
+
 	@Enumerated(EnumType.STRING)
 	private TipoPago tipoPago; // ORIGEN o CONVERSION
-	
+
 }

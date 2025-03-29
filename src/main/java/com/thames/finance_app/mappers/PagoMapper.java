@@ -14,7 +14,7 @@ import com.thames.finance_app.models.Pago;
 
 @Component
 public class PagoMapper {
-	
+
 	public Pago toEntity (PagoDTO dto) {
 		return Pago.builder()
 				.fecha(dto.getFecha())
@@ -22,7 +22,7 @@ public class PagoMapper {
 				.valor(dto.getValor())
 				.build();
 	}
-	
+
   public Pago toPago(PagoDTO dto, TipoPago tipoPago) {
   return Pago.builder()
           .fecha(dto.getFecha())
@@ -31,9 +31,11 @@ public class PagoMapper {
           .tipoPago(tipoPago)
           .build();
   }
-  
+
   public List<PagoDTO> toPagoResponseList(List<Pago> pagos) {
-      if (pagos == null) return Collections.emptyList();
+      if (pagos == null) {
+		return Collections.emptyList();
+	}
       return pagos.stream().map(this::toDTO).collect(Collectors.toList());
   }
 
@@ -47,16 +49,18 @@ public class PagoMapper {
   }
 
   public List<Pago> toPagoList(List<PagoDTO> pagosRequest, TipoPago tipoPago) {
-      if (pagosRequest == null) return new ArrayList<>();
+      if (pagosRequest == null) {
+		return new ArrayList<>();
+	}
       return pagosRequest.stream()
               .map(pagoReq -> toPago(pagoReq, tipoPago))
               .collect(Collectors.toList());
   }
-  
+
   public void vincularConOperacion(Pago pago, Operacion operacion) {
-	  
+
   }
-  
-  
+
+
 
 }

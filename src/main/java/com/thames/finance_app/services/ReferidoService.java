@@ -32,12 +32,12 @@ public class ReferidoService {
 	private final OperacionRepository operacionRepository;
 	private final MonedaService monedaService;
 	private final TitularMapper titularMapper;
-	
+
 	public Page<TitularResponse> obtenerTodosReferidos(Pageable pageable){
 		return  titularRepository.findByTipo(TipoTitular.REFERIDO, pageable)
 				.map(titularMapper::toResponse);
 	}
-	
+
     public Page<TitularResponse> buscarReferidosPorNombre(String nombre, Pageable pageable) {
         return titularRepository.findByNombreContainingIgnoreCase(nombre, pageable)
                 .map(titular -> TitularResponse.builder()
@@ -47,23 +47,23 @@ public class ReferidoService {
                     .email(titular.getEmail())
                     .direccion(titular.getDireccion()).build()
                 );
-                                        
+
     }
-	
+
 	public TitularResponse obtenerReferidoPorID(Long id) {
 		Titular referidos = titularRepository.findById(id)
 				.orElseThrow( () -> new EntityNotFoundException("Cliente con id: " + id + " no encontrado"));
 		return titularMapper.toResponse(referidos);
 	}
-	
+
 	@Transactional
 	public TitularResponse crearReferido(TitularRequest clienteRequest) {
-		verificarNombreUnico(clienteRequest.getNombre());	
-		
+		verificarNombreUnico(clienteRequest.getNombre());
+
 		Titular cliente = titularMapper.toEntityReferido(clienteRequest);
-		
+
 		// Obtener todas las monedas desde la base de datos
-	    List<Moneda> monedas = monedaService.listarTodas(); 
+	    List<Moneda> monedas = monedaService.listarTodas();
 
 	    // Inicializar los saldos con BigDecimal.ZERO para cada moneda
 	    Map<Moneda, BigDecimal> saldosIniciales = new HashMap<>();
@@ -75,13 +75,13 @@ public class ReferidoService {
 	            .titular(cliente)
 	            .saldos(saldosIniciales)
 	            .build();
-		
+
 		 cliente.setCuentaCorriente(cuentaCorriente);
-		
+
 		Titular savedCliente = titularRepository.save(cliente);
-		return titularMapper.toResponse(savedCliente);	
+		return titularMapper.toResponse(savedCliente);
 	}
-	
+
 	public void eliminar(Long id) {
 	    Titular referido = titularRepository.findById(id)
 	        .orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado"));
@@ -89,14 +89,14 @@ public class ReferidoService {
 	   if (operacionRepository.existsByCuentaCorrienteId(referido.getCuentaCorriente().getId())){
 		   throw new BusinessException("No se puede eliminar un referido con operaciones registradas.");
 	   }
-	    
+
 	   titularRepository.delete(referido);
 	}
-	
+
     public boolean existeNombre(String nombre) {
         return titularRepository.findByNombre(nombre).isPresent();
     }
-    
+
     public void verificarNombreUnico(String nombre) {
         if (existeNombre(nombre)) {
             throw new BusinessException("Nombre ya registrado");
@@ -120,5 +120,5 @@ public class ReferidoService {
 		return titularRepository.findByNombreAndTipo(nombre, TipoTitular.REFERIDO )
 				.orElseThrow( () -> new EntityNotFoundException("Referido con nombre: " + nombre + " no encontrado"));
 	}
-	
+
 }

@@ -31,7 +31,7 @@ public class Liquidador {
 			sequenceName = "liquidador_sequence",
 			allocationSize = 1)
 	private Long id;
-	
+
 	private String nombre;
-	
+
 }

@@ -20,10 +20,10 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/tipoCambio")
 @RequiredArgsConstructor
 public class TipoCambioController {
-	
+
 	private final TipoCambioService tipoCambioService;
 	private final MonedaService monedaService;
-	
+
 	@GetMapping("/obtener")
 	public ResponseEntity<Map<String, BigDecimal>> obtenerTipoCambio(
 	        @RequestParam String monedaOrigen,
@@ -32,13 +32,13 @@ public class TipoCambioController {
 
 		Moneda origen = monedaService.buscarPorCodigo(monedaOrigen);
 		Moneda conversion = monedaService.buscarPorCodigo(monedaConversion);
-		
+
 	    BigDecimal tipoCambio = tipoCambioService.obtenerTipoCambio(origen, conversion, esCompra);
 	    Map<String, BigDecimal> response = Collections.singletonMap("valor", tipoCambio);
-	    
+
 	    return ResponseEntity.ok(response);
 	}
 
-	
+
 
 }

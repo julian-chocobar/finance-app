@@ -12,5 +12,5 @@ import com.thames.finance_app.models.TipoCambio;
 public interface TipoCambioRepository extends JpaRepository<TipoCambio, Long>{
 
 	Optional<TipoCambio> findByMonedaOrigenAndMonedaDestino(Moneda monedaOrigen, Moneda monedaDestino);
-	
+
 }

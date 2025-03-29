@@ -10,7 +10,7 @@ import com.thames.finance_app.models.Titular;
 
 @Component
 public class TitularMapper {
-	
+
 	public Titular toEntityCliente(TitularRequest request) {
         return Titular.builder()
         		.tipo(TipoTitular.CLIENTE)
@@ -20,7 +20,7 @@ public class TitularMapper {
                 .direccion(normalizar(request.getDireccion()))
                 .build();
     }
-	
+
 	public Titular toEntityReferido(TitularRequest request) {
         return Titular.builder()
         		.tipo((TipoTitular.REFERIDO))
@@ -51,6 +51,6 @@ public class TitularMapper {
 	}
 
 	public void updateEntity(Titular clienteExistente, TitularRequest clienteRequest) {
-			
+
 	}
 }

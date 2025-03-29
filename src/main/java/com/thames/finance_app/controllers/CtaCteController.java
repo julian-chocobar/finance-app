@@ -33,26 +33,26 @@ public class CtaCteController {
 
     private final CtaCteService ctaCteService;
     private final MovimientoCtaCteService movimientoCtaCteService;
-    
+
     @GetMapping("/{id}")
     public ResponseEntity<CtaCteDTO> obtenerCuentaCorriente(@PathVariable Long id) {
         CtaCteDTO response = ctaCteService.obtenerResponsePorId(id);
         return ResponseEntity.ok(response);
-    } 
-    
+    }
+
     @GetMapping("/movimientos/crear")
     public String mostrarFormularioCrearMovimiento(Model model) {
     	MovimientoCtaCteDTO movimiento = new MovimientoCtaCteDTO();
     	model.addAttribute("movimiento", movimiento);
-    	return "ctas-ctes/movimientos/crear"; 	
+    	return "ctas-ctes/movimientos/crear";
     }
-    
+
     @PostMapping("movimientos/guardar")
     public String crearMovimiento(@ModelAttribute MovimientoCtaCteDTO dto) {
     	ctaCteService.crearMovimiento(dto);
-    	return "redirect:/ctas-ctes"; 	
+    	return "redirect:/ctas-ctes";
     }
-    
+
     @GetMapping("/movimientos")
     public String listarMovimientos(
             @RequestParam(required = false) String nombreTitular,
@@ -64,10 +64,10 @@ public class CtaCteController {
             Pageable pageable,
             Model model) {
 
-        Page<MovimientoCtaCteDTO> movimientos 
+        Page<MovimientoCtaCteDTO> movimientos
         	= movimientoCtaCteService.obtenerMovimientosFiltrados(
                 nombreTitular, tipo, fechaInicio, fechaFin, monto, moneda, pageable);
-       
+
         model.addAttribute("movimientos", movimientos);
         model.addAttribute("nombreTitular", nombreTitular);
         model.addAttribute("tipo", tipo);
@@ -77,12 +77,12 @@ public class CtaCteController {
 
         return "ctas-ctes/movimientos";
     }
-    
+
     @GetMapping("/cliente/{clienteId}")
     public ResponseEntity<CtaCteDTO> obtenerCuentaPorCliente(@PathVariable Long clienteId) {
         return ResponseEntity.ok(ctaCteService.obtenerResponsePorTitularId(clienteId));
     }
-    
+
     @GetMapping("/referido/{referidoId}")
     public ResponseEntity<CtaCteDTO> obtenerCuentaPorReferido(@PathVariable Long referidoId) {
         return ResponseEntity.ok(ctaCteService.obtenerResponsePorTitularId(referidoId));
@@ -102,6 +102,6 @@ public class CtaCteController {
             @RequestParam TipoMovimiento tipo) {
         return ResponseEntity.ok(ctaCteService.actualizarSaldos(id, monto, moneda, tipo));
     }
-    
+
 }
 

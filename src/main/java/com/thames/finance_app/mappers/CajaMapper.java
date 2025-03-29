@@ -19,23 +19,23 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class CajaMapper {
-	
+
 	private final MonedaRepository monedaRepository;
 	private final CajaRepository cajaRepository;
 	private final OperacionRepository operacionRepository;
 
-	
-	
-	public CajaDTO toDTO(Caja caja) {		
+
+
+	public CajaDTO toDTO(Caja caja) {
 		return CajaDTO.builder()
 				.nombre(caja.getNombre())
 				.saldoDisponible(caja.getSaldoDisponible())
 				.saldoReal(caja.getSaldoReal())
 				.moneda(caja.getMoneda().getCodigo())
-				.build();		
+				.build();
 	}
-	
-	public CajaDTO toDTO(Caja caja, Page<MovimientoCaja> movimientos) {		
+
+	public CajaDTO toDTO(Caja caja, Page<MovimientoCaja> movimientos) {
 		return CajaDTO.builder()
 				.nombre(caja.getNombre())
 				.saldoDisponible(caja.getSaldoDisponible())
@@ -44,9 +44,9 @@ public class CajaMapper {
 				.movimientos(movimientos.getContent().stream()
 						.map(this::toMovimientoDTO)
 						.toList())
-				.build();		
+				.build();
 	}
-	
+
 	public Caja toEntity(CajaDTO dto) {
 		return Caja.builder()
 				.nombre(dto.getNombre())
@@ -54,9 +54,9 @@ public class CajaMapper {
 				.saldoDisponible(dto.getSaldoDisponible())
 				.moneda(monedaRepository.findByCodigo(dto.getMoneda())
 						.orElseThrow(()-> new RuntimeException("Moneda no encontrada")))
-				.build();	
+				.build();
 	}
-	
+
 	public MovimientoCajaDTO toMovimientoDTO(MovimientoCaja movimiento) {
 		return MovimientoCajaDTO.builder()
 				.id(movimiento.getId())
@@ -65,18 +65,18 @@ public class CajaMapper {
 				.nombreCaja(movimiento.getCaja().getNombre())
 				.idOperacion(movimiento.getOperacion().getId())
 				.monto(movimiento.getMonto())
-				.montoEjecutado(movimiento.getMontoEjecutado())			
+				.montoEjecutado(movimiento.getMontoEjecutado())
 				.build();
 	}
-	
+
 	public MovimientoCaja toMovimientoEntity(MovimientoCajaDTO dto) {
-		
+
 		Caja caja = cajaRepository.findByNombre(dto.getNombreCaja())
 				.orElseThrow(() -> new BusinessException("Caja no encontrada"));
-		
+
 		Operacion operacion = operacionRepository.findById(dto.getIdOperacion())
 				.orElseThrow(() -> new BusinessException("Operacion no encontrada"));
-		
+
 		return MovimientoCaja.builder()
 				.id(dto.getId())
 				.fecha(dto.getFecha())
@@ -84,25 +84,41 @@ public class CajaMapper {
 				.caja(caja)
 				.operacion(operacion)
 				.monto(dto.getMonto())
-				.montoEjecutado(dto.getMontoEjecutado())	
+				.montoEjecutado(dto.getMontoEjecutado())
 				.build();
 	}
 
 	public Caja updateEntity(Caja caja, CajaDTO dto) {
 		Caja cajaEntidad = cajaRepository.findByNombre(dto.getNombre())
 				.orElseThrow(() -> new BusinessException("Caja no encontrada"));
-		
+
 		Moneda moneda = monedaRepository
     			.findByCodigo(dto.getMoneda())
     			.orElseThrow(() -> new RuntimeException("Moneda no encontrada"));
-		
+
 		caja.setId(cajaEntidad.getId());
 		caja.setNombre(dto.getNombre());
 		caja.setSaldoReal(dto.getSaldoReal());
 		caja.setSaldoDisponible(dto.getSaldoDisponible());
 		caja.setMoneda(moneda);
-		
+
 		return caja;
+	}
+
+	public MovimientoCaja updateEntity(MovimientoCaja movimiento, MovimientoCajaDTO dto) {
+		Caja caja = cajaRepository.findByNombre(dto.getNombreCaja())
+			.orElseThrow(() -> new RuntimeException("Caja no encontrada"));
+		if (dto.getIdOperacion() != null) {    
+			Operacion operacion = operacionRepository.findById(dto.getIdOperacion())
+				.orElseThrow(() -> new RuntimeException("Operacion no encontrada"));
+			movimiento.setOperacion(operacion);
+		}
+		movimiento.setFecha(dto.getFecha());
+		movimiento.setTipo(dto.getTipo());
+		movimiento.setCaja(caja);
+		movimiento.setMonto(dto.getMonto());
+		movimiento.setMontoEjecutado(dto.getMontoEjecutado());	
+		return movimiento;
 	}
 
 }

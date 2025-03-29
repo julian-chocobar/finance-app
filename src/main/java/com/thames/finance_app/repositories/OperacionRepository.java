@@ -13,13 +13,13 @@ import com.thames.finance_app.models.Operacion;
 
 @Repository
 public interface OperacionRepository extends JpaRepository<Operacion, Long>{
-	
+
 	boolean existsByCuentaCorrienteId(Long cuentaCorrienteId);
-		
+
 	Page<Operacion> findAll(Specification<Operacion> spec, Pageable pageable);
 
 	boolean existsByMonedaOrigen(Moneda moneda);
-	
+
 	boolean existsByMonedaConversion(Moneda moneda);
 
 	boolean existsByCuentaCorriente(CuentaCorriente cuenta);

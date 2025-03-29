@@ -18,13 +18,13 @@ import com.thames.finance_app.models.Operacion;
 public interface MovimientoCtaCteRepository  extends JpaRepository<MovimientoCtaCte, Long>,JpaSpecificationExecutor<MovimientoCtaCte> {
 
 	List<MovimientoCtaCte> findByCuentaCorrienteId(Long cuentaId);
-		
+
 	@Query("SELECT m FROM MovimientoCtaCte m ORDER BY m.fecha DESC")
 	Page<MovimientoCtaCte> findAllOrderByFechaDesc(Pageable pageable);
-    
+
 	List<MovimientoCtaCte> findByOperacion(Operacion operacion);
 
 	List<MovimientoCtaCte> findAllByOrderByFechaDesc();
 
-	
+
 }

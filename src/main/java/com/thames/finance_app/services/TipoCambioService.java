@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TipoCambioService {
 
-    
+
     private final TipoCambioRepository tipoCambioRepository;
 
     public BigDecimal convertirMoneda(Moneda monedaOrigen, Moneda monedaDestino, BigDecimal monto, boolean esCompra) {
@@ -29,9 +29,9 @@ public class TipoCambioService {
         // Realiza la conversión del monto
         return monto.multiply(tasaCambio);
     }
-    
-    
-    
+
+
+
     public BigDecimal obtenerTipoCambio(Moneda monedaOrigen, Moneda monedaDestino, boolean esCompra) {
         // Busca el tipo de cambio en la base de datos
         TipoCambio tipoCambio = tipoCambioRepository.findByMonedaOrigenAndMonedaDestino(monedaOrigen, monedaDestino)
@@ -41,7 +41,6 @@ public class TipoCambioService {
         // Devuelve el valor de compra o venta según la operación
         return esCompra ? tipoCambio.getValorCompra() : tipoCambio.getValorVenta();
     }
-     
-    
+
+
 }
- 

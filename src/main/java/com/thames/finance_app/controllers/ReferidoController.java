@@ -28,9 +28,9 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/referidos")
 @RequiredArgsConstructor
 public class ReferidoController {
-	
+
 	private final ReferidoService referidoService;
-			
+
     @GetMapping
     public String obtenerTodos(@RequestParam(required = false) String nombre, Pageable pageable, Model model) {
         Page<TitularResponse> referidos = (nombre == null || nombre.isEmpty())
@@ -40,31 +40,31 @@ public class ReferidoController {
         model.addAttribute("nombreFiltro", nombre);
         return "referidos";
     }
-	
+
 	@GetMapping("/{id}")
 	public ResponseEntity<TitularResponse> obtenerPorID(@PathVariable Long id){
 		TitularResponse referido = referidoService.obtenerReferidoPorID(id);
-		return ResponseEntity.ok(referido);	
+		return ResponseEntity.ok(referido);
 	}
-	
+
 	@PostMapping
 	public String crearReferido(@ModelAttribute TitularRequest referidoRequest) {
 	    referidoService.crearReferido(referidoRequest);
 	    return "redirect:/referidos"; // Redirige a la lista de referidos después de la creación
 	}
-	
+
 	@PostMapping("/editar/{id}")
 	public String actuslizarReferido(@PathVariable Long id, @ModelAttribute TitularRequest referidoRequest) {
 	    referidoService.actualizar(id, referidoRequest);
 	    return "redirect:/referidos";
 	}
-		
+
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> eliminarReferido(@PathVariable Long id) {
 	    referidoService.eliminar(id);
 	    return ResponseEntity.ok().build(); // Retorna un código 200 (OK)
 	}
-	
+
     @InitBinder
     public void initBinder(WebDataBinder binder) {
         binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));

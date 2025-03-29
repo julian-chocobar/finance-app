@@ -13,21 +13,21 @@ import lombok.Data;
 
 @Data
 @Builder
-public class CtaCteDTO {	
-	
-    private Long id; 
-    
+public class CtaCteDTO {
+
+    private Long id;
+
 	@NotNull(message = "El clienteId no puede ser nulo")
-    private String titularNombre;	
-	
+    private String titularNombre;
+
     private Map<Moneda, BigDecimal> saldoPorMoneda;
-    
+
     private List<MovimientoCtaCteDTO> movimientos;
-    
+
     private long totalMovimientos;
-    
-    private int totalPaginas;   
-    
+
+    private int totalPaginas;
+
     public CuentaCorrienteBuilder saldoPorMoneda(Map<Moneda, BigDecimal> of) {
 		return null;
 	}

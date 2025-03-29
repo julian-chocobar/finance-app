@@ -22,7 +22,7 @@ public class SecurityConfig {
 		http
 		.csrf(csrf -> csrf.disable())  // Deshabilita CSRF
         .cors(cors -> cors.configure(http))  // Habilita CORS
-        .authorizeHttpRequests(request -> 
+        .authorizeHttpRequests(request ->
             request
             	.requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/clientes/**").permitAll()
@@ -31,13 +31,13 @@ public class SecurityConfig {
                 .requestMatchers("/ctas-ctes/**").permitAll()
                 .requestMatchers("/cajas/**").permitAll()
                 .requestMatchers("/tipoCambio/**").permitAll()
-                              
+
         );
 
 		return http.build();
 
 	}
-	
+
     @Bean
     CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -51,7 +51,7 @@ public class SecurityConfig {
         return new CorsFilter(source);
     }
 
-	
+
 
 
 }

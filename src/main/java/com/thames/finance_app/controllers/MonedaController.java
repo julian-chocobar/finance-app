@@ -22,9 +22,9 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/monedas")
 @RequiredArgsConstructor
 public class MonedaController {
-	
+
 	private final MonedaService monedaService;
-	
+
     @PostMapping
     public ResponseEntity<MonedaDTO> crearMoneda(@RequestBody MonedaDTO monedaDTO) {
         MonedaDTO nuevaMoneda = monedaService.crearMoneda(monedaDTO);

@@ -1,8 +1,8 @@
 package com.thames.finance_app.models;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -33,7 +33,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Caja {
-	
+
 	@Id
 	@GeneratedValue(
 			strategy = GenerationType.SEQUENCE,
@@ -43,20 +43,20 @@ public class Caja {
 			sequenceName = "caja_sequence",
 			allocationSize = 1)
 	private Long id;
-	
+
 	@Column(unique = true, nullable = false)
 	private String nombre;
-	
+
 	private BigDecimal saldoReal;
-	
+
 	private BigDecimal saldoDisponible;
-	
+
 	@OneToOne
     @JoinColumn(name = "moneda_id")
     @ToString.Exclude // Excluye esta propiedad del método toString()
     @EqualsAndHashCode.Exclude // Excluye esta propiedad del hashCode() y equals()
 	private Moneda moneda;
-	
+
 	@Builder.Default
 	@OneToMany(mappedBy = "caja", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MovimientoCaja> movimientos = new ArrayList<>();

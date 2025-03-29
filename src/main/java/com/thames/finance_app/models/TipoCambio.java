@@ -27,7 +27,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TipoCambio {
-	
+
 	@Id
 	@GeneratedValue(
 			strategy = GenerationType.SEQUENCE,
@@ -37,7 +37,7 @@ public class TipoCambio {
 			sequenceName = "tipo_cambio_sequence",
 			allocationSize = 1)
 	private Long id;
-	
+
     @ManyToOne
     @JoinColumn(name = "moneda_origen_id", nullable = false)
     private Moneda monedaOrigen;

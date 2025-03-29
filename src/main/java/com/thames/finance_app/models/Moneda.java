@@ -32,10 +32,10 @@ public class Moneda {
 			sequenceName = "moneda_sequence",
 			allocationSize = 1)
 	private Long id;
-	
+
 	private String nombre;
-	
+
 	@Column(unique = true, nullable = false)
     private String codigo; // USD, EUR, ARS, BRL.
-	
+
 }

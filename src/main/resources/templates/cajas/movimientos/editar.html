@@ -8,93 +8,94 @@
     <section>
         <div class="container mt-4">
             <div class="card">
-                <div class="card-header bg-warning">
+                <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
                     <h3 class="mb-0">Editar Movimiento de Caja</h3>
+                    <a th:href="@{/cajas/{nombre}(nombre=${param.nombre})}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
                 </div>
                 <div class="card-body">
-                    <form th:action="@{/cajas/{nombre}/movimientos/{id}/actualizar(nombre=${nombreCaja}, id=${movimientoId})}" th:object="${movimientoRequest}" method="post" id="formMovimiento">
-                        <div class="row mb-4">
-                            <div class="col-md-12">
-                                <h4 class="border-bottom pb-2">Datos del Movimiento</h4>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="fecha" class="form-label">Fecha y Hora *</label>
-                                <input type="datetime-local" class="form-control" id="fecha" th:field="*{fecha}" required>
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('fecha')}" th:errors="*{fecha}"></div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="tipo" class="form-label">Tipo *</label>
-                                <select class="form-select" id="tipo" th:field="*{tipo}" required>
-                                    <option value="">Seleccione...</option>
-                                    <option value="INGRESO">Ingreso</option>
-                                    <option value="EGRESO">Egreso</option>
-                                </select>
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('tipo')}" th:errors="*{tipo}"></div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="monto" class="form-label">Monto *</label>
-                                <input type="number" step="0.01" class="form-control" id="monto" th:field="*{monto}" required>
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('monto')}" th:errors="*{monto}"></div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="montoEjecutado" class="form-label">Monto Ejecutado *</label>
-                                <input type="number" step="0.01" class="form-control" id="montoEjecutado" th:field="*{montoEjecutado}" required>
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('montoEjecutado')}" th:errors="*{montoEjecutado}"></div>
-                                <small class="form-text text-muted">El monto ejecutado no puede ser menor que el monto.</small>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="idOperacion" class="form-label">ID Operación</label>
-                                <input type="text" class="form-control" id="idOperacion" th:field="*{idOperacion}">
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('idOperacion')}" th:errors="*{idOperacion}"></div>
-                                <small class="form-text text-muted">Opcional. Relaciona este movimiento con una operación existente.</small>
+                    <form th:action="@{/cajas/{nombre}/movimientos/{id}/actualizar(nombre=${movimiento.nombreCaja}, id=${movimiento.id})}" 
+                        th:object="${movimiento}" method="post" class="needs-validation" novalidate>
+                        
+                        <!-- Campo para seleccionar la Caja -->
+                        <div class="mb-3">
+                            <label for="nombreCaja" class="form-label">Caja</label>
+                            <select class="form-select" id="nombreCaja" name="nombreCaja" required>
+                                <option value="" disabled>Seleccione una caja</option>
+                                <option th:each="caja : ${cajas}" 
+                                        th:value="${caja.nombre}" 
+                                        th:text="${caja.nombre + ' (' + caja.moneda + ')'}"
+                                        th:selected="${caja.nombre == nombreCaja}">
+                                </option>
+                            </select>
+                            <div class="invalid-feedback">
+                                Por favor seleccione una caja.
                             </div>
                         </div>
                         
-                        <div class="row">
-                            <div class="col-12 text-end">
-                                <a th:href="@{/cajas/{nombre}(nombre=${nombreCaja})}" class="btn btn-secondary">Cancelar</a>
-                                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                        <div class="mb-3">
+                            <label for="fecha" class="form-label">Fecha y Hora</label>
+                            <input type="datetime-local" class="form-control" id="fecha" name="fecha" 
+                                   th:value="${#temporals.format(movimiento.fecha, 'yyyy-MM-dd''T''HH:mm')}" required>
+                            <div class="invalid-feedback">
+                                Por favor ingrese la fecha y hora.
                             </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="tipo" class="form-label">Tipo</label>
+                            <select class="form-select" id="tipo" name="tipo" required>
+                                <option value="INGRESO" th:selected="${movimiento.tipo == 'INGRESO'}">Ingreso</option>
+                                <option value="EGRESO" th:selected="${movimiento.tipo == 'EGRESO'}">Egreso</option>
+                            </select>
+                            <div class="invalid-feedback">
+                                Por favor seleccione el tipo de movimiento.
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="monto" class="form-label">Monto</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" step="0.01" class="form-control" id="monto" name="monto" 
+                                       th:value="${movimiento.monto}" required>
+                                <div class="invalid-feedback">
+                                    Por favor ingrese el monto.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="montoEjecutado" class="form-label">Monto Ejecutado</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" step="0.01" class="form-control" id="montoEjecutado" name="montoEjecutado" 
+                                       th:value="${movimiento.montoEjecutado}" required>
+                                <div class="invalid-feedback">
+                                    Por favor ingrese el monto ejecutado.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="idOperacion" class="form-label">ID Operación (opcional)</label>
+                            <input type="number" class="form-control" id="idOperacion" name="idOperacion" 
+                                   th:value="${movimiento.idOperacion}">
+                        </div>
+                        
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Guardar Cambios
+                            </button>
+                            <a th:href="@{/cajas/{nombre}(nombre=${param.nombre})}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancelar
+                            </a>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </section>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const montoInput = document.getElementById('monto');
-            const montoEjecutadoInput = document.getElementById('montoEjecutado');
-            
-            // Función para validar que montoEjecutado >= monto
-            function validarMontos() {
-                const monto = parseFloat(montoInput.value) || 0;
-                const montoEjecutado = parseFloat(montoEjecutadoInput.value) || 0;
-                
-                if (montoEjecutado < monto) {
-                    montoEjecutadoInput.setCustomValidity('El monto ejecutado no puede ser menor que el monto');
-                } else {
-                    montoEjecutadoInput.setCustomValidity('');
-                }
-            }
-            
-            // Eventos para validar los montos
-            montoInput.addEventListener('input', validarMontos);
-            montoEjecutadoInput.addEventListener('input', validarMontos);
-            
-            // Validar al cargar la página
-            validarMontos();
-            
-            // Validar antes de enviar el formulario
-            document.getElementById('formMovimiento').addEventListener('submit', function(e) {
-                validarMontos();
-                if (!this.checkValidity()) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-            });
-        });
-    </script>
 </body>
 </html>

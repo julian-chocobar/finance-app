@@ -40,22 +40,22 @@ public class MovimientoCaja {
 			sequenceName = "movimientos_caja_sequence",
 			allocationSize = 1)
 	private Long id;
-	
+
 	private LocalDateTime fecha;
-	
+
 	@Enumerated(EnumType.STRING)
 	private TipoMovimiento tipo;
-	
+
 	@ManyToOne
     @JoinColumn(name = "caja_id", nullable = true)
     private Caja caja;
-	
+
 	@ManyToOne
     @JoinColumn(name = "operacion_id", nullable = true)
     private Operacion operacion;
-	
+
 	private BigDecimal monto;
-	
+
 	private BigDecimal montoEjecutado;
 
 }

@@ -30,7 +30,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Titular {
-	
+
 	@Id
 	@GeneratedValue(
 			strategy = GenerationType.SEQUENCE,
@@ -40,17 +40,17 @@ public class Titular {
 			sequenceName = "titulares_sequence",
 			allocationSize = 1)
 	private Long id;
-	
+
 	private TipoTitular tipo;
-	
+
 	private String nombre;
-	
+
 	private String telefono;
-	
+
 	private String email;
-	
+
 	private String direccion;
-	
+
 	@OneToOne(mappedBy = "titular", cascade = CascadeType.ALL)
     @ToString.Exclude // Excluye esta propiedad del método toString()
     @EqualsAndHashCode.Exclude // Excluye esta propiedad del hashCode() y equals()

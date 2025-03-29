@@ -29,61 +29,83 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class CajaService {
-	
+
 	private final CajaRepository cajaRepository;
     private final MovimientoCajaService movimientoCajaService;
     private final MovimientoCajaRepository movimientoCajaRepository;
     private final CajaMapper cajaMapper;
-    
+
     public MovimientoCajaDTO crearMovimiento(MovimientoCajaDTO dto) {
-    	MovimientoCaja movimiento = cajaMapper.toMovimientoEntity(dto);    	
+    	MovimientoCaja movimiento = cajaMapper.toMovimientoEntity(dto);
     	Caja caja = movimiento.getCaja();
-		if(movimiento.getTipo() == TipoMovimiento.INGRESO) {
-			 actualizarSaldoReal(caja, movimiento.getMonto(), true); 
-	         actualizarSaldoDisponible(caja, movimiento.getMontoEjecutado(),true);
-		} else if (movimiento.getTipo() == TipoMovimiento.EGRESO) {
-			actualizarSaldoReal(caja, movimiento.getMonto(), false); 
-	        actualizarSaldoDisponible(caja, movimiento.getMontoEjecutado(),false);
-		} else {
-	        throw new IllegalArgumentException("Tipo de movimiento no válido.");
-		}	
+    	generarImpactoMovimiento(caja, movimiento);
     	return dto;
     }
 
-	public List<CajaDTO> obtenerTodas() {		
+	public void generarImpactoMovimiento(Caja caja, MovimientoCaja movimiento) {
+		if(movimiento.getTipo() == TipoMovimiento.INGRESO) {
+			actualizarSaldoReal(caja, movimiento.getMonto(), true);
+			actualizarSaldoDisponible(caja, movimiento.getMontoEjecutado(),true);
+	   } else if (movimiento.getTipo() == TipoMovimiento.EGRESO) {
+		   actualizarSaldoReal(caja, movimiento.getMonto(), false);
+		   actualizarSaldoDisponible(caja, movimiento.getMontoEjecutado(),false);
+	   } else {
+		   throw new IllegalArgumentException("Tipo de movimiento no válido.");
+	   }
+	}
+
+	public void revertirImpactoMovimiento(Caja caja, MovimientoCaja movimiento) {
+		if(movimiento.getTipo() == TipoMovimiento.EGRESO) {
+			actualizarSaldoReal(caja, movimiento.getMonto(), true);
+			actualizarSaldoDisponible(caja, movimiento.getMontoEjecutado(),true);
+	   } else if (movimiento.getTipo() == TipoMovimiento.INGRESO) {
+		   actualizarSaldoReal(caja, movimiento.getMonto(), false);
+		   actualizarSaldoDisponible(caja, movimiento.getMontoEjecutado(),false);
+	   } else {
+		   throw new IllegalArgumentException("Tipo de movimiento no válido.");
+	   }	
+	}
+
+	public List<CajaDTO> obtenerTodas() {
 		List<Caja> cajas = cajaRepository.findAll();
 		return cajas.stream()
 				.map(cajaMapper::toDTO)
 				.collect(Collectors.toList());
 	}
-	
+
 	public Page<CajaDTO> listarCajas(Specification<Caja> spec, Pageable pageable){
 		return cajaRepository.findAll(spec,pageable).map(cajaMapper::toDTO);
 	}
 	
+	public List<CajaDTO> listarTodasLasCajas(Specification<Caja> specCaja) {
+	    return cajaRepository.findAll(specCaja).stream()  // Convertir a Stream
+	                         .map(cajaMapper::toDTO)     // Mapear cada elemento
+	                         .collect(Collectors.toList()); // Volver a List
+	}
+
 	public CajaDTO obtenerPorId(Long id) {
 		Caja caja = cajaRepository.findById(id)
 				.orElseThrow( () -> new EntityNotFoundException("Caja con id: " + id + " no encontrado"));
-		return cajaMapper.toDTO(caja);	
+		return cajaMapper.toDTO(caja);
 	}
-	
+
 	public Caja obtenerEntidadPorId(Long id) {
 		return cajaRepository.findById(id)
 				.orElseThrow( () -> new EntityNotFoundException("Caja con id: " + id + " no encontrado"));
 	}
-	
+
 
 	public CajaDTO obtenerPorNombre(String nombre) {
 		Caja caja = cajaRepository.findByNombre(nombre)
 				.orElseThrow( () -> new EntityNotFoundException("Caja con nombre: " + nombre + " no encontrado"));
 		return cajaMapper.toDTO(caja);
 	}
-	
+
 	public Caja obtenerEntidadPorNombre(String nombre) {
 		return cajaRepository.findByNombre(nombre)
 				.orElseThrow( () -> new EntityNotFoundException("Caja con nombre: " + nombre + " no encontrado"));
 	}
-	
+
 	@Transactional
 	public CajaDTO crearCaja(CajaDTO dto) {
 		verificarNombreUnico(dto.getNombre());
@@ -91,18 +113,18 @@ public class CajaService {
 		cajaRepository.save(caja);
 		return cajaMapper.toDTO(caja);
 	}
-	
-	
+
+
     public boolean existeNombre(String nombre) {
         return cajaRepository.findByNombre(nombre).isPresent();
     }
-    
+
     public void verificarNombreUnico(String nombre) {
         if (existeNombre(nombre)) {
             throw new BusinessException("Nombre ya registrado");
         }
     }
-	
+
     public CajaDTO actualizarCaja(Long id, CajaDTO dto) {
     	Caja vieja = cajaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Caja no encontrada"));
@@ -110,7 +132,7 @@ public class CajaService {
     	cajaRepository.save(nueva);
     	return cajaMapper.toDTO(nueva);
     }
-	
+
 	public void eliminar(Long id) {
 	    Caja caja = cajaRepository.findById(id)
 	        .orElseThrow(() -> new EntityNotFoundException("Caja no encontrada"));
@@ -123,64 +145,66 @@ public class CajaService {
         }
 	   cajaRepository.delete(caja);
 	}
-		
-	
+
+
     public void impactoOperacion(Operacion operacion) {
     	Caja cajaOrigen = cajaRepository.findByMoneda(operacion.getMonedaOrigen())
 				.orElseThrow(() -> new RuntimeException("Caja no encontrada"));
-    	
+
     	Caja cajaConversion = cajaRepository.findByMoneda(operacion.getMonedaConversion())
 				.orElseThrow(() -> new RuntimeException("Caja no encontrada"));
-    	
+
     	if (operacion.getTipo() == TipoOperacion.COMPRA) {
             actualizarSaldoReal(cajaOrigen, operacion.getMontoOrigen(), true); // Suma en caja de origen
             actualizarSaldoDisponible(cajaOrigen, operacion.getTotalPagosOrigen(),true);
-            
+
             actualizarSaldoReal(cajaConversion, operacion.getMontoConversion(), false); // Resta en caja de destino
             actualizarSaldoDisponible(cajaConversion, operacion.getTotalPagosConversion(), false);
     	}
-    	
+
     	if (operacion.getTipo() == TipoOperacion.VENTA) {
             actualizarSaldoReal(cajaOrigen, operacion.getMontoOrigen(), false); // Resta en caja de origen
             actualizarSaldoDisponible(cajaOrigen, operacion.getTotalPagosOrigen(), false);
-                       
+
             actualizarSaldoReal(cajaConversion, operacion.getMontoConversion(), true); // Suma en caja de destino
             actualizarSaldoDisponible(cajaConversion, operacion.getTotalPagosConversion(), true);
     	}
-  
-        movimientoCajaService.registrarMovimientos(operacion, cajaOrigen, cajaConversion);  
+
+        movimientoCajaService.registrarMovimientos(operacion, cajaOrigen, cajaConversion);
     }
-    
-   
+
+
     public void revertirImpactoOperacion(Operacion operacion) {
         Caja cajaOrigen = cajaRepository.findByMoneda(operacion.getMonedaOrigen())
                 .orElseThrow(() -> new RuntimeException("Caja no encontrada"));
         Caja cajaConversion = cajaRepository.findByMoneda(operacion.getMonedaConversion())
                 .orElseThrow(() -> new RuntimeException("Caja no encontrada"));
-        
+
         List<MovimientoCaja> movimientos = movimientoCajaRepository.findByOperacion(operacion);
-	  
+
         if (operacion.getTipo() == TipoOperacion.COMPRA) {
             actualizarSaldoReal(cajaOrigen, operacion.getMontoOrigen(), false); // Resta lo sumado en la compra
             actualizarSaldoDisponible(cajaOrigen, operacion.getTotalPagosOrigen(), false);
-            
+
             actualizarSaldoReal(cajaConversion, operacion.getMontoConversion(), true); // Suma lo restado en la compra
             actualizarSaldoDisponible(cajaConversion, operacion.getTotalPagosConversion(), true);
         }
-        
+
         if (operacion.getTipo() == TipoOperacion.VENTA) {
             actualizarSaldoReal(cajaOrigen, operacion.getMontoOrigen(), true); // Suma lo restado en la venta
             actualizarSaldoDisponible(cajaOrigen, operacion.getTotalPagosOrigen(), true);
-            
+
             actualizarSaldoReal(cajaConversion, operacion.getMontoConversion(), false); // Resta lo sumado en la venta
             actualizarSaldoDisponible(cajaConversion, operacion.getTotalPagosConversion(), false);
         }
-   
+
         movimientoCajaRepository.deleteAll(movimientos);
         cajaRepository.save(cajaOrigen);
-        cajaRepository.save(cajaConversion);       
+        cajaRepository.save(cajaConversion);
     }
-        
+
+
+
 	@Transactional
 	public void actualizarSaldoReal(Caja caja, BigDecimal monto, boolean esIngreso) {
 		if (esIngreso) {
@@ -188,9 +212,9 @@ public class CajaService {
 	    } else {
 	    	caja.setSaldoReal(caja.getSaldoReal().subtract(monto));
 	    }
-	    cajaRepository.save(caja);		
+	    cajaRepository.save(caja);
 	}
-	
+
 	@Transactional
 	public void actualizarSaldoDisponible(Caja caja, BigDecimal monto, boolean esIngreso) {
         if (esIngreso) {
@@ -201,10 +225,11 @@ public class CajaService {
 
         cajaRepository.save(caja);
 	}
-	
+
 	public Caja obtenerPorMoneda(Moneda moneda) {
 		return cajaRepository.findByMoneda(moneda).orElseThrow(() -> new RuntimeException("Caja no encontrada"));
 	}
 
-		
+
+
 }

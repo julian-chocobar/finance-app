@@ -32,7 +32,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MovimientoCtaCte {
-	
+
 	@Id
 	@GeneratedValue(
 			strategy = GenerationType.SEQUENCE,
@@ -42,26 +42,26 @@ public class MovimientoCtaCte {
 			sequenceName = "movimientos_cta_cte_sequence",
 			allocationSize = 1)
 	private Long id;
-	
+
 	private LocalDateTime fecha;
-	
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TipoMovimiento tipoMovimiento;
-	 
+
 	@ManyToOne
     @JoinColumn(name = "cuenta_corriente_id", nullable = true)
-    private CuentaCorriente cuentaCorriente; 
-	
+    private CuentaCorriente cuentaCorriente;
+
 	@ManyToOne
     @JoinColumn(name = "operacion_id", nullable = true)
     private Operacion operacion;
-	
+
     @ManyToOne
     @JoinColumn(name = "moneda_id", nullable = false)
-    private Moneda moneda; 
+    private Moneda moneda;
 
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal monto;
-    
+
 }

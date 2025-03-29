@@ -1,14 +1,16 @@
 package com.thames.finance_app.specifications;
 
 
-import org.springframework.data.jpa.domain.Specification;
-import com.thames.finance_app.models.MovimientoCtaCte;
-
-import jakarta.persistence.criteria.Predicate;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import org.springframework.data.jpa.domain.Specification;
+
+import com.thames.finance_app.models.MovimientoCtaCte;
+
+import jakarta.persistence.criteria.Predicate;
 
 public class MovimientoCtaCteSpecification {
 
@@ -16,7 +18,7 @@ public class MovimientoCtaCteSpecification {
 	public static Specification<MovimientoCtaCte> filtrarMovimientos(
             String nombreTitular, String tipo, Date fechaDesde, Date fechaHasta,
             BigDecimal monto, String moneda) {
-        
+
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 

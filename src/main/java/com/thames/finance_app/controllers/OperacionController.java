@@ -1,9 +1,24 @@
 package com.thames.finance_app.controllers;
 
+import java.beans.PropertyEditorSupport;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.beans.propertyeditors.StringTrimmerEditor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.thames.finance_app.dtos.OperacionRequest;
 import com.thames.finance_app.dtos.OperacionResponse;
@@ -17,16 +32,6 @@ import com.thames.finance_app.specifications.OperacionSpecification;
 
 import lombok.RequiredArgsConstructor;
 
-import java.beans.PropertyEditorSupport;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-
-import org.springframework.beans.propertyeditors.StringTrimmerEditor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-
 
 @Controller
 @RequestMapping("/operaciones")
@@ -36,7 +41,7 @@ public class OperacionController {
     private final OperacionService operacionService;
     private final OperacionMapper operacionMapper;
     private final MonedaService monedaService;
-    
+
     @GetMapping
     public String listarOperaciones(
             @RequestParam(required = false) String fechaInicio,
@@ -63,7 +68,7 @@ public class OperacionController {
         if (monedaOrigen != null && !monedaOrigen.isEmpty()) {
         	monedaOrigenParsed = monedaService.buscarPorCodigo(monedaOrigen);
         }
-        
+
         Moneda monedaConversionParsed = null;
         if (monedaConversion != null && !monedaConversion.isEmpty()) {
         	monedaConversionParsed = monedaService.buscarPorCodigo(monedaConversion);
@@ -90,26 +95,26 @@ public class OperacionController {
         model.addAttribute("fechaInicio", fechaInicio);
         model.addAttribute("fechaFin", fechaFin);
         model.addAttribute("montoOrigen", montoOrigen);
-        model.addAttribute("monedaOrigen", monedaOrigen);       
+        model.addAttribute("monedaOrigen", monedaOrigen);
         model.addAttribute("montoConversion", montoConversion);
-        model.addAttribute("monedaConversion", monedaConversion);        
+        model.addAttribute("monedaConversion", monedaConversion);
         model.addAttribute("tipo", tipo);
         model.addAttribute("clienteNombre", clienteNombre);
 
         // Devolver el nombre de la vista
         return "operaciones/lista";
     }
-   
+
     @GetMapping("/crear")
     public String mostrarFormularioCrear(Model model) {
     	// Crear una nueva instancia vacía de Operacion
         OperacionRequest operacion = new OperacionRequest();
-        
+
         // Agregar la operación al modelo para que Thymeleaf pueda usarla en el formulario
         model.addAttribute("operacion", operacion);
         return "operaciones/crear";
     }
-    
+
     @PostMapping("/guardar")
     public String crearOperacion(@ModelAttribute OperacionRequest request) {
         operacionService.crearOperacion(request);
@@ -121,8 +126,8 @@ public class OperacionController {
         OperacionResponse operacionResponse = operacionService.obtenerResponsePorId(id);
         model.addAttribute("operacion", operacionResponse);
         return "operaciones/ver";
-    }  
-    
+    }
+
     @GetMapping("/{id}/editar")
     public String mostrarFormularioEditar(@PathVariable Long id, Model model) {
     	 // 1️⃣ Buscar la operación por ID en el servicio
@@ -150,7 +155,7 @@ public class OperacionController {
         operacionService.eliminarOperacion(id);
         return "redirect:/operaciones";
     }
-   
+
     @InitBinder
     public void initBinder(WebDataBinder binder) {
         binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));

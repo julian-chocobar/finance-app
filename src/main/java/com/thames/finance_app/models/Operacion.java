@@ -2,8 +2,8 @@ package com.thames.finance_app.models;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.thames.finance_app.enums.TipoOperacion;
 
@@ -35,7 +35,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Operacion {
-	
+
 	@Id
 	@GeneratedValue(
 			strategy = GenerationType.SEQUENCE,
@@ -45,52 +45,52 @@ public class Operacion {
 			sequenceName = "operacion_sequence",
 			allocationSize = 1)
 	private Long id;
-	
+
 	private LocalDateTime fechaCreacion;
-	
+
 	private LocalDateTime fechaActualizacion;
-	
+
 	@Enumerated(EnumType.STRING)
 	private TipoOperacion tipo;
-	
+
 	@ManyToOne
     @JoinColumn(name = "cuenta_corriente_id", nullable = false)
-    private CuentaCorriente cuentaCorriente; 
-	
+    private CuentaCorriente cuentaCorriente;
+
 	@ManyToOne
 	@JoinColumn(name = "moneda_origen_id", nullable = false)
-	private Moneda monedaOrigen; // USD, PESO, EURO, REAL, CRYPTO	
-	
-	private BigDecimal montoOrigen;	
-	
+	private Moneda monedaOrigen; // USD, PESO, EURO, REAL, CRYPTO
+
+	private BigDecimal montoOrigen;
+
 	private BigDecimal valorTipoCambio;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "moneda_conversion_id", nullable = false)
 	private Moneda monedaConversion;
-	
+
 	private BigDecimal montoConversion;
-  
+
 	@Builder.Default
 	@OneToMany(mappedBy = "operacion", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Pago> pagosOrigen = new ArrayList<>();
-	
+
 	@Builder.Default
 	@OneToMany(mappedBy = "operacion", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Pago> pagosConversion = new ArrayList<>();
-			
+
 	@ManyToOne
-	@JoinColumn(name = "cuenta_corriente_referido_id", nullable = true) 
-	private CuentaCorriente cuentaCorrienteReferido; 
-	
+	@JoinColumn(name = "cuenta_corriente_referido_id", nullable = true)
+	private CuentaCorriente cuentaCorrienteReferido;
+
 	private BigDecimal puntosReferido;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "moneda_referido_id", nullable = true)
-	private Moneda monedaReferido; 
-	
+	private Moneda monedaReferido;
+
 	private BigDecimal gananciaReferido;
-	
+
 	public BigDecimal getTotalPagosOrigen() {
         BigDecimal total = BigDecimal.ZERO;
         for (Pago pago : pagosOrigen) {
@@ -100,7 +100,7 @@ public class Operacion {
         }
         return total;
 	}
-	
+
 	public BigDecimal getTotalPagosConversion() {
         BigDecimal total = BigDecimal.ZERO;
         for (Pago pago : pagosConversion) {
@@ -110,7 +110,7 @@ public class Operacion {
         }
         return total;
 	}
-	
+
 	public String getEstado() {
 		if (estaCompleta()) {
 			return "COMPLETA";
@@ -118,22 +118,22 @@ public class Operacion {
 			return "PARCIAL";
 		}
 	}
-		
+
 	public boolean estaCompleta() {
-		if ( getTotalPagosOrigen().compareTo(montoOrigen) == 0 
+		if ( getTotalPagosOrigen().compareTo(montoOrigen) == 0
 				&& getTotalPagosConversion().compareTo(getMontoConversion()) == 0){
 			return true;
 		}
 		return false;
 	}
-	
+
 //	public BigDecimal getMontoConversion() {
-//		return this.montoOrigen.multiply(this.valorTipoCambio);		
+//		return this.montoOrigen.multiply(this.valorTipoCambio);
 //	}
-	
+
 //	public BigDecimal getGananciaReferido(BigDecimal monto) {
 //		return monto.multiply(puntosReferido);
 //	}
-//	
-		
+//
+
 }

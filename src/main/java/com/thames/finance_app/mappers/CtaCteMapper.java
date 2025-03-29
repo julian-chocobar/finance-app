@@ -10,9 +10,6 @@ import com.thames.finance_app.dtos.CtaCteDTO;
 import com.thames.finance_app.dtos.MovimientoCtaCteDTO;
 import com.thames.finance_app.enums.TipoMovimiento;
 import com.thames.finance_app.exceptions.BusinessException;
-
-import lombok.RequiredArgsConstructor;
-
 import com.thames.finance_app.models.CuentaCorriente;
 import com.thames.finance_app.models.Moneda;
 import com.thames.finance_app.models.MovimientoCtaCte;
@@ -21,10 +18,12 @@ import com.thames.finance_app.models.Titular;
 import com.thames.finance_app.repositories.MonedaRepository;
 import com.thames.finance_app.repositories.TitularRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Component
 @RequiredArgsConstructor
-public class CtaCteMapper {	
-	
+public class CtaCteMapper {
+
 	private final TitularRepository titularRepository;
 	private final MonedaRepository monedaRepository;
 
@@ -48,7 +47,7 @@ public class CtaCteMapper {
                 .totalPaginas(movimientos.getTotalPages())
                 .build();
     }
-    
+
 
     public MovimientoCtaCteDTO toMovimientoDTO(MovimientoCtaCte movimiento) {
         return MovimientoCtaCteDTO.builder()
@@ -60,26 +59,26 @@ public class CtaCteMapper {
                 .fecha(movimiento.getFecha())
                 .build();
     }
-    
+
     public MovimientoCtaCte toMovimientoEntity(MovimientoCtaCteDTO dto) {
-    	
+
     	Titular titular = titularRepository.findByNombre(dto.getNombreTitular())
     			.orElseThrow(() -> new BusinessException("Titular no encontrado"));
-    	
+
     	Moneda moneda = monedaRepository.findByCodigo(dto.getMoneda())
     			.orElseThrow(() -> new BusinessException("Titular no encontrado"));
-    			
-    	
+
+
     	return MovimientoCtaCte.builder()
     			.id(dto.getId())
     			.fecha(dto.getFecha())
     			.cuentaCorriente(titular.getCuentaCorriente())
     			.moneda(moneda)
     			.monto(dto.getMonto())
-    			
+
     			.build();
     }
-    
+
     public MovimientoCtaCte toMovimientoEntity (Operacion operacion, TipoMovimiento tipo,
 			Moneda moneda, BigDecimal monto) {
 		return MovimientoCtaCte.builder()
@@ -89,10 +88,10 @@ public class CtaCteMapper {
 				.operacion(operacion)
 				.moneda(moneda)
 				.monto(monto)
-				.build();	
+				.build();
 	}
-    
-    
+
+
 
 
 }

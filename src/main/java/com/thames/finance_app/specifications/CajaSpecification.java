@@ -6,10 +6,13 @@ import org.springframework.data.jpa.domain.Specification;
 
 import com.thames.finance_app.models.Caja;
 
-import jakarta.persistence.criteria.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
 public class CajaSpecification {
-	
+
 	public static Specification<Caja> filtrarPorParametros(
 			String nombre, String moneda, BigDecimal saldoMinimo){
 		return (Root<Caja> root, CriteriaQuery<?> query, CriteriaBuilder cb) -> {
@@ -23,12 +26,12 @@ public class CajaSpecification {
             if (saldoMinimo != null && saldoMinimo != null) {
                 predicate = cb.and(predicate, cb.equal(root.get("nombre"), saldoMinimo));
             }
-            
+
             return predicate;
-            
+
 		};
-            
+
 	}
-			
+
 
 }

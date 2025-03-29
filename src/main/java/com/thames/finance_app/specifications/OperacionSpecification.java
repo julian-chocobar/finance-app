@@ -1,15 +1,18 @@
 package com.thames.finance_app.specifications;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 import org.springframework.data.jpa.domain.Specification;
 
 import com.thames.finance_app.enums.TipoOperacion;
 import com.thames.finance_app.models.Moneda;
 import com.thames.finance_app.models.Operacion;
 
-import jakarta.persistence.criteria.*;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
 
 public class OperacionSpecification {
@@ -36,7 +39,7 @@ public class OperacionSpecification {
             }
             if (monedaOrigen != null) {
                 predicate = cb.and(predicate, cb.equal(root.get("monedaOrigen"), monedaOrigen));
-            }     
+            }
             if (montoConversion != null) {
                 predicate = cb.and(predicate, cb.equal(root.get("montoConversion"), montoConversion));
             }

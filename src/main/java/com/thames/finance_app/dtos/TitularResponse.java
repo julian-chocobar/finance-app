@@ -15,5 +15,5 @@ public class TitularResponse {
     // Información básica de la cuenta corriente
 //    private Long cuentaCorrienteId;
 //    private Map<Moneda, BigDecimal> saldos;
-    
+
 }

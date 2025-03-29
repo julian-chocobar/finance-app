@@ -12,9 +12,9 @@ import com.thames.finance_app.models.Titular;
 
 public interface TitularRepository extends JpaRepository<Titular, Long> {
 
-        
+
     Optional <Titular> findByNombre(String name);
-    
+
     Page<Titular> findByTipo(TipoTitular tipo, Pageable pageable);
 
 	Optional<Titular> findByNombreAndTipo(String nombre, TipoTitular tipo);

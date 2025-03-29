@@ -26,38 +26,38 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/clientes")
 @RequiredArgsConstructor
 public class ClienteController {
-	
+
 	private final ClienteService clienteService;
 	private final PagedResourcesAssembler<TitularResponse> pagedResourcesAssembler;
-	
+
 	@GetMapping("/listado")
 	public ResponseEntity<org.springframework.hateoas.PagedModel<EntityModel<TitularResponse>>> obtenerTodos(Pageable pageable) {
-        Page<TitularResponse> clientes = clienteService.obtenerTodos(pageable);        
+        Page<TitularResponse> clientes = clienteService.obtenerTodos(pageable);
 	    org.springframework.hateoas.PagedModel<EntityModel<TitularResponse>> pagedModel = pagedResourcesAssembler.toModel(clientes);
         return ResponseEntity.ok(pagedModel);
     }
-	
+
 	@GetMapping("/{id}")
 	public ResponseEntity<TitularResponse> obtenerPorID(@PathVariable Long id){
 		TitularResponse cliente = clienteService.obtenerPorID(id);
-		return ResponseEntity.ok(cliente);	
+		return ResponseEntity.ok(cliente);
 	}
-	
+
 	@PostMapping
     public ResponseEntity<TitularResponse> crearCliente(@RequestBody TitularRequest clienteRequest) {
         TitularResponse clienteResponse = clienteService.crear(clienteRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(clienteResponse);
     }
-	
+
 	 @PutMapping("/{id}")
 	 public ResponseEntity<TitularResponse> actualizarCliente(@PathVariable Long id, @RequestBody TitularRequest clienteRequest){
 		 return ResponseEntity.ok(clienteService.actualizar(id, clienteRequest));
 	 }
-	 
+
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> eliminarCliente(@PathVariable Long id) {
 		clienteService.eliminar(id);
 	    return ResponseEntity.noContent().build();
-	}	 
-	
+	}
+
 }

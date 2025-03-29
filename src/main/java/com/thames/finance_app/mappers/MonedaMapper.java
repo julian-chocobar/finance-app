@@ -7,13 +7,13 @@ import com.thames.finance_app.models.Moneda;
 
 @Component
 public class MonedaMapper {
-	
+
     public Moneda toEntity(MonedaDTO request) {
         return Moneda.builder()
                 .nombre(request.getNombre())
                 .build();
     }
-    
+
     public MonedaDTO toDTO(Moneda moneda) {
         return MonedaDTO.builder()
                 .nombre(moneda.getNombre())

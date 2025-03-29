@@ -16,16 +16,16 @@
             
             <!-- Panel de Saldos Actuales -->
             <div class="card mb-4">
-                <div class="card-header bg-dark text-white">
+                <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">Saldos Actuales</h5>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive" style="max-height: 300px; overflow-x: auto;">
-                        <table class="table table-striped table-dark mb-0">
-                            <thead>
+                        <table class="table table-striped table-hover mb-0">
+                            <thead class="table-primary">
                                 <tr>
                                     <th scope="col" style="min-width: 150px;">Caja</th>
-                                    <th th:each="caja : ${cajas.content}" scope="col" style="min-width: 180px;" class="text-center">
+                                    <th th:each="caja : ${cajas}" scope="col" style="min-width: 180px;" class="text-center">
                                         <span th:text="${caja.nombre}"></span><br>
                                         <small th:text="${caja.moneda}"></small>
                                     </th>
@@ -34,19 +34,19 @@
                             <tbody>
                                 <tr>
                                     <th scope="row">Saldo Real</th>
-                                    <td th:each="caja : ${cajas.content}" class="text-center">
+                                    <td th:each="caja : ${cajas}" class="text-center">
                                         <span th:text="${#numbers.formatDecimal(caja.saldoReal, 1, 2)}"></span>
                                     </td>
                                 </tr>
                                 <tr>
                                     <th scope="row">Saldo Disponible</th>
-                                    <td th:each="caja : ${cajas.content}" class="text-center">
+                                    <td th:each="caja : ${cajas}" class="text-center">
                                         <span th:text="${#numbers.formatDecimal(caja.saldoDisponible, 1, 2)}"></span>
                                     </td>
                                 </tr>
                                 <tr>
                                     <th scope="row">Acciones</th>
-                                    <td th:each="caja : ${cajas.content}" class="text-center">
+                                    <td th:each="caja : ${cajas}" class="text-center">
                                         <div class="btn-group">
                                             <a th:href="@{/cajas/{nombre}(nombre=${caja.nombre})}" 
                                                class="btn btn-sm btn-info" title="Ver">
@@ -67,42 +67,6 @@
                             </tbody>
                         </table>
                     </div>
-                </div>
-                
-                <!-- Paginación para Cajas -->
-                <div th:if="${cajas.totalPages > 1}" class="card-footer d-flex justify-content-between align-items-center">
-                    <div>
-                        <span>Mostrando <span th:text="${cajas.numberOfElements}"></span> de <span th:text="${cajas.totalElements}"></span> cajas</span>
-                    </div>
-                    <nav>
-                        <ul class="pagination mb-0">
-                            <li class="page-item" th:classappend="${cajas.first ? 'disabled' : ''}">
-                                <a class="page-link" th:href="@{/cajas(cajasPage=0, cajasSize=${cajas.size}, nombre=${param.nombre}, moneda=${param.moneda}, saldoMinimo=${param.saldoMinimo}, movimientosPage=${movimientos.number}, movimientosSize=${movimientos.size}, nombreCaja=${param.nombreCaja}, fechaDesde=${param.fechaDesde}, fechaHasta=${param.fechaHasta}, tipo=${param.tipo}, montoMinimo=${param.montoMinimo}, montoMaximo=${param.montoMaximo}, idOperacion=${param.idOperacion})}" aria-label="Primera">
-                                    <span aria-hidden="true">&laquo;&laquo;</span>
-                                </a>
-                            </li>
-                            <li class="page-item" th:classappend="${cajas.first ? 'disabled' : ''}">
-                                <a class="page-link" th:href="@{/cajas(cajasPage=${cajas.number - 1}, cajasSize=${cajas.size}, nombre=${param.nombre}, moneda=${param.moneda}, saldoMinimo=${param.saldoMinimo}, movimientosPage=${movimientos.number}, movimientosSize=${movimientos.size}, nombreCaja=${param.nombreCaja}, fechaDesde=${param.fechaDesde}, fechaHasta=${param.fechaHasta}, tipo=${param.tipo}, montoMinimo=${param.montoMinimo}, montoMaximo=${param.montoMaximo}, idOperacion=${param.idOperacion})}" aria-label="Anterior">
-                                    <span aria-hidden="true">&laquo;</span>
-                                </a>
-                            </li>
-                            <li class="page-item" th:each="i : ${#numbers.sequence(0, cajas.totalPages - 1)}" 
-                                th:if="${i >= cajas.number - 2 and i <= cajas.number + 2}"
-                                th:classappend="${i == cajas.number ? 'active' : ''}">
-                                <a class="page-link" th:href="@{/cajas(cajasPage=${i}, cajasSize=${cajas.size}, nombre=${param.nombre}, moneda=${param.moneda}, saldoMinimo=${param.saldoMinimo}, movimientosPage=${movimientos.number}, movimientosSize=${movimientos.size}, nombreCaja=${param.nombreCaja}, fechaDesde=${param.fechaDesde}, fechaHasta=${param.fechaHasta}, tipo=${param.tipo}, montoMinimo=${param.montoMinimo}, montoMaximo=${param.montoMaximo}, idOperacion=${param.idOperacion})}" th:text="${i + 1}"></a>
-                            </li>
-                            <li class="page-item" th:classappend="${cajas.last ? 'disabled' : ''}">
-                                <a class="page-link" th:href="@{/cajas(cajasPage=${cajas.number + 1}, cajasSize=${cajas.size}, nombre=${param.nombre}, moneda=${param.moneda}, saldoMinimo=${param.saldoMinimo}, movimientosPage=${movimientos.number}, movimientosSize=${movimientos.size}, nombreCaja=${param.nombreCaja}, fechaDesde=${param.fechaDesde}, fechaHasta=${param.fechaHasta}, tipo=${param.tipo}, montoMinimo=${param.montoMinimo}, montoMaximo=${param.montoMaximo}, idOperacion=${param.idOperacion})}" aria-label="Siguiente">
-                                    <span aria-hidden="true">&raquo;</span>
-                                </a>
-                            </li>
-                            <li class="page-item" th:classappend="${cajas.last ? 'disabled' : ''}">
-                                <a class="page-link" th:href="@{/cajas(cajasPage=${cajas.totalPages - 1}, cajasSize=${cajas.size}, nombre=${param.nombre}, moneda=${param.moneda}, saldoMinimo=${param.saldoMinimo}, movimientosPage=${movimientos.number}, movimientosSize=${movimientos.size}, nombreCaja=${param.nombreCaja}, fechaDesde=${param.fechaDesde}, fechaHasta=${param.fechaHasta}, tipo=${param.tipo}, montoMinimo=${param.montoMinimo}, montoMaximo=${param.montoMaximo}, idOperacion=${param.idOperacion})}" aria-label="Última">
-                                    <span aria-hidden="true">&raquo;&raquo;</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
                 </div>
             </div>
             
@@ -140,9 +104,9 @@
                                        th:value="${param.saldoMinimo}">
                             </div>
                             
-                            <!-- Mantener parámetros de paginación y filtros de movimientos -->
-                            <input type="hidden" name="movimientosPage" th:value="${movimientos.number}">
-                            <input type="hidden" name="movimientosSize" th:value="${movimientos.size}">
+                            <!-- Mantener parámetros de filtros de movimientos -->
+                            <input type="hidden" name="page" th:value="${movimientos.number}">
+                            <input type="hidden" name="size" th:value="${movimientos.size}">
                             <input type="hidden" name="nombreCaja" th:value="${param.nombreCaja}">
                             <input type="hidden" name="fechaDesde" th:value="${param.fechaDesde}">
                             <input type="hidden" name="fechaHasta" th:value="${param.fechaHasta}">
@@ -155,7 +119,7 @@
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-search"></i> Buscar
                                 </button>
-                                <a th:href="@{/cajas(movimientosPage=${movimientos.number}, movimientosSize=${movimientos.size}, nombreCaja=${param.nombreCaja}, fechaDesde=${param.fechaDesde}, fechaHasta=${param.fechaHasta}, tipo=${param.tipo}, montoMinimo=${param.montoMinimo}, montoMaximo=${param.montoMaximo}, idOperacion=${param.idOperacion})}" class="btn btn-secondary">
+                                <a th:href="@{/cajas(page=${movimientos.number}, size=${movimientos.size}, nombreCaja=${param.nombreCaja}, fechaDesde=${param.fechaDesde}, fechaHasta=${param.fechaHasta}, tipo=${param.tipo}, montoMinimo=${param.montoMinimo}, montoMaximo=${param.montoMaximo}, idOperacion=${param.idOperacion})}" class="btn btn-secondary">
                                     <i class="fas fa-undo"></i> Limpiar
                                 </a>
                             </div>
@@ -182,7 +146,7 @@
                                 <input type="text" class="form-control" id="nombreCaja" name="nombreCaja" 
                                        th:value="${param.nombreCaja}" list="cajasList">
                                 <datalist id="cajasList">
-                                    <option th:each="caja : ${cajas.content}" th:value="${caja.nombre}">
+                                    <option th:each="caja : ${cajas}" th:value="${caja.nombre}">
                                 </datalist>
                             </div>
                             <div class="col-md-3">
@@ -219,9 +183,7 @@
                                        th:value="${param.idOperacion}">
                             </div>
                             
-                            <!-- Mantener parámetros de paginación y filtros de cajas -->
-                            <input type="hidden" name="cajasPage" th:value="${cajas.number}">
-                            <input type="hidden" name="cajasSize" th:value="${cajas.size}">
+                            <!-- Mantener parámetros de filtros de cajas -->
                             <input type="hidden" name="nombre" th:value="${param.nombre}">
                             <input type="hidden" name="moneda" th:value="${param.moneda}">
                             <input type="hidden" name="saldoMinimo" th:value="${param.saldoMinimo}">
@@ -230,7 +192,7 @@
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-search"></i> Filtrar
                                 </button>
-                                <a th:href="@{/cajas(cajasPage=${cajas.number}, cajasSize=${cajas.size}, nombre=${param.nombre}, moneda=${param.moneda}, saldoMinimo=${param.saldoMinimo})}" class="btn btn-secondary">
+                                <a th:href="@{/cajas(nombre=${param.nombre}, moneda=${param.moneda}, saldoMinimo=${param.saldoMinimo})}" class="btn btn-secondary">
                                     <i class="fas fa-undo"></i> Limpiar
                                 </a>
                             </div>
@@ -264,7 +226,7 @@
                                         <a th:href="@{/cajas/{nombre}(nombre=${movimiento.nombreCaja})}" 
                                            th:text="${movimiento.nombreCaja}" class="link-primary"></a>
                                     </td>
-                                    <td th:text="${#temporals.format(movimiento.fecha, 'dd/MM/yyyy')}"></td>
+                                    <td th:text="${#temporals.format(movimiento.fecha, 'dd/MM/yyyy HH:mm')}"></td>
                                     <td>
                                         <span th:if="${movimiento.tipo == 'INGRESO'}" class="badge bg-success">Ingreso</span>
                                         <span th:if="${movimiento.tipo == 'EGRESO'}" class="badge bg-danger">Egreso</span>
@@ -279,8 +241,8 @@
                                     <td>
                                         <div class="btn-group">
                                             <a th:href="@{/cajas/{nombre}/movimientos/{id}/editar(nombre=${movimiento.nombreCaja}, id=${movimiento.id})}" 
-                                               class="btn btn-sm btn-info" title="Ver">
-                                                <i class="fas fa-eye"></i>
+                                               class="btn btn-sm btn-warning" title="Editar">
+                                                <i class="fas fa-edit"></i>
                                             </a>
                                             <button type="button" class="btn btn-sm btn-danger btnEliminarMovimiento"
                                                     th:data-id="${movimiento.id}" th:data-nombre="${movimiento.nombreCaja}" 
@@ -294,79 +256,111 @@
                         </table>
                     </div>
                     
-                    <!-- Paginación -->
-                    <div th:replace="~{fragments/paginacion-movimientos :: paginacion-movimientos}"></div>
-                </div>
-            </div>
-            
-            <!-- Modal de confirmación para eliminar caja -->
-            <div class="modal fade" id="eliminarModal" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Confirmar eliminación</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <!-- Paginación para Movimientos -->
+                    <div th:if="${movimientos.totalPages > 1}" class="d-flex justify-content-between align-items-center mt-3">
+                        <div>
+                            <span>Mostrando <span th:text="${movimientos.numberOfElements}"></span> de <span th:text="${movimientos.totalElements}"></span> movimientos</span>
                         </div>
-                        <div class="modal-body">
-                            <p>¿Está seguro que desea eliminar esta caja? Esta acción no se puede deshacer.</p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <form id="formEliminar" method="post">
-                                <input type="hidden" name="_method" value="DELETE">
-                                <button type="submit" class="btn btn-danger">Eliminar</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Modal de confirmación para eliminar movimiento -->
-            <div class="modal fade" id="eliminarMovimientoModal" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Confirmar eliminación</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <p>¿Está seguro que desea eliminar este movimiento? Esta acción no se puede deshacer.</p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <form id="formEliminarMovimiento" method="post">
-                                <input type="hidden" name="_method" value="DELETE">
-                                <button type="submit" class="btn btn-danger">Eliminar</button>
-                            </form>
-                        </div>
+                        <nav>
+                            <ul class="pagination mb-0">
+                                <li class="page-item" th:classappend="${movimientos.first ? 'disabled' : ''}">
+                                    <a class="page-link" th:href="@{/cajas(page=0, size=${movimientos.size}, nombreCaja=${param.nombreCaja}, fechaDesde=${param.fechaDesde}, fechaHasta=${param.fechaHasta}, tipo=${param.tipo}, montoMinimo=${param.montoMinimo}, montoMaximo=${param.montoMaximo}, idOperacion=${param.idOperacion}, nombre=${param.nombre}, moneda=${param.moneda}, saldoMinimo=${param.saldoMinimo})}" aria-label="Primera">
+                                        <span aria-hidden="true">&laquo;&laquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item" th:classappend="${movimientos.first ? 'disabled' : ''}">
+                                    <a class="page-link" th:href="@{/cajas(page=${movimientos.number - 1}, size=${movimientos.size}, nombreCaja=${param.nombreCaja}, fechaDesde=${param.fechaDesde}, fechaHasta=${param.fechaHasta}, tipo=${param.tipo}, montoMinimo=${param.montoMinimo}, montoMaximo=${param.montoMaximo}, idOperacion=${param.idOperacion}, nombre=${param.nombre}, moneda=${param.moneda}, saldoMinimo=${param.saldoMinimo})}" aria-label="Anterior">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item" th:each="i : ${#numbers.sequence(0, movimientos.totalPages - 1)}" 
+                                    th:if="${i >= movimientos.number - 2 and i <= movimientos.number + 2}"
+                                    th:classappend="${i == movimientos.number ? 'active' : ''}">
+                                    <a class="page-link" th:href="@{/cajas(page=${i}, size=${movimientos.size}, nombreCaja=${param.nombreCaja}, fechaDesde=${param.fechaDesde}, fechaHasta=${param.fechaHasta}, tipo=${param.tipo}, montoMinimo=${param.montoMinimo}, montoMaximo=${param.montoMaximo}, idOperacion=${param.idOperacion}, nombre=${param.nombre}, moneda=${param.moneda}, saldoMinimo=${param.saldoMinimo})}" th:text="${i + 1}"></a>
+                                </li>
+                                <li class="page-item" th:classappend="${movimientos.last ? 'disabled' : ''}">
+                                    <a class="page-link" th:href="@{/cajas(page=${movimientos.number + 1}, size=${movimientos.size}, nombreCaja=${param.nombreCaja}, fechaDesde=${param.fechaDesde}, fechaHasta=${param.fechaHasta}, tipo=${param.tipo}, montoMinimo=${param.montoMinimo}, montoMaximo=${param.montoMaximo}, idOperacion=${param.idOperacion}, nombre=${param.nombre}, moneda=${param.moneda}, saldoMinimo=${param.saldoMinimo})}" aria-label="Siguiente">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item" th:classappend="${movimientos.last ? 'disabled' : ''}">
+                                    <a class="page-link" th:href="@{/cajas(page=${movimientos.totalPages - 1}, size=${movimientos.size}, nombreCaja=${param.nombreCaja}, fechaDesde=${param.fechaDesde}, fechaHasta=${param.fechaHasta}, tipo=${param.tipo}, montoMinimo=${param.montoMinimo}, montoMaximo=${param.montoMaximo}, idOperacion=${param.idOperacion}, nombre=${param.nombre}, moneda=${param.moneda}, saldoMinimo=${param.saldoMinimo})}" aria-label="Última">
+                                        <span aria-hidden="true">&raquo;&raquo;</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
                     </div>
                 </div>
             </div>
         </div>
         
-        <script th:inline="javascript">
-            document.addEventListener("DOMContentLoaded", function () {
-                // Configurar modal para eliminar caja
-                document.querySelectorAll(".btnEliminar").forEach(button => {
-                    button.addEventListener("click", function () {
-                        let nombre = this.getAttribute("data-id");
-                        let form = document.getElementById("formEliminar");
-                        form.setAttribute("action", `/cajas/${nombre}/eliminar`);
-                    });
-                });
-                
-                // Configurar modal para eliminar movimiento
-                document.querySelectorAll(".btnEliminarMovimiento").forEach(button => {
-                    button.addEventListener("click", function () {
-                        let id = this.getAttribute("data-id");
-                        let nombre = this.getAttribute("data-nombre");
-                        let form = document.getElementById("formEliminarMovimiento");
-                        form.setAttribute("action", `/cajas/${nombre}/movimientos/${id}/eliminar`);
-                    });
-                });
-            });
-        </script>
+        <!-- Modal de confirmación para eliminar caja -->
+        <div class="modal fade" id="eliminarModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirmar eliminación</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>¿Está seguro que desea eliminar esta caja? Esta acción no se puede deshacer.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <form id="formEliminar" method="post">
+                            <input type="hidden" name="_method" value="DELETE">
+                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal de confirmación para eliminar movimiento -->
+        <div class="modal fade" id="eliminarMovimientoModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirmar eliminación</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>¿Está seguro que desea eliminar este movimiento? Esta acción no se puede deshacer.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <form id="formEliminarMovimiento" method="post">
+                            <input type="hidden" name="_method" value="DELETE">
+                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 
+    <script th:inline="javascript">
+        document.addEventListener("DOMContentLoaded", function () {
+            // Configurar modal para eliminar caja
+            document.querySelectorAll(".btnEliminar").forEach(button => {
+                button.addEventListener("click", function () {
+                    let nombre = this.getAttribute("data-id");
+                    let form = document.getElementById("formEliminar");
+                    form.setAttribute("action", `/cajas/${nombre}/eliminar`);
+                });
+            });
+            
+            // Configurar modal para eliminar movimiento
+            document.querySelectorAll(".btnEliminarMovimiento").forEach(button => {
+                button.addEventListener("click", function () {
+                    let id = this.getAttribute("data-id");
+                    let nombre = this.getAttribute("data-nombre");
+                    let form = document.getElementById("formEliminarMovimiento");
+                    form.setAttribute("action", `/cajas/${nombre}/movimientos/${id}/eliminar`);
+                });
+            });
+        });
+    </script>
 </body>
 </html>

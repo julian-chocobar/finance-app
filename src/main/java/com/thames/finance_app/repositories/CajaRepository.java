@@ -1,5 +1,6 @@
 package com.thames.finance_app.repositories;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -17,8 +18,10 @@ public interface CajaRepository extends JpaRepository<Caja, Long>{
 	Optional<Caja> findByMoneda(Moneda moneda);
 
 	Optional<Caja> findByNombre(String nombre);
-	
+
 	Page<Caja> findAll(Specification<Caja> spec, Pageable pageable);
 	
+	List<Caja> findAll(Specification<Caja> spec);
+
 
 }

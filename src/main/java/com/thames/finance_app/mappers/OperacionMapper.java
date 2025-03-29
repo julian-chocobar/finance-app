@@ -26,25 +26,25 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class OperacionMapper {
-	
+
 	private final ClienteService clienteService;
 	private final ReferidoService referidoService;
 	private final TipoCambioService tipoCambioService;
 	private final MonedaRepository monedaRepository;
 	private final PagoMapper pagoMapper;
-	
-    public Operacion toEntity(OperacionRequest request) {   
+
+    public Operacion toEntity(OperacionRequest request) {
     	CuentaCorriente cuentaCliente = clienteService
 				.obtenerPorNombre(request
 				.getNombreCliente()).getCuentaCorriente();
     	Moneda monedaOrigen = monedaRepository
     			.findByCodigo(request.getMonedaOrigen())
     			.orElseThrow(() -> new RuntimeException("Moneda no encontrada"));
-    	
+
     	Moneda monedaConversion = monedaRepository
     			.findByCodigo(request.getMonedaConversion())
     			.orElseThrow(() -> new RuntimeException("Moneda no encontrada"));
-    
+
     	Operacion operacion = Operacion.builder()
                 .fechaCreacion(LocalDateTime.now())
                 .tipo(request.getTipo())
@@ -55,31 +55,31 @@ public class OperacionMapper {
                 .monedaConversion(monedaConversion)
                 .montoConversion(request.getMontoOrigen().multiply(request.getValorTipoCambio()))
                 .build();
-    	
-    	if(request.getNombreReferido() !=null) {      	
+
+    	if(request.getNombreReferido() !=null) {
         	CuentaCorriente cuentaReferido = Optional.ofNullable(referidoService
 					.obtenerPorNombre(request
 					.getNombreReferido())
-					.getCuentaCorriente()).orElse(null); 
-        	
+					.getCuentaCorriente()).orElse(null);
+
         	Moneda monedaReferido = monedaRepository
         			.findByCodigo(request.getMonedaReferido())
         			.orElseThrow(() -> new RuntimeException("Moneda no encontrada"));
-  
+
         	operacion.setCuentaCorrienteReferido(cuentaReferido);
         	operacion.setMonedaReferido(monedaReferido);
-        	operacion.setPuntosReferido(request.getPuntosReferido());      
-        }       
-    	
+        	operacion.setPuntosReferido(request.getPuntosReferido());
+        }
+
     	return operacion;
     }
-		
+
     public OperacionResponse toResponse(Operacion operacion) {
-    	
+
     	String nombreCliente = operacion.getCuentaCorriente().getTitular().getNombre();
     	BigDecimal totalEjecutadoOrigen = operacion.getTotalPagosOrigen();
     	BigDecimal totalEjecutadoConversion = operacion.getTotalPagosConversion();
-    	    	
+
         OperacionResponse operacionResponse = OperacionResponse.builder()
                 .id(operacion.getId())
                 .fechaCreacion(operacion.getFechaCreacion())
@@ -88,7 +88,7 @@ public class OperacionMapper {
                 .tipo(operacion.getTipo().toString())
                 .monedaOrigen(operacion.getMonedaOrigen().getCodigo())
                 .montoOrigen(operacion.getMontoOrigen())
-                
+
                 .monedaConversion(operacion.getMonedaConversion().getCodigo())
                 .montoConversion(operacion.getMontoConversion())
                 .valorTipoCambio(operacion.getValorTipoCambio())
@@ -96,23 +96,23 @@ public class OperacionMapper {
 //						operacion.getTipo() == TipoOperacion.COMPRA ? true : false ))
                 .pagosOrigen(pagoMapper.toPagoResponseList(operacion.getPagosOrigen()))
                 .totalPagosOrigen(totalEjecutadoOrigen)
-                
+
                 .pagosConversion(pagoMapper.toPagoResponseList(operacion.getPagosConversion()))
                 .totalPagosConversion(totalEjecutadoConversion)
                 .estado(operacion.getEstado())
                 .build();
-        
+
         if (operacion.getCuentaCorrienteReferido() != null) {
         	String nombreReferido = operacion.getCuentaCorrienteReferido().getTitular().getNombre();
         	operacionResponse.setNombreReferido(nombreReferido);
         	operacionResponse.setPuntosReferido(operacion.getPuntosReferido());
         	operacionResponse.setMonedaReferido(operacion.getMonedaReferido().getCodigo());
         	operacionResponse.setGananciaReferido(operacion.getMontoOrigen());
-        	
+
         }
         return operacionResponse;
     }
-    
+
     public OperacionRequest toRequest(Operacion operacion) {
         OperacionRequest request = new OperacionRequest();
 
@@ -150,21 +150,21 @@ public class OperacionMapper {
         return request;
     }
 
-   
+
     public Operacion updateEntity(Operacion operacion, OperacionRequest request) {
     	CuentaCorriente cuentaCliente = clienteService
     									.obtenerPorNombre(request
     									.getNombreCliente()).getCuentaCorriente();
-    	
+
 
     	Moneda monedaOrigen = monedaRepository
     			.findByCodigo(request.getMonedaOrigen())
     			.orElseThrow(() -> new RuntimeException("Moneda no encontrada"));
-    	
+
     	Moneda monedaConversion = monedaRepository
     			.findByCodigo(request.getMonedaConversion())
     			.orElseThrow(() -> new RuntimeException("Moneda no encontrada"));
-    	
+
     	operacion.setFechaActualizacion(LocalDateTime.now());
         operacion.setTipo(request.getTipo());
         operacion.setMonedaOrigen(monedaOrigen);
@@ -177,35 +177,35 @@ public class OperacionMapper {
 //														request.getTipo() == TipoOperacion.COMPRA ? true : false ));
         operacion.setValorTipoCambio(request.getValorTipoCambio());
         operacion.setCuentaCorriente(cuentaCliente);
-        
-        if(request.getNombreReferido() !=null) {  
-      	
+
+        if(request.getNombreReferido() !=null) {
+
         	CuentaCorriente cuentaReferido = Optional.ofNullable(referidoService
 					.obtenerPorNombre(request
 					.getNombreReferido())
 					.getCuentaCorriente()).orElse(null);
-        	
+
         	Moneda monedaReferido = monedaRepository
         			.findByCodigo(request.getMonedaReferido())
         			.orElseThrow(() -> new RuntimeException("Moneda no encontrada"));
-        	
+
             operacion.setCuentaCorrienteReferido(cuentaReferido);
             operacion.setPuntosReferido(request.getPuntosReferido());
             operacion.setMonedaReferido(monedaReferido);
-//            operacion.setGananciaReferido(request.getPuntosReferido() != null ? 
+//            operacion.setGananciaReferido(request.getPuntosReferido() != null ?
 //            							request.getPuntosReferido()
 //            							.multiply(request.getMontoOrigen()) : BigDecimal.ZERO);
         }
-        
+
         // Actualizar listas de pagos
         operacion.getPagosOrigen().clear();
         operacion.getPagosOrigen().addAll(pagoMapper.toPagoList(request.getPagosOrigen(), TipoPago.ORIGEN));
         operacion.getPagosConversion().clear();
         operacion.getPagosConversion().addAll(pagoMapper.toPagoList(request.getPagosConversion(), TipoPago.CONVERSION));
-        
+
         return operacion;
     }
-    
+
 
 }
 

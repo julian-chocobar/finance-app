@@ -18,7 +18,7 @@ public interface MovimientoCajaRepository extends JpaRepository<MovimientoCaja, 
 	boolean existsByCajaId(Long id);
 
 	List<MovimientoCaja> findByOperacion(Operacion operacion);
-	
+
 	@Query("SELECT m FROM MovimientoCaja m ORDER BY m.fecha DESC")
 	Page<MovimientoCaja> findAllOrderFechaDesc(Pageable pageable);
 

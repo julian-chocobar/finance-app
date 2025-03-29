@@ -15,20 +15,19 @@ import com.thames.finance_app.dtos.OperacionRequest;
 import com.thames.finance_app.enums.TipoOperacion;
 import com.thames.finance_app.enums.TipoTitular;
 import com.thames.finance_app.models.Caja;
-import com.thames.finance_app.models.Titular;
 import com.thames.finance_app.models.CuentaCorriente;
 import com.thames.finance_app.models.Moneda;
 import com.thames.finance_app.models.TipoCambio;
+import com.thames.finance_app.models.Titular;
 import com.thames.finance_app.repositories.CajaRepository;
-import com.thames.finance_app.repositories.TitularRepository;
-import com.thames.finance_app.services.OperacionService;
-
-import io.github.cdimascio.dotenv.Dotenv;
-
 import com.thames.finance_app.repositories.CtaCteRepository;
 import com.thames.finance_app.repositories.MonedaRepository;
 import com.thames.finance_app.repositories.OperacionRepository;
 import com.thames.finance_app.repositories.TipoCambioRepository;
+import com.thames.finance_app.repositories.TitularRepository;
+import com.thames.finance_app.services.OperacionService;
+
+import io.github.cdimascio.dotenv.Dotenv;
 
 @SpringBootApplication
 public class FinanceAppApplication {
@@ -43,7 +42,7 @@ public class FinanceAppApplication {
 
 		SpringApplication.run(FinanceAppApplication.class, args);
 	}
-	
+
 	@SuppressWarnings("unused")
 	@Bean
     CommandLineRunner init(CajaRepository cajaRepository, TipoCambioRepository tipoCambioRepository,
@@ -51,27 +50,27 @@ public class FinanceAppApplication {
     						MonedaRepository monedaRepository, OperacionRepository operacionRepository,
     						OperacionService operacionService) {
         return args -> {
-        	        	       	
-        	// CREAR MONEDAS        	
-        	Moneda dolar = Moneda.builder().nombre("DOLAR").codigo("USD").build();  
+
+        	// CREAR MONEDAS
+        	Moneda dolar = Moneda.builder().nombre("DOLAR").codigo("USD").build();
         	monedaRepository.save(dolar);
 
-			Moneda dolarCaraChica = Moneda.builder().nombre("DOLARcc").codigo("USDcc").build();  
+			Moneda dolarCaraChica = Moneda.builder().nombre("DOLARcc").codigo("USDcc").build();
         	monedaRepository.save(dolarCaraChica);
-        	
-        	Moneda peso = Moneda.builder().nombre("PESO").codigo("ARS").build();  
+
+        	Moneda peso = Moneda.builder().nombre("PESO").codigo("ARS").build();
         	monedaRepository.save(peso);
-        	
+
         	Moneda euro = Moneda.builder().nombre("EURO").codigo("EUR").build();
         	monedaRepository.save(euro);
-        	
+
         	Moneda real = Moneda.builder().nombre("REAL").codigo("BRL").build();
         	monedaRepository.save(real);
-        	
+
         	//CREAR TIPOS DE CAMBIO
         	tipoCambioRepository.saveAll(crearTiposCambioDePrueba(dolar,peso,euro,real));
-        	
-     
+
+
         	//CREAR CAJAS
         	Caja cajaPesos = Caja.builder()
         					.nombre("PESOS")
@@ -80,7 +79,7 @@ public class FinanceAppApplication {
         					.moneda(peso)
         					.build();
         	cajaRepository.save(cajaPesos);
-        	
+
         	Caja cajaDolares = Caja.builder()
         			.nombre("DOLARES")
 					.saldoReal(BigDecimal.ZERO)
@@ -96,7 +95,7 @@ public class FinanceAppApplication {
 					.moneda(dolarCaraChica)
 					.build();
         	cajaRepository.save(cajaDolaresCaraChica);
-        	
+
         	Caja cajaReales = Caja.builder()
         			.nombre("REALES")
 					.saldoReal(BigDecimal.ZERO)
@@ -104,7 +103,7 @@ public class FinanceAppApplication {
 					.moneda(real)
 					.build();
         	cajaRepository.save(cajaReales);
-        	
+
         	Caja cajaEuros = Caja.builder()
         			.nombre("EUROS")
 					.saldoReal(BigDecimal.ZERO)
@@ -112,23 +111,23 @@ public class FinanceAppApplication {
 					.moneda(euro)
 					.build();
         	cajaRepository.save(cajaEuros);
-        	   	
+
         	//CREAR CLIENTES Y CUENTAS CORRIENTES
-        	
-            List<Moneda> monedas = monedaRepository.findAll(); 
+
+            List<Moneda> monedas = monedaRepository.findAll();
 
             // Inicializar los saldos con BigDecimal.ZERO para cada moneda
             Map<Moneda, BigDecimal> saldosIniciales = new HashMap<>();
             for (Moneda moneda : monedas) {
                 saldosIniciales.put(moneda, BigDecimal.ZERO);
             }
-        	
+
         	Titular juan = Titular.builder()
         			.tipo(TipoTitular.CLIENTE)
         			.nombre("Juan Suarez")
         			.email("juanperez@gmail.com")
         			.direccion("Calle False 123")
-        			.build();  
+        			.build();
         	 clienteRepository.save(juan);
     	    CuentaCorriente cuentaJuan = CuentaCorriente.builder()
     	            .titular(juan)
@@ -137,8 +136,8 @@ public class FinanceAppApplication {
     	    juan.setCuentaCorriente(cuentaJuan);
     	    ctaCteRepository.save(cuentaJuan);
     	    clienteRepository.save(juan);
-  
-    	    
+
+
     	    List<Titular> referidos = List.of(
     	    	    Titular.builder().tipo(TipoTitular.REFERIDO).nombre("Pedro Lopez").email("pedrolo@gmail.com").telefono("+54 9 11 1234 5678").direccion("Alberdi 444").build(),
     	    	    Titular.builder().tipo(TipoTitular.REFERIDO).nombre("Maria Gonzalez").email(null).telefono("+54 9 11 2345 6789").direccion("San Martin 123").build()
@@ -162,7 +161,7 @@ public class FinanceAppApplication {
 //    	    	    Titular.builder().tipo(TipoTitular.REFERIDO).nombre("Andrea Fernandez").email("andrea.fernandez@gmail.com").telefono("+54 9 11 0123 4567").direccion("Jujuy 632").build(),
 //    	    	    Titular.builder().tipo(TipoTitular.REFERIDO).nombre("Silvia Fernandez").email("andrea.fernandez@gmail.com").telefono("+54 9 11 0123 4567").direccion("Jujuy 632").build(),
 //    	    	    Titular.builder().tipo(TipoTitular.REFERIDO).nombre("Nestor Fernandez").email("andrea.fernandez@gmail.com").telefono("+54 9 11 0123 4567").direccion("Jujuy 632").build()
-    	    	    
+
     	    	);
 
     	    	for (Titular referido : referidos) {
@@ -175,8 +174,8 @@ public class FinanceAppApplication {
     	    	    ctaCteRepository.save(cuenta);
     	    	    clienteRepository.save(referido);
     	    	}
-    	    
-    	    	
+
+
     	    	OperacionRequest operacionRequest = OperacionRequest.builder()
     	    			.tipo(TipoOperacion.COMPRA)
     	    			.nombreCliente("Juan Suarez")
@@ -184,22 +183,7 @@ public class FinanceAppApplication {
     	    			.montoOrigen(new BigDecimal("1000"))
     	    			.valorTipoCambio(new BigDecimal("0.85"))
     	    			.monedaConversion("EUR")
-    	    			.build();	    
-    	       operacionService.crearOperacion(operacionRequest);
-    	       operacionService.crearOperacion(operacionRequest);
-    	       operacionService.crearOperacion(operacionRequest);
-    	       operacionService.crearOperacion(operacionRequest);
-    	       operacionService.crearOperacion(operacionRequest);
-    	       operacionService.crearOperacion(operacionRequest);
-    	       operacionService.crearOperacion(operacionRequest);
-    	       operacionService.crearOperacion(operacionRequest);
-    	       operacionService.crearOperacion(operacionRequest);
-    	       operacionService.crearOperacion(operacionRequest);
-    	       operacionService.crearOperacion(operacionRequest);
-    	       operacionService.crearOperacion(operacionRequest);
-    	       operacionService.crearOperacion(operacionRequest);
-    	       operacionService.crearOperacion(operacionRequest);
-    	       operacionService.crearOperacion(operacionRequest);
+    	    			.build();
     	       operacionService.crearOperacion(operacionRequest);
     	       operacionService.crearOperacion(operacionRequest);
     	       operacionService.crearOperacion(operacionRequest);
@@ -216,15 +200,12 @@ public class FinanceAppApplication {
     	       operacionService.crearOperacion(operacionRequest);
     	       operacionService.crearOperacion(operacionRequest);
 
-    	       
-    	       
-        	        	
         };
-        
- 
+
+
 	}
-	
-    private static List<TipoCambio> crearTiposCambioDePrueba(Moneda usd, 
+
+    private static List<TipoCambio> crearTiposCambioDePrueba(Moneda usd,
     														Moneda peso,
     														Moneda euro,
     														Moneda real) {

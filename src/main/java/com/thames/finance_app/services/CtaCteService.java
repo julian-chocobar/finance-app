@@ -35,12 +35,12 @@ public class CtaCteService {
 	private final TitularRepository titularRepository;
     private final CajaService cajaService;
     private final MovimientoCtaCteService movimientoCtaCteService;
-    private final CtaCteMapper ctaCteMapper;    
-   
+    private final CtaCteMapper ctaCteMapper;
+
     public MovimientoCtaCteDTO crearMovimiento(MovimientoCtaCteDTO dto) {
     	MovimientoCtaCte movimiento = ctaCteMapper.toMovimientoEntity(dto);
     	movimientoCtaCteService.impactoMovimiento(movimiento);
-    	return dto; 	
+    	return dto;
     }
 
     public CtaCteDTO obtenerResponsePorId(Long cuentaId) {
@@ -48,7 +48,7 @@ public class CtaCteService {
                 .orElseThrow(() -> new BusinessException("Cuenta Corriente no encontrada"));
         return ctaCteMapper.toDTO(cuenta);
     }
-    
+
     public CuentaCorriente obtenerCuentaPorId(Long cuentaId) {
         CuentaCorriente cuenta = ctaCteRepository.findById(cuentaId)
                 .orElseThrow(() -> new BusinessException("Cuenta Corriente no encontrada"));
@@ -62,14 +62,14 @@ public class CtaCteService {
                 .orElseThrow(() -> new BusinessException("Cuenta Corriente no encontrada para el cliente"));
         return ctaCteMapper.toDTO(cuenta);
     }
-    
+
     public CuentaCorriente obtenerEntidadPorTitularId(Long titularId) {
       	Titular titular = titularRepository.findById(titularId)
     			.orElseThrow(() -> new BusinessException("Cliente no encontrado"));
         return ctaCteRepository.findByTitular(titular)
                 .orElseThrow(() -> new BusinessException("Cuenta Corriente no encontrada para el cliente"));
     }
- 
+
     public void eliminarCuenta(Long cuentaId) {
         CuentaCorriente cuenta = ctaCteRepository.findById(cuentaId)
                 .orElseThrow(() -> new BusinessException("Cuenta Corriente no encontrada"));
@@ -85,10 +85,10 @@ public class CtaCteService {
         }
         ctaCteRepository.delete(cuenta);
     }
-    
-	public void impactoOperacion(Operacion operacion) {	
+
+	public void impactoOperacion(Operacion operacion) {
 		CuentaCorriente cuentaCliente = operacion.getCuentaCorriente();
-		
+
 	    BigDecimal saldoActualOrigen = cuentaCliente.getSaldoPorMoneda(operacion.getMonedaOrigen());
 	    BigDecimal saldoActualConversion = cuentaCliente.getSaldoPorMoneda(operacion.getMonedaConversion());
 
@@ -103,60 +103,60 @@ public class CtaCteService {
 	    } else {
 	        throw new IllegalArgumentException("Tipo de operación no válido para actualización de saldo.");
 	    }
-	    
+
 	    Caja origen = cajaService.obtenerPorMoneda(operacion.getMonedaOrigen());
-	    Caja conversion = 	cajaService.obtenerPorMoneda(operacion.getMonedaConversion());	
+	    Caja conversion = 	cajaService.obtenerPorMoneda(operacion.getMonedaConversion());
 	    movimientoCtaCteService.registrarMovimientosOperacion(operacion, origen, conversion);
 	    ctaCteRepository.save(cuentaCliente);
 	}
-	
+
 	@Transactional
 	public void revertirImpactoOperacion(Operacion operacion) {
 	    CuentaCorriente cuentaCliente = operacion.getCuentaCorriente();
-	    
+
 	    if (cuentaCliente == null) {
 	        throw new BusinessException("La operación no tiene una cuenta corriente asociada");
 	    }
 	    List<MovimientoCtaCte> movimientos = movimientoCtaCteRepository.findByOperacion(operacion);
-	    
+
 	    BigDecimal saldoActualOrigen = cuentaCliente.getSaldoPorMoneda(operacion.getMonedaOrigen());
 	    BigDecimal saldoActualConversion = cuentaCliente.getSaldoPorMoneda(operacion.getMonedaConversion());
-	    
+
 	    if (operacion.getTipo() == TipoOperacion.COMPRA) {
 	        cuentaCliente.actualizarSaldo(operacion.getMonedaOrigen(), saldoActualOrigen.add(operacion.getTotalPagosOrigen()));
 	        cuentaCliente.actualizarSaldo(operacion.getMonedaConversion(), saldoActualConversion.subtract(operacion.getTotalPagosConversion()));
 	    } else if (operacion.getTipo() == TipoOperacion.VENTA) {
 	        cuentaCliente.actualizarSaldo(operacion.getMonedaOrigen(), saldoActualOrigen.subtract(operacion.getTotalPagosOrigen()));
 	        cuentaCliente.actualizarSaldo(operacion.getMonedaConversion(), saldoActualConversion.add(operacion.getTotalPagosConversion()));
-	    }    
+	    }
 	    movimientoCtaCteRepository.deleteAll(movimientos);
 	    ctaCteRepository.save(cuentaCliente);
-	}	
-	
+	}
+
     public void impactoOperacionReferido(Operacion operacion) {
     	CuentaCorriente cuentaReferido = operacion.getCuentaCorrienteReferido();
-        if (cuentaReferido == null || operacion.getGananciaReferido() == null 
+        if (cuentaReferido == null || operacion.getGananciaReferido() == null
         	|| operacion.getGananciaReferido().compareTo(BigDecimal.ZERO) == 0) {
             return;
-        }   
+        }
         Moneda monedaReferido = operacion.getMonedaReferido();
         BigDecimal saldoActual = cuentaReferido.getSaldoPorMoneda(monedaReferido);
         cuentaReferido.setSaldoPorMoneda(monedaReferido, saldoActual.add(operacion.getGananciaReferido()));
-	    
+
         movimientoCtaCteService.registrarMovimientoReferido(operacion);
-        ctaCteRepository.save(cuentaReferido);       
+        ctaCteRepository.save(cuentaReferido);
     }
-    
+
     public void revertirImpactoOperacionReferido (Operacion operacion) {
     	CuentaCorriente cuentaReferido = operacion.getCuentaCorrienteReferido();
-        if (cuentaReferido == null || operacion.getGananciaReferido() == null 
+        if (cuentaReferido == null || operacion.getGananciaReferido() == null
         	|| operacion.getGananciaReferido().compareTo(BigDecimal.ZERO) == 0) {
             return;
-        }        
+        }
         Moneda monedaReferido = operacion.getMonedaReferido();
         BigDecimal saldoActual = cuentaReferido.getSaldoPorMoneda(monedaReferido);
         cuentaReferido.setSaldoPorMoneda(monedaReferido, saldoActual.subtract(operacion.getGananciaReferido()));
-	    
+
         movimientoCtaCteService.revertirRegistroMovimientoReferido(operacion);
         ctaCteRepository.save(cuentaReferido);
     }
@@ -172,10 +172,10 @@ public class CtaCteService {
 		    cuenta.setSaldoPorMoneda(moneda, saldoActual.subtract(monto));
 	    }
 	    ctaCteRepository.save(cuenta);
-	    return ctaCteMapper.toDTO(cuenta);	
-	    		
+	    return ctaCteMapper.toDTO(cuenta);
+
 	}
-	
+
     public BigDecimal obtenerSaldoPorMoneda(CuentaCorriente cuenta, Moneda moneda) {
     	return cuenta.getSaldoPorMoneda(moneda);
     }
@@ -184,6 +184,6 @@ public class CtaCteService {
       cuenta.setSaldoPorMoneda(moneda, nuevoSaldo);
     }
 
-   
+
 }
 

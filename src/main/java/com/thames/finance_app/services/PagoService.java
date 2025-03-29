@@ -14,19 +14,19 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class PagoService {
-	
+
 	private final PagoRepository pagoRepository;
-		
-	
+
+
 	public void agregarPagosOperacion(OperacionRequest request) {
-		
-		
+
+
 	}
-	
+
 	public void guardarPago(Pago pago) {
 		pagoRepository.save(pago);
 	}
-	
+
 	public void vincularConOperacion (Pago pago, Operacion operacion) {
 		pago.setOperacion(operacion);
 		guardarPago(pago);
@@ -35,19 +35,19 @@ public class PagoService {
 	public void vincularConOperacion(Operacion operacion) {
     	List<Pago> pagosOrigen = operacion.getPagosOrigen();
     	List<Pago> pagosConversion = operacion.getPagosConversion();
-    	
+
     	for (Pago pago : pagosOrigen) {
-    		pago.setOperacion(operacion);  
+    		pago.setOperacion(operacion);
     		guardarPago(pago);
     	}
-    	
+
     	for (Pago pago : pagosConversion) {
-    		pago.setOperacion(operacion); 
+    		pago.setOperacion(operacion);
     		guardarPago(pago);
 
-    	}		
+    	}
 	}
-	
+
 	public void eliminarPago(Pago pago) {
 		pagoRepository.delete(pago);
 	}

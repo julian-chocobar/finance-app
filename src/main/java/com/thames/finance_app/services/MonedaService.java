@@ -21,11 +21,11 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class MonedaService {
-	
+
 	private final MonedaRepository monedaRepository;
 	private final OperacionRepository operacionRepository;
 	private final CtaCteRepository ctaCteRepository;
-	
+
 	private final MonedaMapper monedaMapper;
 
 	public Moneda buscarPorNombre(String nombre) {
@@ -36,15 +36,15 @@ public class MonedaService {
 	public List<Moneda> listarTodas() {
 		return monedaRepository.findAll();
 	}
-	
+
     public MonedaDTO crearMoneda(MonedaDTO monedaDTO) {
     	verificarNombreUnico(monedaDTO.getNombre());
         Moneda moneda = monedaMapper.toEntity(monedaDTO);
         moneda = monedaRepository.save(moneda);
         return monedaMapper.toDTO(moneda);
     }
-    
-    
+
+
 
     public MonedaDTO obtenerMonedaPorId(Long id) {
         Moneda moneda = monedaRepository.findById(id)
@@ -88,11 +88,11 @@ public class MonedaService {
         // Si pasa las verificaciones, eliminar la moneda
         monedaRepository.deleteById(id);
     }
-    
+
     public boolean existeNombre(String nombre) {
         return monedaRepository.findByNombre(nombre).isPresent();
     }
-    
+
     public void verificarNombreUnico(String nombre) {
         if (existeNombre(nombre)) {
             throw new BusinessException("Nombre ya registrado");
@@ -103,7 +103,7 @@ public class MonedaService {
 		return  monedaRepository.findByCodigo(codigo)
 				.orElseThrow( () -> new EntityNotFoundException("Moneda con nombre: " + codigo + " no encontrada"));
 	}
-	
-	
+
+
 
 }
