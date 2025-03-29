@@ -32,7 +32,7 @@ public class MovimientoCajaService {
 	private final CajaRepository cajaRepository;
 	private final CajaMapper cajaMapper;
 	
-	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 	
 	public Page<MovimientoCajaDTO> obtenerMovimientosFiltrados(Specification<MovimientoCaja> spec, Pageable pageable) {
 		return movimientoCajaRepository.findAll(spec, pageable).map(cajaMapper::toMovimientoDTO);
@@ -73,18 +73,27 @@ public class MovimientoCajaService {
 	        cajaRepository.save(caja);
 	}
 
-	public LocalDateTime parsearFecha(String fecha) {
+    public LocalDateTime parsearFecha(String fecha) {
         if (fecha == null) {
             return null;
         }
 
         try {
+            // Verificar si la fecha está en formato yyyy-MM-dd
+            if (fecha.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                // Convertir de yyyy-MM-dd a dd-MM-yyyy
+                String[] partes = fecha.split("-");
+                fecha = partes[2] + "-" + partes[1] + "-" + partes[0]; // Reordenar a dd-MM-yyyy
+            }
+
+            // Parsear la fecha en el formato esperado (dd-MM-yyyy)
             LocalDate localDate = LocalDate.parse(fecha, FORMATTER);
             return LocalDateTime.of(localDate, LocalTime.MIN);
         } catch (DateTimeParseException e) {
-            throw new IllegalArgumentException("Formato de fecha incorrecto. Usa yyyy-MM-dd");
+            throw new IllegalArgumentException("Formato de fecha incorrecto. Usa dd-MM-yyyy o yyyy-MM-dd");
         }
     }
+
 	
 	private MovimientoCaja toMovimientoCaja(Operacion operacion, TipoMovimiento tipo, 
 			Caja caja, BigDecimal monto, BigDecimal montoEjecutado) {	

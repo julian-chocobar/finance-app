@@ -74,15 +74,17 @@ public class CajaController {
                                   montoMinimoParsed, montoMaximoParsed, idOperacionParsed);    
         Page<MovimientoCajaDTO> movimientos = movimientoCajaService.obtenerMovimientosFiltrados(specMovimiento, movimientosPageable);
         
-        // Formatear fechas para la paginación
-        if (fechaDesde != null) {
-            model.addAttribute("fechaDesdeFormatted", fechaDesde);
-        }
-        if (fechaHasta != null) {
-            model.addAttribute("fechaHastaFormatted", fechaHasta);
-        }
-        
         model.addAttribute("movimientos", movimientos);
+		model.addAttribute("fechaDesde", fechaDesde);
+		model.addAttribute("fechaHasta", fechaHasta);	
+		model.addAttribute("tipo", tipo);
+		model.addAttribute("montoMinimo", montoMinimo);
+		model.addAttribute("montoMaximo", montoMaximo);
+		model.addAttribute("idOperacion", idOperacion);
+		model.addAttribute("nombreCaja", nombreCaja);	
+		model.addAttribute("moneda", moneda);	
+		model.addAttribute("saldoMinimo", saldoMinimo);		
+        
         return "cajas/lista";
     }
 	
