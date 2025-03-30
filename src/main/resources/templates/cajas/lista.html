@@ -56,8 +56,8 @@
                                                class="btn btn-sm btn-warning" title="Editar">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <button type="button" class="btn btn-sm btn-danger btnEliminar"
-                                                    th:data-id="${caja.nombre}" data-bs-toggle="modal" 
+                                            <button type="button" class="btn btn-sm btn-danger btnEliminarCaja"
+                                                    th:data-nombre="${caja.nombre}" data-bs-toggle="modal" 
                                                     data-bs-target="#eliminarModal" title="Eliminar">
                                                 <i class="fas fa-trash"></i>
                                             </button>
@@ -305,8 +305,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <form id="formEliminar" method="post">
-                            <input type="hidden" name="_method" value="DELETE">
+                        <form id="formEliminar" method="post" th:action="@{/cajas/eliminar}">
                             <button type="submit" class="btn btn-danger">Eliminar</button>
                         </form>
                     </div>
@@ -340,21 +339,11 @@
     <script th:inline="javascript">
         document.addEventListener("DOMContentLoaded", function () {
             // Configurar modal para eliminar caja
-            document.querySelectorAll(".btnEliminar").forEach(button => {
+            document.querySelectorAll(".btnEliminarCaja").forEach(button => {
                 button.addEventListener("click", function () {
-                    let nombre = this.getAttribute("data-id");
-                    let form = document.getElementById("formEliminar");
-                    form.setAttribute("action", `/cajas/${nombre}/eliminar`);
-                });
-            });
-            
-            // Configurar modal para eliminar movimiento
-            document.querySelectorAll(".btnEliminarMovimiento").forEach(button => {
-                button.addEventListener("click", function () {
-                    let id = this.getAttribute("data-id");
                     let nombre = this.getAttribute("data-nombre");
-                    let form = document.getElementById("formEliminarMovimiento");
-                    form.setAttribute("action", `/cajas/${nombre}/movimientos/${id}/eliminar`);
+                    let form = document.getElementById("formEliminar");
+                    form.action = form.action + '/' + nombre;
                 });
             });
         });

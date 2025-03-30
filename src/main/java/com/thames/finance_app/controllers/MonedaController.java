@@ -16,9 +16,10 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 
 import com.thames.finance_app.dtos.MonedaDTO;
 import com.thames.finance_app.dtos.TipoCambioDTO;
@@ -44,9 +45,11 @@ public class MonedaController {
     }
 
     @GetMapping
-    public String listarTodasLasMonedas( Model model) {
+    public String listarTodasLasMonedas( Pageable pageable, Model model) {
         List<MonedaDTO> monedas = monedaService.listarTodasLasMonedas();
+        Page<TipoCambioDTO> tiposCambio = tipoCambioService.listar(pageable);
         model.addAttribute("monedas", monedas);
+        model.addAttribute("tiposCambio", tiposCambio);
         return "monedas/lista";
     }
     
@@ -70,21 +73,21 @@ public class MonedaController {
     	return "monedas/editar";    	
     }
     
-    @PutMapping("/{id}/actualizar")
+    @PostMapping("/{id}/actualizar")
     public String actualizarMoneda(@PathVariable Long id, @ModelAttribute MonedaDTO monedaDTO) {
         monedaService.actualizarMoneda(id, monedaDTO);
         return "redirect:/monedas";
     }
     
-    @PostMapping("/{id}/eliminar")
-    public String eliminarMoneda(@PathVariable Long id) {
-        monedaService.eliminarMoneda(id);
+    @PostMapping("/eliminar/{codigo}")
+    public String eliminarMoneda(@PathVariable String codigo) {
+        monedaService.eliminarMonedaPorCodigo(codigo);
         return "redirect:/monedas";
     }
      
 //-------------------------------------------------------------------------------    
 
-    @GetMapping("/{nombre}/tipoCambio/crear")
+    @GetMapping("/tipoCambio/crear")
 	public String mostrarFormularioCrearTipoCambio(@PathVariable String nombre, Model model) {
         TipoCambioDTO tipoCambio = new TipoCambioDTO();
         model.addAttribute("tipoCambio", tipoCambio);
@@ -104,7 +107,7 @@ public class MonedaController {
         return "monedas/tipoCambio/editar";
     }
 
-    @PutMapping("/{id}/tipoCambio/actualizar")
+    @PostMapping("/{id}/tipoCambio/actualizar")
     public String actualizarTipoCambio(@PathVariable Long id, @ModelAttribute TipoCambioDTO tipoCambioDTO) {
         tipoCambioService.actualizarTipoCambio(tipoCambioDTO, id);
         return "redirect:/monedas";

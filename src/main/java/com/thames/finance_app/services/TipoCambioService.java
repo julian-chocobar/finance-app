@@ -9,6 +9,8 @@ import com.thames.finance_app.models.Moneda;
 import com.thames.finance_app.models.TipoCambio;
 import com.thames.finance_app.repositories.TipoCambioRepository;
 import com.thames.finance_app.mappers.MonedaMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,9 +22,13 @@ public class TipoCambioService {
     private final TipoCambioRepository tipoCambioRepository;
     private final MonedaMapper monedaMapper;
     
+    public Page<TipoCambioDTO> listar(Pageable pageable) {
+        return tipoCambioRepository.findAll(pageable).map(monedaMapper::toDTO);
+    }
+
     public BigDecimal obtenerTipoCambio(Moneda monedaOrigen, Moneda monedaDestino, boolean esCompra) {
         // Busca el tipo de cambio en la base de datos
-        TipoCambio tipoCambio = tipoCambioRepository.findByMonedaOrigenAndMonedaDestino(monedaOrigen, monedaDestino)
+        TipoCambio tipoCambio = tipoCambioRepository.findByMonedaOrigenAndMonedaConversion(monedaOrigen, monedaDestino)
                 .orElseThrow(() -> new RuntimeException(
                         "Tipo de cambio no encontrado para " + monedaOrigen.getNombre() + " a " + monedaDestino.getNombre()));
 
@@ -58,7 +64,7 @@ public class TipoCambioService {
 
     public BigDecimal convertirMoneda(Moneda monedaOrigen, Moneda monedaDestino, BigDecimal monto, boolean esCompra) {
         // Busca el tipo de cambio en la base de datos
-        TipoCambio tipoCambio = tipoCambioRepository.findByMonedaOrigenAndMonedaDestino(monedaOrigen, monedaDestino)
+        TipoCambio tipoCambio = tipoCambioRepository.findByMonedaOrigenAndMonedaConversion(monedaOrigen, monedaDestino)
                 .orElseThrow(() -> new RuntimeException(
                         "Tipo de cambio no encontrado para " + monedaOrigen.getNombre() + " a " + monedaDestino.getNombre()));
 

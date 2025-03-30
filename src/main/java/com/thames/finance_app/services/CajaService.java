@@ -146,6 +146,19 @@ public class CajaService {
 	   cajaRepository.delete(caja);
 	}
 
+    public void eliminarCajaPorNombre(String nombre) {
+        Caja caja = obtenerEntidadPorNombre(nombre);
+        if (caja == null) {
+            throw new RuntimeException("Caja no encontrada con nombre: " + nombre);
+        }
+
+        // Verificar si la caja tiene movimientos
+        if (movimientoCajaRepository.existsByCaja(caja)) {
+            throw new RuntimeException("No se puede eliminar la caja porque tiene movimientos asociados");
+        }
+
+        cajaRepository.delete(caja);
+    }
 
     public void impactoOperacion(Operacion operacion) {
     	Caja cajaOrigen = cajaRepository.findByMoneda(operacion.getMonedaOrigen())

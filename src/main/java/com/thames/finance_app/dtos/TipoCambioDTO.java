@@ -13,11 +13,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TipoCambioDTO {
 
+	 private Long id;
+	 	 
 	 private String codigoMonedaOrigen;
 	 
 	 private String codigoMonedaConversion;
 	 
-	 private BigDecimal valorCompra; // Valor de compra de la monedaOrigen en términos de monedaDestino
+	 private BigDecimal valorCompra; // Valor de compra de la monedaOrigen en términos de monedaConversion
 	    
-	 private BigDecimal valorVenta; // Valor de venta de la monedaOrigen en términos de monedaDestino
+	 private BigDecimal valorVenta; // Valor de venta de la monedaOrigen en términos de monedaConversion
 }

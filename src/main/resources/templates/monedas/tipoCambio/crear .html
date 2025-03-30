@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{layout :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Nuevo Tipo de Cambio</title>
+</head>
+<body>
+    <section>
+        <div class="container mt-4">
+            <div class="card">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">Nuevo Tipo de Cambio</h3>
+                    <a th:href="@{/monedas}" class="btn btn-light">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/monedas/tipoCambio/crear}" method="post" class="needs-validation" novalidate>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="codigoMonedaOrigen" class="form-label">Moneda Origen</label>
+                                <select class="form-select" id="codigoMonedaOrigen" name="codigoMonedaOrigen" required>
+                                    <option value="" selected disabled>Seleccione una moneda</option>
+                                    <option th:each="moneda : ${monedas}" 
+                                            th:value="${moneda.codigo}" 
+                                            th:text="${moneda.nombre + ' (' + moneda.codigo + ')'}">
+                                    </option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Por favor seleccione la moneda origen.
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="codigoMonedaConversion" class="form-label">Moneda Conversión</label>
+                                <select class="form-select" id="codigoMonedaConversion" name="codigoMonedaConversion" required>
+                                    <option value="" selected disabled>Seleccione una moneda</option>
+                                    <option th:each="moneda : ${monedas}" 
+                                            th:value="${moneda.codigo}" 
+                                            th:text="${moneda.nombre + ' (' + moneda.codigo + ')'}">
+                                    </option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Por favor seleccione la moneda de conversión.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="valorCompra" class="form-label">Valor Compra</label>
+                                <div class="input-group">
+                                    <input type="number" step="0.0001" min="0.0001" class="form-control" id="valorCompra" name="valorCompra" required>
+                                    <span class="input-group-text">
+                                        <span id="labelMonedaConversion1">Moneda Conversión</span>
+                                    </span>
+                                </div>
+                                <div class="form-text">Valor de compra de 1 unidad de Moneda Origen en términos de Moneda Conversión</div>
+                                <div class="invalid-feedback">
+                                    Por favor ingrese un valor de compra válido.
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="valorVenta" class="form-label">Valor Venta</label>
+                                <div class="input-group">
+                                    <input type="number" step="0.0001" min="0.0001" class="form-control" id="valorVenta" name="valorVenta" required>
+                                    <span class="input-group-text">
+                                        <span id="labelMonedaConversion2">Moneda Conversión</span>
+                                    </span>
+                                </div>
+                                <div class="form-text">Valor de venta de 1 unidad de Moneda Origen en términos de Moneda Conversión</div>
+                                <div class="invalid-feedback">
+                                    Por favor ingrese un valor de venta válido.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Guardar
+                            </button>
+                            <a th:href="@{/monedas}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <script>
+        // Validación del formulario
+        (function() {
+            'use strict';
+            
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            var forms = document.querySelectorAll('.needs-validation');
+            
+            // Loop over them and prevent submission
+            Array.prototype.slice.call(forms).forEach(function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    
+                    form.classList.add('was-validated');
+                }, false);
+            });
+            
+            // Actualizar etiquetas de moneda de conversión
+            const selectMonedaOrigen = document.getElementById('codigoMonedaOrigen');
+            const selectMonedaConversion = document.getElementById('codigoMonedaConversion');
+            const labelMonedaConversion1 = document.getElementById('labelMonedaConversion1');
+            const labelMonedaConversion2 = document.getElementById('labelMonedaConversion2');
+            
+            function actualizarEtiquetas() {
+                const monedaConversionSeleccionada = selectMonedaConversion.options[selectMonedaConversion.selectedIndex];
+                if (monedaConversionSeleccionada && monedaConversionSeleccionada.value) {
+                    labelMonedaConversion1.textContent = monedaConversionSeleccionada.value;
+                    labelMonedaConversion2.textContent = monedaConversionSeleccionada.value;
+                } else {
+                    labelMonedaConversion1.textContent = 'Moneda Conversión';
+                    labelMonedaConversion2.textContent = 'Moneda Conversión';
+                }
+            }
+            
+            selectMonedaConversion.addEventListener('change', actualizarEtiquetas);
+            
+            // Validar que las monedas origen y conversión sean diferentes
+            form.addEventListener('submit', function(event) {
+                const monedaOrigen = selectMonedaOrigen.value;
+                const monedaConversion = selectMonedaConversion.value;
+                
+                if (monedaOrigen === monedaConversion) {
+                    event.preventDefault();
+                    alert('La moneda origen y la moneda de conversión deben ser diferentes.');
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

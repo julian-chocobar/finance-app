@@ -126,4 +126,16 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
+    // Configurar modal para eliminar caja
+    const btnEliminarCaja = document.querySelectorAll('.btnEliminarCaja');
+    if (btnEliminarCaja.length > 0) {
+        btnEliminarCaja.forEach(button => {
+            button.addEventListener('click', function() {
+                const nombre = this.getAttribute('data-nombre');
+                const formEliminar = document.getElementById('formEliminar');
+                formEliminar.action = formEliminar.action + '/' + nombre;
+            });
+        });
+    }
 });

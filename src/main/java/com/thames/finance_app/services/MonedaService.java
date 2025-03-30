@@ -92,6 +92,27 @@ public class MonedaService {
         monedaRepository.deleteById(id);
     }
 
+    public void eliminarMonedaPorCodigo(String codigo) {
+        Moneda moneda = monedaRepository.findByCodigo(codigo)
+                .orElseThrow(() -> new RuntimeException("Moneda no encontrada con código: " + codigo));
+
+        // Verificar si la moneda está asociada a operaciones
+        if (operacionRepository.existsByMonedaOrigen(moneda) || operacionRepository.existsByMonedaConversion(moneda)) {
+            throw new RuntimeException("No se puede eliminar la moneda porque está asociada a operaciones.");
+        }
+
+        // Verificar si la moneda tiene saldo distinto de cero en cuentas corrientes
+        List<CuentaCorriente> cuentas = ctaCteRepository.findAll();
+        for (CuentaCorriente cuenta : cuentas) {
+            BigDecimal saldo = cuenta.getSaldos().get(moneda);
+            if (saldo != null && saldo.compareTo(BigDecimal.ZERO) != 0) {
+                throw new RuntimeException("No se puede eliminar la moneda porque tiene saldo distinto de cero en cuentas corrientes.");
+            }
+        }
+        // Si pasa las verificaciones, eliminar la moneda
+        monedaRepository.delete(moneda);
+    }
+
     public boolean existeNombre(String nombre) {
         return monedaRepository.findByNombre(nombre).isPresent();
     }
@@ -106,7 +127,4 @@ public class MonedaService {
 		return  monedaRepository.findByCodigo(codigo)
 				.orElseThrow( () -> new EntityNotFoundException("Moneda con nombre: " + codigo + " no encontrada"));
 	}
-
-
-
 }

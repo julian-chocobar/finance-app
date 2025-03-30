@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import com.thames.finance_app.models.MovimientoCaja;
 import com.thames.finance_app.models.Operacion;
+import com.thames.finance_app.models.Caja;
 
 @Repository
 public interface MovimientoCajaRepository extends JpaRepository<MovimientoCaja, Long>, JpaSpecificationExecutor<MovimientoCaja>{
@@ -18,6 +19,8 @@ public interface MovimientoCajaRepository extends JpaRepository<MovimientoCaja, 
 	boolean existsByCajaId(Long id);
 
 	List<MovimientoCaja> findByOperacion(Operacion operacion);
+
+	boolean existsByCaja(Caja caja);
 
 	@Query("SELECT m FROM MovimientoCaja m ORDER BY m.fecha DESC")
 	Page<MovimientoCaja> findAllOrderFechaDesc(Pageable pageable);

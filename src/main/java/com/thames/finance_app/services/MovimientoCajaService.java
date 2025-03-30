@@ -34,8 +34,6 @@ public class MovimientoCajaService {
 	private final CajaMapper cajaMapper;
 
 	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-
-	
 	
 	public MovimientoCajaDTO obtenerMovimientoPorId(Long id) {
 		return cajaMapper.toMovimientoDTO(movimientoCajaRepository.findById(id)

@@ -18,21 +18,25 @@ public class MonedaMapper {
     public Moneda toEntity(MonedaDTO request) {
         return Moneda.builder()
                 .nombre(request.getNombre())
+                .codigo(request.getCodigo())
                 .build();
     }
 
     public MonedaDTO toDTO(Moneda moneda) {
         return MonedaDTO.builder()
+                .codigo(moneda.getCodigo())
                 .nombre(moneda.getNombre())
                 .build();
     }
 
     public void updateEntity(Moneda moneda, MonedaDTO request) {
         moneda.setNombre(request.getNombre());
+        moneda.setCodigo(request.getCodigo());
     }
 
     public TipoCambioDTO toDTO(TipoCambio moneda) {
         return TipoCambioDTO.builder()
+                .id(moneda.getId())
                 .codigoMonedaOrigen(moneda.getMonedaOrigen().getNombre())
                 .codigoMonedaConversion(moneda.getMonedaConversion().getNombre())
                 .valorCompra(moneda.getValorCompra())
