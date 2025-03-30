@@ -30,7 +30,7 @@ public class SecurityConfig {
                 .requestMatchers("/operaciones/**").permitAll()
                 .requestMatchers("/ctas-ctes/**").permitAll()
                 .requestMatchers("/cajas/**").permitAll()
-                .requestMatchers("/tipoCambio/**").permitAll()
+                .requestMatchers("/monedas/**").permitAll()
 
         );
 

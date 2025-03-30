@@ -8,11 +8,15 @@ import com.thames.finance_app.models.CuentaCorriente.CuentaCorrienteBuilder;
 import com.thames.finance_app.models.Moneda;
 
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class CtaCteDTO {
 
     private Long id;

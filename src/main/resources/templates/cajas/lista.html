@@ -6,8 +6,8 @@
 </head>
 <body>
     <section>
-        <div class="container-fluid mt-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="container mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2>Gestión de Cajas</h2>
                 <a th:href="@{/cajas/crear}" class="btn btn-primary">
                     <i class="fas fa-plus"></i> Nueva Caja
@@ -240,10 +240,6 @@
                                     </td>
                                     <td>
                                         <div class="btn-group">
-                                            <a th:href="@{/cajas/{nombre}/movimientos/{id}/editar(nombre=${movimiento.nombreCaja}, id=${movimiento.id})}" 
-                                               class="btn btn-sm btn-warning" title="Editar">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
                                             <button type="button" class="btn btn-sm btn-danger btnEliminarMovimiento"
                                                     th:data-id="${movimiento.id}" th:data-nombre="${movimiento.nombreCaja}" 
                                                     data-bs-toggle="modal" data-bs-target="#eliminarMovimientoModal" title="Eliminar">
@@ -255,11 +251,12 @@
                             </tbody>
                         </table>
                     </div>
-                    
-                    <!-- Paginación para Movimientos -->
-                    <div th:if="${movimientos.totalPages > 1}" class="d-flex justify-content-between align-items-center mt-3">
-                        <div>
-                            <span>Mostrando <span th:text="${movimientos.numberOfElements}"></span> de <span th:text="${movimientos.totalElements}"></span> movimientos</span>
+                </div>           
+                
+                <!-- Paginación para Movimientos -->
+                <div th:if="${movimientos.totalPages > 1}" class="d-flex justify-content-between align-items-center mt-3">
+                    <div>
+                        <span>Mostrando <span th:text="${movimientos.numberOfElements}"></span> de <span th:text="${movimientos.totalElements}"></span> movimientos</span>
                         </div>
                         <nav>
                             <ul class="pagination mb-0">

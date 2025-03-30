@@ -12,7 +12,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -159,32 +158,18 @@ public class CajaController {
 		return "redirect:/cajas";
 	}
 
-	@GetMapping("/{nombre}/movimientos/{id}/editar")
-    public String mostrarFormularioEditarMovimiento(@PathVariable String nombre,
-			@PathVariable Long id, Model model) {
-		List<CajaDTO> cajas = cajaService.listarTodasLasCajas(null); 		
-		MovimientoCajaDTO movimiento = movimientoCajaService.obtenerMovimientoPorId(id);
-		
-		model.addAttribute("cajas", cajas);
-		model.addAttribute("movimiento", movimiento);
-		return "cajas/movimientos/editar";
-
-    }
-	
-	@PostMapping("/{nombre}/movimientos/{id}/actualizar")
-    public String editarMovimiento(@PathVariable Long id, @ModelAttribute MovimientoCajaDTO dto) {
-		MovimientoCaja movimiento = movimientoCajaService.obtenerEntidadPorId(id);
-		cajaService.revertirImpactoMovimiento(movimiento.getCaja(), movimiento);	
-        movimientoCajaService.actualizarMovimiento(id, dto);
-		cajaService.generarImpactoMovimiento(movimiento.getCaja(), movimiento);
-		return "redirect:/cajas/{nombre}/movimientos";
-    }
-
-	@DeleteMapping("/{nombre}/eliminar")
+	@PostMapping("/{nombre}/eliminar")
 	public String eliminarCaja(@PathVariable Long id) {
 		Caja caja = cajaService.obtenerEntidadPorId(id);
 		cajaService.eliminar(caja.getId());
         return "cajas";
+	}
+	
+	@PostMapping("/{nombre}/movimientos/{id}/eliminar")
+	public String eliminarMovimiento(@PathVariable Long id) {
+	    MovimientoCajaDTO movimiento = movimientoCajaService.obtenerMovimientoPorId(id);
+	    movimientoCajaService.eliminarMovimiento(id);   
+	    return "redirect:/cajas/" + movimiento.getNombreCaja();
 	}
 	
     @InitBinder

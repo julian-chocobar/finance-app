@@ -4,9 +4,11 @@ import java.math.BigDecimal;
 
 import org.springframework.stereotype.Service;
 
+import com.thames.finance_app.dtos.TipoCambioDTO;
 import com.thames.finance_app.models.Moneda;
 import com.thames.finance_app.models.TipoCambio;
 import com.thames.finance_app.repositories.TipoCambioRepository;
+import com.thames.finance_app.mappers.MonedaMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,6 +18,43 @@ public class TipoCambioService {
 
 
     private final TipoCambioRepository tipoCambioRepository;
+    private final MonedaMapper monedaMapper;
+    
+    public BigDecimal obtenerTipoCambio(Moneda monedaOrigen, Moneda monedaDestino, boolean esCompra) {
+        // Busca el tipo de cambio en la base de datos
+        TipoCambio tipoCambio = tipoCambioRepository.findByMonedaOrigenAndMonedaDestino(monedaOrigen, monedaDestino)
+                .orElseThrow(() -> new RuntimeException(
+                        "Tipo de cambio no encontrado para " + monedaOrigen.getNombre() + " a " + monedaDestino.getNombre()));
+
+        // Devuelve el valor de compra o venta según la operación
+        return esCompra ? tipoCambio.getValorCompra() : tipoCambio.getValorVenta();
+    }
+
+    public TipoCambioDTO obtenerDTOPorId(Long id) {
+        TipoCambio tipoCambio = tipoCambioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Tipo de cambio no encontrado con ID: " + id));
+        return monedaMapper.toDTO(tipoCambio);
+    }
+    
+    public TipoCambioDTO crearTipoCambio(TipoCambioDTO dto) {
+    	TipoCambio tipoCambio = monedaMapper.toEntity(dto);
+    	tipoCambio = tipoCambioRepository.save(tipoCambio);
+    	return monedaMapper.toDTO(tipoCambio);
+    }
+
+    public TipoCambioDTO actualizarTipoCambio(TipoCambioDTO dto, Long id) {
+        TipoCambio tipoCambio = tipoCambioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Tipo de cambio no encontrado con ID: " + id));
+        monedaMapper.updateEntity(tipoCambio, dto);
+        tipoCambio = tipoCambioRepository.save(tipoCambio);
+        return monedaMapper.toDTO(tipoCambio);
+    }
+
+    public void eliminarTipoCambio(Long id) {
+        TipoCambio tipoCambio = tipoCambioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Tipo de cambio no encontrado con ID: " + id));
+        tipoCambioRepository.delete(tipoCambio);
+    }
 
     public BigDecimal convertirMoneda(Moneda monedaOrigen, Moneda monedaDestino, BigDecimal monto, boolean esCompra) {
         // Busca el tipo de cambio en la base de datos
@@ -29,18 +68,5 @@ public class TipoCambioService {
         // Realiza la conversión del monto
         return monto.multiply(tasaCambio);
     }
-
-
-
-    public BigDecimal obtenerTipoCambio(Moneda monedaOrigen, Moneda monedaDestino, boolean esCompra) {
-        // Busca el tipo de cambio en la base de datos
-        TipoCambio tipoCambio = tipoCambioRepository.findByMonedaOrigenAndMonedaDestino(monedaOrigen, monedaDestino)
-                .orElseThrow(() -> new RuntimeException(
-                        "Tipo de cambio no encontrado para " + monedaOrigen.getNombre() + " a " + monedaDestino.getNombre()));
-
-        // Devuelve el valor de compra o venta según la operación
-        return esCompra ? tipoCambio.getValorCompra() : tipoCambio.getValorVenta();
-    }
-
 
 }

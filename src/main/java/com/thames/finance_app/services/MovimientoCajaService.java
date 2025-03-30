@@ -22,6 +22,7 @@ import com.thames.finance_app.models.Operacion;
 import com.thames.finance_app.repositories.CajaRepository;
 import com.thames.finance_app.repositories.MovimientoCajaRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -123,6 +124,33 @@ public class MovimientoCajaService {
 						.monto(monto)
 						.montoEjecutado(montoEjecutado)
 						.build();
+	}
+
+	public void eliminarMovimiento(Long id) {
+	    // Verificar si el movimiento existe
+	    if (!movimientoCajaRepository.existsById(id)) {
+	        throw new EntityNotFoundException("No se encontró el movimiento con ID: " + id);
+	    }
+	    
+	    // Obtener el movimiento para actualizar los saldos de la caja
+	    MovimientoCaja movimiento = movimientoCajaRepository.findById(id)
+	            .orElseThrow(() -> new EntityNotFoundException("No se encontró el movimiento con ID: " + id));
+	    
+	    // Actualizar los saldos de la caja (revertir el efecto del movimiento)
+	    Caja caja = movimiento.getCaja();	          
+	    BigDecimal montoEjecutado = movimiento.getMontoEjecutado();
+	    
+	    if (movimiento.getTipo() == TipoMovimiento.INGRESO) {
+	        caja.setSaldoReal(caja.getSaldoReal().subtract(montoEjecutado));
+	        caja.setSaldoDisponible(caja.getSaldoDisponible().subtract(montoEjecutado));
+	    } else if (movimiento.getTipo() == TipoMovimiento.EGRESO) {
+	        caja.setSaldoReal(caja.getSaldoReal().add(montoEjecutado));
+	        caja.setSaldoDisponible(caja.getSaldoDisponible().add(montoEjecutado));
+	    }	    
+	    // Guardar los cambios en la caja
+	    cajaRepository.save(caja);    
+	    // Eliminar el movimiento
+	    movimientoCajaRepository.deleteById(id);
 	}
 
 }

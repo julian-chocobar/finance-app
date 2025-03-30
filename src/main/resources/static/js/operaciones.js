@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Solo actualizar si el campo no está siendo editado manualmente
             if (!tipoCambioInput.dataset.editadoManualmente) {
-                fetch(`/tipoCambio/obtener?monedaOrigen=${monedaOrigenInput.value}&monedaConversion=${monedaConversionInput.value}&esCompra=${tipoOperacionSelect.value === 'COMPRA'}`)
+                fetch(`/monedas/tipoCambio/obtener?monedaOrigen=${monedaOrigenInput.value}&monedaConversion=${monedaConversionInput.value}&esCompra=${tipoOperacionSelect.value === 'COMPRA'}`)
                     .then(response => {
                         if (!response.ok) {
                             throw new Error('No se pudo obtener el tipo de cambio');

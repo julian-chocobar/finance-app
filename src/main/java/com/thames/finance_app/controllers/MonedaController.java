@@ -1,60 +1,152 @@
 package com.thames.finance_app.controllers;
 
+import java.beans.PropertyEditorSupport;
+import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.thames.finance_app.dtos.MonedaDTO;
+import com.thames.finance_app.dtos.TipoCambioDTO;
+import com.thames.finance_app.models.Moneda;
 import com.thames.finance_app.services.MonedaService;
+import com.thames.finance_app.services.TipoCambioService;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
 
-@RestController
+@Controller
 @RequestMapping("/monedas")
 @RequiredArgsConstructor
 public class MonedaController {
 
 	private final MonedaService monedaService;
-
-    @PostMapping
-    public ResponseEntity<MonedaDTO> crearMoneda(@RequestBody MonedaDTO monedaDTO) {
-        MonedaDTO nuevaMoneda = monedaService.crearMoneda(monedaDTO);
-        return new ResponseEntity<>(nuevaMoneda, HttpStatus.CREATED);
-    }
-
+	private final TipoCambioService tipoCambioService;
+		
     @GetMapping("/{id}")
-    public ResponseEntity<MonedaDTO> obtenerMonedaPorId(@PathVariable Long id) {
-        MonedaDTO monedaDTO = monedaService.obtenerMonedaPorId(id);
-        return new ResponseEntity<>(monedaDTO, HttpStatus.OK);
+    public String verMoneda(@PathVariable Long id, Model model) {
+        MonedaDTO moneda = monedaService.obtenerDTOPorId(id);
+        model.addAttribute("moneda", moneda);
+        return "monedas/ver";
     }
 
     @GetMapping
-    public ResponseEntity<List<MonedaDTO>> listarTodasLasMonedas() {
+    public String listarTodasLasMonedas( Model model) {
         List<MonedaDTO> monedas = monedaService.listarTodasLasMonedas();
-        return new ResponseEntity<>(monedas, HttpStatus.OK);
+        model.addAttribute("monedas", monedas);
+        return "monedas/lista";
     }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<MonedaDTO> actualizarMoneda(
-            @PathVariable Long id,
-            @RequestBody MonedaDTO monedaDTO) {
-        MonedaDTO monedaActualizada = monedaService.actualizarMoneda(id, monedaDTO);
-        return new ResponseEntity<>(monedaActualizada, HttpStatus.OK);
+    
+    @GetMapping("/crear")
+    public String mostrarFormularioCrear(Model model) {
+    	MonedaDTO moneda = new MonedaDTO();
+    	model.addAttribute("moneda", moneda);
+    	return "monedas/crear"; 	
     }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarMoneda(@PathVariable Long id) {
+	
+    @PostMapping("/guardar")
+    public String crearMoneda(@ModelAttribute MonedaDTO monedaDTO) {
+        monedaService.crearMoneda(monedaDTO);
+        return "redirect:/monedas";
+    }
+    
+    @GetMapping("/{id}/editar")
+    public String mostrarFormularioEditar(@PathVariable Long id, Model model) {
+    	MonedaDTO moneda = monedaService.obtenerDTOPorId(id);
+    	model.addAttribute("moneda", moneda);
+    	return "monedas/editar";    	
+    }
+    
+    @PutMapping("/{id}/actualizar")
+    public String actualizarMoneda(@PathVariable Long id, @ModelAttribute MonedaDTO monedaDTO) {
+        monedaService.actualizarMoneda(id, monedaDTO);
+        return "redirect:/monedas";
+    }
+    
+    @PostMapping("/{id}/eliminar")
+    public String eliminarMoneda(@PathVariable Long id) {
         monedaService.eliminarMoneda(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return "redirect:/monedas";
+    }
+     
+//-------------------------------------------------------------------------------    
+
+    @GetMapping("/{nombre}/tipoCambio/crear")
+	public String mostrarFormularioCrearTipoCambio(@PathVariable String nombre, Model model) {
+        TipoCambioDTO tipoCambio = new TipoCambioDTO();
+        model.addAttribute("tipoCambio", tipoCambio);
+        return "monedas/tipoCambio/crear";
+    }
+
+    @PostMapping("/tipoCambio/guardar")
+    public String crearTipoCambio(@ModelAttribute TipoCambioDTO tipoCambioDTO) {
+        tipoCambioService.crearTipoCambio(tipoCambioDTO);
+        return "redirect:/monedas";
+    }
+
+    @GetMapping("/{nombre}/tipoCambio/editar")
+    public String mostrarFormularioEditarTipoCambio(@PathVariable Long id, Model model) {
+        TipoCambioDTO tipoCambio = tipoCambioService.obtenerDTOPorId(id);
+        model.addAttribute("tipoCambio", tipoCambio);
+        return "monedas/tipoCambio/editar";
+    }
+
+    @PutMapping("/{id}/tipoCambio/actualizar")
+    public String actualizarTipoCambio(@PathVariable Long id, @ModelAttribute TipoCambioDTO tipoCambioDTO) {
+        tipoCambioService.actualizarTipoCambio(tipoCambioDTO, id);
+        return "redirect:/monedas";
+    }
+
+    @PostMapping("/{id}/tipoCambio/eliminar")
+    public String eliminarTipoCambio(@PathVariable Long id) {
+        tipoCambioService.eliminarTipoCambio(id);
+        return "redirect:/monedas";
+    }
+
+	@GetMapping("/tipoCambio/obtener")
+	public ResponseEntity<Map<String, BigDecimal>> obtenerTipoCambio(
+	        @RequestParam String monedaOrigen,
+	        @RequestParam String monedaConversion,
+	        @RequestParam boolean esCompra) {
+
+		Moneda origen = monedaService.buscarPorCodigo(monedaOrigen);
+		Moneda conversion = monedaService.buscarPorCodigo(monedaConversion);
+
+	    BigDecimal tipoCambio = tipoCambioService.obtenerTipoCambio(origen, conversion, esCompra);
+	    Map<String, BigDecimal> response = Collections.singletonMap("valor", tipoCambio);
+
+	    return ResponseEntity.ok(response);
+	}
+	
+
+	//-------------------------------------------------------------------------------    
+  
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
+        binder.registerCustomEditor(String.class, new PropertyEditorSupport() {
+            @Override
+            public void setAsText(String text) {
+                if (text == null || text.trim().isEmpty() || "null".equalsIgnoreCase(text.trim())) {
+                    setValue(null);
+                } else {
+                    setValue(text);
+                }
+            }
+        });
     }
 
 }

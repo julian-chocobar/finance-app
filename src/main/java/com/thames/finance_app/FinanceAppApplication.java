@@ -213,7 +213,7 @@ public class FinanceAppApplication {
                 // USD → ARS
                 TipoCambio.builder()
                         .monedaOrigen(usd)
-                        .monedaDestino(peso)
+                        .monedaConversion(peso)
                         .valorCompra(new BigDecimal("1205"))
                         .valorVenta(new BigDecimal("1220"))
                         .build(),
@@ -221,7 +221,7 @@ public class FinanceAppApplication {
                 // ARS → USD
                 TipoCambio.builder()
                         .monedaOrigen(peso)
-                        .monedaDestino(usd)
+                        .monedaConversion(usd)
                         .valorCompra(new BigDecimal("0.00082"))
                         .valorVenta(new BigDecimal("0.00080"))
                         .build(),
@@ -229,7 +229,7 @@ public class FinanceAppApplication {
                 // EUR → USD
                 TipoCambio.builder()
                         .monedaOrigen(euro)
-                        .monedaDestino(usd)
+                        .monedaConversion(usd)
                         .valorCompra(new BigDecimal("1.10"))
                         .valorVenta(new BigDecimal("1.15"))
                         .build(),
@@ -237,7 +237,7 @@ public class FinanceAppApplication {
                 // USD → EUR
                 TipoCambio.builder()
                         .monedaOrigen(usd)
-                        .monedaDestino(euro)
+                        .monedaConversion(euro)
                         .valorCompra(new BigDecimal("0.85"))
                         .valorVenta(new BigDecimal("0.90"))
                         .build(),
@@ -245,7 +245,7 @@ public class FinanceAppApplication {
                 // BRL → ARS
                 TipoCambio.builder()
                         .monedaOrigen(real)
-                        .monedaDestino(peso)
+                        .monedaConversion(peso)
                         .valorCompra(new BigDecimal("220"))
                         .valorVenta(new BigDecimal("230"))
                         .build(),
@@ -253,7 +253,7 @@ public class FinanceAppApplication {
                 // ARS → BRL
                 TipoCambio.builder()
                         .monedaOrigen(peso)
-                        .monedaDestino(real)
+                        .monedaConversion(real)
                         .valorCompra(new BigDecimal("0.0045"))
                         .valorVenta(new BigDecimal("0.0043"))
                         .build()

@@ -107,10 +107,7 @@ public class OperacionController {
 
     @GetMapping("/crear")
     public String mostrarFormularioCrear(Model model) {
-    	// Crear una nueva instancia vacía de Operacion
         OperacionRequest operacion = new OperacionRequest();
-
-        // Agregar la operación al modelo para que Thymeleaf pueda usarla en el formulario
         model.addAttribute("operacion", operacion);
         return "operaciones/crear";
     }

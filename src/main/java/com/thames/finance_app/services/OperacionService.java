@@ -15,13 +15,9 @@ import org.springframework.stereotype.Service;
 
 import com.thames.finance_app.dtos.OperacionRequest;
 import com.thames.finance_app.dtos.OperacionResponse;
-import com.thames.finance_app.dtos.PagoDTO;
-import com.thames.finance_app.enums.TipoOperacion;
 import com.thames.finance_app.enums.TipoPago;
 import com.thames.finance_app.mappers.OperacionMapper;
 import com.thames.finance_app.mappers.PagoMapper;
-import com.thames.finance_app.models.Caja;
-import com.thames.finance_app.models.CuentaCorriente;
 import com.thames.finance_app.models.Operacion;
 import com.thames.finance_app.models.Pago;
 import com.thames.finance_app.repositories.OperacionRepository;
@@ -36,7 +32,6 @@ public class OperacionService {
     private final OperacionRepository operacionRepository;
     private final CajaService cajaService;
     private final CtaCteService ctaCteService;
-    private final ClienteService clienteService;
     private final PagoService pagoService;
     private final OperacionMapper operacionMapper;
     private final PagoMapper pagoMapper;
@@ -63,6 +58,16 @@ public class OperacionService {
             ctaCteService.impactoOperacionReferido(operacion);
         }
         return operacionMapper.toResponse(operacion);
+    }
+    
+    @Transactional
+    public OperacionResponse actualizarOperacion(Long id, OperacionRequest nueva) {
+        Operacion vieja = operacionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Operación no encontrada"));
+        cajaService.revertirImpactoOperacion(vieja);
+        ctaCteService.revertirImpactoOperacion(vieja);
+        ctaCteService.revertirImpactoOperacionReferido(vieja);
+        return crearOperacion(nueva);
     }
 
     public OperacionResponse obtenerResponsePorId(Long id) {
@@ -93,172 +98,7 @@ public class OperacionService {
         return operacionRepository.findAll(spec, pageable).map(operacionMapper::toResponse);
     }
 
-    public OperacionResponse actualizarOperacion(Long id, OperacionRequest request) {
-        Operacion vieja = operacionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Operación no encontrada"));
 
-        Operacion nueva = operacionMapper.updateEntity(vieja, request);
-        pagoService.vincularConOperacion(nueva);
-
-        cajaService.revertirImpactoOperacion(vieja);
-        cajaService.impactoOperacion(nueva);
-
-        ctaCteService.revertirImpactoOperacion(vieja);
-        ctaCteService.impactoOperacion(nueva);
-
-        ctaCteService.revertirImpactoOperacionReferido(vieja);
-        ctaCteService.impactoOperacionReferido(nueva);
-
-        operacionRepository.save(nueva);
-        return operacionMapper.toResponse(nueva);
-    }
-
-
-    public OperacionResponse cambiarMontoOrigen(Long id, OperacionRequest request) {
-        Operacion operacion = operacionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Operación no encontrada"));
-        cajaService.revertirImpactoOperacion(operacion);
-        operacion.setMontoOrigen(request.getMontoOrigen());
-        cajaService.impactoOperacion(operacion);
-
-        operacionRepository.save(operacion);
-        return operacionMapper.toResponse(operacion);
-    }
-
-    public OperacionResponse cambiarCliente(Long id, OperacionRequest request) {
-    	Operacion operacion = operacionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Operación no encontrada"));
-
-    	CuentaCorriente cuentaNueva = clienteService
-				.obtenerPorNombre(request
-				.getNombreCliente()).getCuentaCorriente();
-    	ctaCteService.revertirImpactoOperacion(operacion);
-    	operacion.setCuentaCorriente(cuentaNueva);
-    	ctaCteService.impactoOperacion(operacion);
-
-    	operacionRepository.save(operacion);
-    	return operacionMapper.toResponse(operacion);
-    }
-
-
-    public OperacionResponse agregarPagoOrigen(Long id, PagoDTO pagoRequest) {
-    	Operacion operacion = operacionRepository.findById(id)
-    			.orElseThrow(() -> new RuntimeException("Operación no encontrada"));
-    	Pago pago = pagoMapper.toEntity(pagoRequest);
-    	pagoService.vincularConOperacion(pago, operacion);
-
-    	Caja origen = cajaService.obtenerPorMoneda(operacion.getMonedaOrigen());
-    	if (operacion.getTipo() == TipoOperacion.COMPRA) {
-    		cajaService.actualizarSaldoDisponible(origen, pago.getValor(), true);
-    		operacion.getPagosOrigen().add(pago);
-    	}
-    	if (operacion.getTipo() == TipoOperacion.VENTA) {
-    		cajaService.actualizarSaldoDisponible(origen, pago.getValor(), false);
-    		operacion.getPagosOrigen().add(pago);
-    	}
-
-    	operacionRepository.save(operacion);
-    	return operacionMapper.toResponse(operacion);
-    }
-
-    public OperacionResponse quitarPagoOrigen(Long id, PagoDTO pagoRequest) {
-    	Operacion operacion = operacionRepository.findById(id)
-    			.orElseThrow(() -> new RuntimeException("Operación no encontrada"));
-    	Pago pago = pagoMapper.toEntity(pagoRequest);
-    	Caja origen = cajaService.obtenerPorMoneda(operacion.getMonedaOrigen());
-    	if (operacion.getTipo() == TipoOperacion.COMPRA) {
-    		cajaService.actualizarSaldoDisponible(origen, pago.getValor(), false);
-    		operacion.getPagosOrigen().remove(pago);
-    	}
-    	if (operacion.getTipo() == TipoOperacion.VENTA) {
-    		cajaService.actualizarSaldoDisponible(origen, pago.getValor(), true);
-    		operacion.getPagosOrigen().remove(pago);
-    	}
-
-    	pagoService.eliminarPago(pago);
-    	operacionRepository.save(operacion);
-    	return operacionMapper.toResponse(operacion);
-    }
-
-    public OperacionResponse agregarPagoConversion(Long id, PagoDTO pagoRequest) {
-    	Operacion operacion = operacionRepository.findById(id)
-    			.orElseThrow(() -> new RuntimeException("Operación no encontrada"));
-    	Pago pago = pagoMapper.toEntity(pagoRequest);
-    	pagoService.vincularConOperacion(pago, operacion);
-
-    	Caja origen = cajaService.obtenerPorMoneda(operacion.getMonedaConversion());
-    	if (operacion.getTipo() == TipoOperacion.COMPRA) {
-    		cajaService.actualizarSaldoDisponible(origen, pago.getValor(), false);
-    		operacion.getPagosOrigen().add(pago);
-    	}
-    	if (operacion.getTipo() == TipoOperacion.VENTA) {
-    		cajaService.actualizarSaldoDisponible(origen, pago.getValor(), true);
-    		operacion.getPagosOrigen().add(pago);
-    	}
-
-    	operacionRepository.save(operacion);
-    	return operacionMapper.toResponse(operacion);
-    }
-
-    public OperacionResponse quitarPagoConversion(Long id, PagoDTO pagoRequest) {
-    	Operacion operacion = operacionRepository.findById(id)
-    			.orElseThrow(() -> new RuntimeException("Operación no encontrada"));
-    	Pago pago = pagoMapper.toEntity(pagoRequest);
-
-    	Caja origen = cajaService.obtenerPorMoneda(operacion.getMonedaConversion());
-    	if (operacion.getTipo() == TipoOperacion.COMPRA) {
-    		cajaService.actualizarSaldoDisponible(origen, pago.getValor(), true);
-    		operacion.getPagosConversion().remove(pago);
-    	}
-    	if (operacion.getTipo() == TipoOperacion.VENTA) {
-    		cajaService.actualizarSaldoDisponible(origen, pago.getValor(), false);
-    		operacion.getPagosConversion().remove(pago);
-    	}
-
-    	pagoService.eliminarPago(pago);
-    	operacionRepository.save(operacion);
-    	return operacionMapper.toResponse(operacion);
-    }
-
-    // Cambiar MonedaOrigen
-
-
-
-
-
-
-    // Cambiar MontoOrigen
-
-
-
-
-
-
-    // Cambiar MonedaDestino
-
-
-
-    //Agregar Referido
-
-
-    //Quitar referido
-
-
-    // Agregar puntos referido
-
-    // Cambiar puntos referido
-
-    // Agregar Moneda Referido
-
-    //Cambiar moneda referido
-
-//    public LocalDateTime parsearFecha(String fecha) {
-//    	try {
-//    		return (fecha != null) ? LocalDateTime.of(LocalDate.parse(fecha, FORMATTER), LocalTime.MIN) : null;
-//    	} catch (DateTimeParseException e) {
-//    	    throw new IllegalArgumentException("Formato de fecha incorrecto. Usa dd-MM-yyyy");
-//    	}
-//    }
 
     public LocalDateTime parsearFecha(String fecha) {
         if (fecha == null) {

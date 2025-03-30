@@ -37,16 +37,17 @@ public class TipoCambio {
 			sequenceName = "tipo_cambio_sequence",
 			allocationSize = 1)
 	private Long id;
-
+	
     @ManyToOne
     @JoinColumn(name = "moneda_origen_id", nullable = false)
     private Moneda monedaOrigen;
-
+    
     @ManyToOne
-    @JoinColumn(name = "moneda_destino_id", nullable = false)
-    private Moneda monedaDestino;
-
+    @JoinColumn(name = "moneda_conversion_id", nullable = false)
+    private Moneda monedaConversion;
+    
     private BigDecimal valorCompra; // Valor de compra de la monedaOrigen en términos de monedaDestino
+   
     private BigDecimal valorVenta; // Valor de venta de la monedaOrigen en términos de monedaDestino
 
 }

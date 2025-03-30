@@ -44,9 +44,12 @@ public class MonedaService {
         return monedaMapper.toDTO(moneda);
     }
 
+    public Moneda obtenerPorId(Long id) {
+        return monedaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Moneda no encontrada con ID: " + id));
+    }
 
-
-    public MonedaDTO obtenerMonedaPorId(Long id) {
+    public MonedaDTO obtenerDTOPorId(Long id) {
         Moneda moneda = monedaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Moneda no encontrada con ID: " + id));
         return monedaMapper.toDTO(moneda);
