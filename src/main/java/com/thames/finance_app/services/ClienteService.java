@@ -50,6 +50,17 @@ public class ClienteService {
 				.orElseThrow( () -> new EntityNotFoundException("Cliente con nombre: " + nombre + " no encontrado"));
 	}
 
+	public Page<TitularResponse> buscarPorNombre(String nombre, Pageable pageable) {
+        return titularRepository.findByNombreContainingIgnoreCaseAndTipo(nombre, TipoTitular.CLIENTE, pageable)
+                .map(titular -> TitularResponse.builder()
+                    .id(titular.getId())
+                    .nombre(titular.getNombre())
+                    .telefono(titular.getTelefono())
+                    .email(titular.getEmail())
+                    .direccion(titular.getDireccion()).build()
+                );
+    }
+
 	@Transactional
 	public TitularResponse crear(TitularRequest clienteRequest) {
 	    verificarNombreUnico(clienteRequest.getNombre());

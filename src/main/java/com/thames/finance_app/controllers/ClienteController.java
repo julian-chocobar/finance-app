@@ -1,63 +1,96 @@
 package com.thames.finance_app.controllers;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.WebDataBinder;
+import java.beans.PropertyEditorSupport;
+import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import com.thames.finance_app.dtos.TitularRequest;
 import com.thames.finance_app.dtos.TitularResponse;
 import com.thames.finance_app.services.ClienteService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ModelAttribute;
+
 
 import lombok.RequiredArgsConstructor;
 
 
-@RestController
+@Controller
 @RequestMapping("/clientes")
 @RequiredArgsConstructor
 public class ClienteController {
 
 	private final ClienteService clienteService;
-	private final PagedResourcesAssembler<TitularResponse> pagedResourcesAssembler;
 
-	@GetMapping("/listado")
-	public ResponseEntity<org.springframework.hateoas.PagedModel<EntityModel<TitularResponse>>> obtenerTodos(Pageable pageable) {
-        Page<TitularResponse> clientes = clienteService.obtenerTodos(pageable);
-	    org.springframework.hateoas.PagedModel<EntityModel<TitularResponse>> pagedModel = pagedResourcesAssembler.toModel(clientes);
-        return ResponseEntity.ok(pagedModel);
-    }
+	@GetMapping
+	public String listarClientes(@RequestParam(required = false) String nombre, Pageable pageable, Model model) {
+		Page<TitularResponse> clientes = (nombre == null || nombre.isEmpty())
+				? clienteService.obtenerTodos(pageable)
+				: clienteService.buscarPorNombre(nombre, pageable);
+		model.addAttribute("clientes", clientes);
+		model.addAttribute("nombreFiltro", nombre);
+		return "clientes/lista";
+	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<TitularResponse> obtenerPorID(@PathVariable Long id){
-		TitularResponse cliente = clienteService.obtenerPorID(id);
-		return ResponseEntity.ok(cliente);
+	public String verCliente(@PathVariable Long id){
+		clienteService.obtenerPorID(id);
+		return "clientes/ver";
 	}
 
-	@PostMapping
-    public ResponseEntity<TitularResponse> crearCliente(@RequestBody TitularRequest clienteRequest) {
-        TitularResponse clienteResponse = clienteService.crear(clienteRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(clienteResponse);
+	@GetMapping("/crear")
+    public String mostrarFormularioCrear(Model model) {
+        TitularRequest cliente = new TitularRequest();
+        model.addAttribute("cliente", cliente);
+        return "clientes/crear";
     }
 
-	 @PutMapping("/{id}")
-	 public ResponseEntity<TitularResponse> actualizarCliente(@PathVariable Long id, @RequestBody TitularRequest clienteRequest){
-		 return ResponseEntity.ok(clienteService.actualizar(id, clienteRequest));
-	 }
-
-	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> eliminarCliente(@PathVariable Long id) {
-		clienteService.eliminar(id);
-	    return ResponseEntity.noContent().build();
+	@PostMapping("/guardar")
+	public String crearCliente(@ModelAttribute TitularRequest clienteRequest) {
+	    clienteService.crear(clienteRequest);
+	    return "redirect:/clientes"; 
 	}
+
+	@GetMapping("/editar/{id}")
+    public String mostrarFormularioEditar(@PathVariable Long id, Model model) {
+        TitularResponse cliente = clienteService.obtenerPorID(id);
+        model.addAttribute("cliente", cliente);
+        return "clientes/editar";
+    }
+
+	@PostMapping("/actualizar/{id}")
+	public String actuslizarCliente(@PathVariable Long id, @ModelAttribute TitularRequest clienteRequest) {
+	    clienteService.actualizar(id, clienteRequest);
+	    return "redirect:/clientes";
+	}
+
+	@PostMapping("/eliminar/{id}")
+	public String eliminarCliente(@PathVariable Long id) {
+	    clienteService.eliminar(id);
+	    return "redirect:/clientes";
+	}
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
+        binder.registerCustomEditor(String.class, new PropertyEditorSupport() {
+            @Override
+            public void setAsText(String text) {
+                if (text == null || text.trim().isEmpty() || "null".equalsIgnoreCase(text.trim())) {
+                    setValue(null);
+                } else {
+                    setValue(text);
+                }
+            }
+        });
+    }
+
 
 }

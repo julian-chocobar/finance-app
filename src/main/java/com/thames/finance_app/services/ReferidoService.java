@@ -39,7 +39,7 @@ public class ReferidoService {
 	}
 
     public Page<TitularResponse> buscarReferidosPorNombre(String nombre, Pageable pageable) {
-        return titularRepository.findByNombreContainingIgnoreCase(nombre, pageable)
+        return titularRepository.findByNombreContainingIgnoreCaseAndTipo(nombre, TipoTitular.REFERIDO, pageable)
                 .map(titular -> TitularResponse.builder()
                     .id(titular.getId())
                     .nombre(titular.getNombre())

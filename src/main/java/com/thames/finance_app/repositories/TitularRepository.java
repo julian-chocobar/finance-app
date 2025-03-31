@@ -21,4 +21,6 @@ public interface TitularRepository extends JpaRepository<Titular, Long> {
 
 	Page<TitularResponse> findByNombreContainingIgnoreCase(String nombre, Pageable pageable);
 
+    Page<TitularResponse> findByNombreContainingIgnoreCaseAndTipo(String nombre, TipoTitular tipo, Pageable pageable);
+
 }

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{layout :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Detalles del Referido</title>
+</head>
+<body>
+    <section>
+        <div class="container mt-4">
+            <div class="card">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">Detalles del Referido</h3>
+                    <div>
+                        <a th:if="${referido.cuentaCorriente != null}" 
+                           th:href="@{/cuentasCorrientes/{id}(id=${referido.cuentaCorriente})}" 
+                           class="btn btn-light me-2">
+                            <i class="fas fa-credit-card"></i> Ver Cuenta Corriente
+                        </a>
+                        <a th:href="@{/referidos}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4 class="mb-3">Información Personal</h4>
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th class="table-light" style="width: 30%">ID</th>
+                                    <td th:text="${referido.id}"></td>
+                                </tr>
+                                <tr>
+                                    <th class="table-light">Nombre</th>
+                                    <td th:text="${referido.nombre}"></td>
+                                </tr>
+                                <tr>
+                                    <th class="table-light">Teléfono</th>
+                                    <td th:text="${referido.telefono}"></td>
+                                </tr>
+                                <tr>
+                                    <th class="table-light">Email</th>
+                                    <td th:text="${referido.email}"></td>
+                                </tr>
+                                <tr>
+                                    <th class="table-light">Dirección</th>
+                                    <td th:text="${referido.direccion}"></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h4 class="mb-3">Cuenta Corriente</h4>
+                            <div th:if="${referido.cuentaCorriente != null}" class="card border-success">
+                                <div class="card-body">
+                                    <p class="card-text">Este referido tiene una cuenta corriente asociada.</p>
+                                    <a th:href="@{/cuentasCorrientes/{id}(id=${referido.cuentaCorriente})}" 
+                                       class="btn btn-success">
+                                        <i class="fas fa-credit-card"></i> Ver Detalles de la Cuenta
+                                    </a>
+                                </div>
+                            </div>
+                            <div th:unless="${referido.cuentaCorriente != null}" class="card border-warning">
+                                <div class="card-body">
+                                    <p class="card-text">Este referido no tiene una cuenta corriente asociada.</p>
+                                    <a th:href="@{/cuentasCorrientes/crear(referidoId=${referido.id})}" 
+                                       class="btn btn-warning">
+                                        <i class="fas fa-plus"></i> Crear Cuenta Corriente
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-end mt-4">
+                        <a th:href="@{/referidos/{id}/editar(id=${referido.id})}" class="btn btn-warning me-2">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                        <button type="button" class="btn btn-danger btnEliminar"
+                                th:data-id="${referido.id}" data-bs-toggle="modal" 
+                                data-bs-target="#eliminarModal">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal de confirmación para eliminar referido -->
+            <div class="modal fade" id="eliminarModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Confirmar eliminación</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>¿Está seguro que desea eliminar este referido? Esta acción no se puede deshacer.</p>
+                            <p class="text-danger">Nota: Si el referido tiene una cuenta corriente asociada, esta acción podría afectar a dicha cuenta.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <form id="formEliminar" th:action="@{/referidos/__${0}__/eliminar}" method="post">
+                                <input type="hidden" name="_method" value="DELETE">
+                                <button type="submit" class="btn btn-danger">Eliminar</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+        // Configurar modal para eliminar referido
+        document.querySelectorAll(".btnEliminar").forEach(function(button) {
+            button.addEventListener("click", function() {
+                var id = this.getAttribute("data-id");
+                var form = document.getElementById("formEliminar");
+                var baseUrl = /*[[@{/referidos/}]]*/ '/referidos/';
+                form.action = baseUrl + id + "/eliminar";
+            });
+        });
+    });
+    </script>
+</body>
+</html>
