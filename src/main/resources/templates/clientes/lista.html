@@ -2,26 +2,26 @@
 <html xmlns:th="http://www.thymeleaf.org" 
       th:replace="~{layout :: layout(~{::title}, ~{::section})}">
 <head>
-    <title>Gestión de Referidos</title>
+    <title>Gestión de Clientes</title>
 </head>
 <body>
     <section>
         <div class="container-fluid mt-4">
             <div class="card">
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h3 class="mb-0">Referidos</h3>
-                    <a th:href="@{/referidos/crear}" class="btn btn-light">
-                        <i class="fas fa-plus"></i> Nuevo Referido
+                    <h3 class="mb-0">Clientes</h3>
+                    <a th:href="@{/clientes/crear}" class="btn btn-light">
+                        <i class="fas fa-plus"></i> Nuevo Cliente
                     </a>
                 </div>
                 
                 <!-- Filtros -->
                 <div class="card-body border-bottom">
-                    <form th:action="@{/referidos}" method="get" class="row g-3">
+                    <form th:action="@{/clientes}" method="get" class="row g-3">
                         <div class="col-md-4">
                             <label for="nombre" class="form-label">Nombre</label>
                             <input type="text" class="form-control" id="nombre" name="nombre" 
-                                   th:value="${param.nombre}" placeholder="Buscar por nombre">
+                                   th:value="${nombreFiltro}" placeholder="Buscar por nombre">
                         </div>
                         <div class="col-md-2 d-flex align-items-end">
                             <button type="submit" class="btn btn-primary w-100">
@@ -29,14 +29,14 @@
                             </button>
                         </div>
                         <div class="col-md-2 d-flex align-items-end">
-                            <a th:href="@{/referidos}" class="btn btn-secondary w-100">
+                            <a th:href="@{/clientes}" class="btn btn-secondary w-100">
                                 <i class="fas fa-broom"></i> Limpiar
                             </a>
                         </div>
                     </form>
                 </div>
                 
-                <!-- Tabla de Referidos -->
+                <!-- Tabla de Clientes -->
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-striped table-hover">
@@ -51,32 +51,32 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr th:if="${#lists.isEmpty(referidos.content)}">
-                                    <td colspan="6" class="text-center">No hay referidos disponibles</td>
+                                <tr th:if="${#lists.isEmpty(clientes.content)}">
+                                    <td colspan="6" class="text-center">No hay clientes disponibles</td>
                                 </tr>
-                                <tr th:each="referido : ${referidos.content}">
-                                    <td th:text="${referido.id}"></td>
-                                    <td th:text="${referido.nombre}"></td>
-                                    <td th:text="${referido.telefono}"></td>
-                                    <td th:text="${referido.email}"></td>
-                                    <td th:text="${referido.direccion}"></td>
+                                <tr th:each="cliente : ${clientes.content}">
+                                    <td th:text="${cliente.id}"></td>
+                                    <td th:text="${cliente.nombre}"></td>
+                                    <td th:text="${cliente.telefono}"></td>
+                                    <td th:text="${cliente.email}"></td>
+                                    <td th:text="${cliente.direccion}"></td>
                                     <td>
                                         <div class="btn-group">
-                                            <a th:href="@{/ctas-ctes/referidos/{referidoId}(referidoId=${referido.id})}" 
+                                            <a th:href="@{/ctas-ctes/clientes/{clienteId}(clienteId=${cliente.id})}" 
                                                class="btn btn-sm btn-info" title="Ver Cuenta Corriente">
                                                 <i class="fas fa-credit-card"></i>
                                             </a>
-                                            <a th:href="@{/referidos/ver/{id}(id=${referido.id})}" 
+                                            <a th:href="@{/clientes/ver/{id}(id=${cliente.id})}" 
                                                class="btn btn-sm btn-primary" title="Ver Detalles">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a th:href="@{/referidos/editar/{id}(id=${referido.id})}" 
+                                            <a th:href="@{/clientes/editar/{id}(id=${cliente.id})}" 
                                                class="btn btn-sm btn-warning" title="Editar">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <button type="button" class="btn btn-sm btn-danger btnEliminar"
-                                                    th:data-id="${referido.id}" data-bs-toggle="modal" 
-                                                    data-bs-target="#eliminarModal" title="Eliminar">
+                                            <button type="button" class="btn btn-sm btn-danger btnEliminarCliente"
+                                                    th:data-id="${cliente.id}" data-bs-toggle="modal" 
+                                                    data-bs-target="#eliminarClienteModal" title="Eliminar">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </div>
@@ -87,34 +87,34 @@
                     </div>
                     
                     <!-- Paginación -->
-                    <div th:if="${referidos.totalPages > 1}" class="d-flex justify-content-between align-items-center mt-3">
+                    <div th:if="${clientes.totalPages > 1}" class="d-flex justify-content-between align-items-center mt-3">
                         <div>
-                            <span>Mostrando <span th:text="${referidos.numberOfElements}"></span> de <span th:text="${referidos.totalElements}"></span> referidos</span>
+                            <span>Mostrando <span th:text="${clientes.numberOfElements}"></span> de <span th:text="${clientes.totalElements}"></span> clientes</span>
                         </div>
                         <nav>
                             <ul class="pagination mb-0">
-                                <li class="page-item" th:classappend="${referidos.first ? 'disabled' : ''}">
-                                    <a class="page-link" th:href="@{/referidos(page=0, size=${referidos.size}, nombre=${param.nombre})}" aria-label="Primera">
+                                <li class="page-item" th:classappend="${clientes.first ? 'disabled' : ''}">
+                                    <a class="page-link" th:href="@{/clientes(page=0, size=${clientes.size}, nombre=${nombreFiltro})}" aria-label="Primera">
                                         <span aria-hidden="true">&laquo;&laquo;</span>
                                     </a>
                                 </li>
-                                <li class="page-item" th:classappend="${referidos.first ? 'disabled' : ''}">
-                                    <a class="page-link" th:href="@{/referidos(page=${referidos.number - 1}, size=${referidos.size}, nombre=${param.nombre})}" aria-label="Anterior">
+                                <li class="page-item" th:classappend="${clientes.first ? 'disabled' : ''}">
+                                    <a class="page-link" th:href="@{/clientes(page=${clientes.number - 1}, size=${clientes.size}, nombre=${nombreFiltro})}" aria-label="Anterior">
                                         <span aria-hidden="true">&laquo;</span>
                                     </a>
                                 </li>
-                                <li class="page-item" th:each="i : ${#numbers.sequence(0, referidos.totalPages - 1)}" 
-                                    th:if="${i >= referidos.number - 2 and i <= referidos.number + 2}"
-                                    th:classappend="${i == referidos.number ? 'active' : ''}">
-                                    <a class="page-link" th:href="@{/referidos(page=${i}, size=${referidos.size}, nombre=${param.nombre})}" th:text="${i + 1}"></a>
+                                <li class="page-item" th:each="i : ${#numbers.sequence(0, clientes.totalPages - 1)}" 
+                                    th:if="${i >= clientes.number - 2 and i <= clientes.number + 2}"
+                                    th:classappend="${i == clientes.number ? 'active' : ''}">
+                                    <a class="page-link" th:href="@{/clientes(page=${i}, size=${clientes.size}, nombre=${nombreFiltro})}" th:text="${i + 1}"></a>
                                 </li>
-                                <li class="page-item" th:classappend="${referidos.last ? 'disabled' : ''}">
-                                    <a class="page-link" th:href="@{/referidos(page=${referidos.number + 1}, size=${referidos.size}, nombre=${param.nombre})}" aria-label="Siguiente">
+                                <li class="page-item" th:classappend="${clientes.last ? 'disabled' : ''}">
+                                    <a class="page-link" th:href="@{/clientes(page=${clientes.number + 1}, size=${clientes.size}, nombre=${nombreFiltro})}" aria-label="Siguiente">
                                         <span aria-hidden="true">&raquo;</span>
                                     </a>
                                 </li>
-                                <li class="page-item" th:classappend="${referidos.last ? 'disabled' : ''}">
-                                    <a class="page-link" th:href="@{/referidos(page=${referidos.totalPages - 1}, size=${referidos.size}, nombre=${param.nombre})}" aria-label="Última">
+                                <li class="page-item" th:classappend="${clientes.last ? 'disabled' : ''}">
+                                    <a class="page-link" th:href="@{/clientes(page=${clientes.totalPages - 1}, size=${clientes.size}, nombre=${nombreFiltro})}" aria-label="Última">
                                         <span aria-hidden="true">&raquo;&raquo;</span>
                                     </a>
                                 </li>
@@ -124,8 +124,8 @@
                 </div>
             </div>
             
-            <!-- Modal de confirmación para eliminar referido -->
-            <div class="modal fade" id="eliminarModal" tabindex="-1" aria-hidden="true">
+            <!-- Modal de confirmación para eliminar cliente -->
+            <div class="modal fade" id="eliminarClienteModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -133,13 +133,12 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <p>¿Está seguro que desea eliminar este referido? Esta acción no se puede deshacer.</p>
-                            <p class="text-danger">Nota: Si el referido tiene una cuenta corriente asociada, esta acción podría afectar a dicha cuenta.</p>
+                            <p>¿Está seguro que desea eliminar este cliente? Esta acción no se puede deshacer.</p>
+                            <p class="text-danger">Nota: Si el cliente tiene una cuenta corriente asociada, esta acción podría afectar a dicha cuenta.</p>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <form id="formEliminar" method="post">
-                                <input type="hidden" name="_method" value="DELETE">
+                            <form id="formEliminarCliente" th:action="@{/clientes/eliminar/0}" method="post">
                                 <button type="submit" class="btn btn-danger">Eliminar</button>
                             </form>
                         </div>
@@ -148,5 +147,18 @@
             </div>
         </div>
     </section>
+    
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Configurar modal para eliminar cliente
+        document.querySelectorAll(".btnEliminarCliente").forEach(function(button) {
+            button.addEventListener("click", function() {
+                var id = this.getAttribute("data-id");
+                var form = document.getElementById("formEliminarCliente");
+                form.action = "/clientes/eliminar/" + id;
+            });
+        });
+    });
+    </script>
 </body>
 </html>

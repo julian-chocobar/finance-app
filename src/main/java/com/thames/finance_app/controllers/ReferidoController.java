@@ -32,16 +32,17 @@ public class ReferidoController {
     @GetMapping
     public String listarReferidos(@RequestParam(required = false) String nombre, Pageable pageable, Model model) {
         Page<TitularResponse> referidos = (nombre == null || nombre.isEmpty())
-                ? referidoService.obtenerTodosReferidos(pageable)
-                : referidoService.buscarReferidosPorNombre(nombre, pageable);
+                ? referidoService.obtenerTodos(pageable)
+                : referidoService.obtenerPorNombre(nombre, pageable);
         model.addAttribute("referidos", referidos);
         model.addAttribute("nombreFiltro", nombre);
         return "referidos/lista";
     }
 
-	@GetMapping("/{id}")
-	public String verReferido(@PathVariable Long id){
-		referidoService.obtenerReferidoPorID(id);
+	@GetMapping("/ver/{id}")
+	public String verReferido(@PathVariable Long id, Model model) {
+		TitularResponse referido = referidoService.obtenerPorID(id);
+		model.addAttribute("referido", referido);
 		return "referidos/ver";
 	}
 
@@ -60,20 +61,20 @@ public class ReferidoController {
 
     @GetMapping("/editar/{id}")
     public String mostrarFormularioEditar(@PathVariable Long id, Model model) {
-        TitularResponse referido = referidoService.obtenerReferidoPorID(id);
+        TitularResponse referido = referidoService.obtenerPorID(id);
         model.addAttribute("referido", referido);
         return "referidos/editar";
     }
 
 	@PostMapping("/actualizar/{id}")
-	public String actuslizarReferido(@PathVariable Long id, @ModelAttribute TitularRequest referidoRequest) {
-	    referidoService.actualizar(id, referidoRequest);
+	public String actualizarReferido(@PathVariable Long id, @ModelAttribute TitularRequest referidoRequest) {
+	    referidoService.actualizarReferido(id, referidoRequest);
 	    return "redirect:/referidos";
 	}
 
-	@PostMapping("/{id}/eliminar")
+	@PostMapping("/eliminar/{id}")
 	public String eliminarReferido(@PathVariable Long id) {
-	    referidoService.eliminar(id);
+	    referidoService.eliminarReferido(id);
 	    return "redirect:/referidos";
 	}
 

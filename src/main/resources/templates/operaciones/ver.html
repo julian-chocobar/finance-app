@@ -46,16 +46,16 @@
                             <p><strong>Moneda Origen:</strong> <span th:text="${operacion.monedaOrigen}"></span></p>
                         </div>
                         <div class="col-md-3">
-                            <p><strong>Monto Origen:</strong> <span th:text="${#numbers.formatDecimal(operacion.montoOrigen, 1, 2)}"></span></p>
+                            <p><strong>Monto Origen:</strong> <span th:text="${#numbers.formatDecimal(operacion.montoOrigen, 1, 'POINT', 2, 'COMMA')}"></span></p>
                         </div>
                         <div class="col-md-3">
-                            <p><strong>Tipo de Cambio:</strong> <span th:text="${#numbers.formatDecimal(operacion.valorTipoCambio, 1, 4)}"></span></p>
+                            <p><strong>Tipo de Cambio:</strong> <span th:text="${#numbers.formatDecimal(operacion.valorTipoCambio, 1, 'POINT', 4, 'COMMA')}"></span></p>
                         </div>
                         <div class="col-md-3">
                             <p><strong>Moneda Conversión:</strong> <span th:text="${operacion.monedaConversion}"></span></p>
                         </div>
                         <div class="col-md-3">
-                            <p><strong>Monto Calculado:</strong> <span th:text="${#numbers.formatDecimal(operacion.montoOrigen * operacion.valorTipoCambio, 1, 2)}"></span></p>
+                            <p><strong>Monto Calculado:</strong> <span th:text="${#numbers.formatDecimal(operacion.montoOrigen * operacion.valorTipoCambio, 1, 'POINT', 2, 'COMMA')}"></span></p>
                         </div>
                     </div>
                     
@@ -67,10 +67,10 @@
                             <p><strong>Nombre:</strong> <span th:text="${operacion.nombreReferido}"></span></p>
                         </div>
                         <div class="col-md-2">
-                            <p><strong>Puntos:</strong> <span th:text="${operacion.puntosReferido != null ? #numbers.formatDecimal(operacion.puntosReferido, 1, 2) : '-'}"></span></p>
+                            <p><strong>Puntos:</strong> <span th:text="${operacion.puntosReferido != null ? #numbers.formatDecimal(operacion.puntosReferido, 1, 'POINT', 2, 'COMMA') : '-'}"></span></p>
                         </div>
                         <div class="col-md-2">
-                            <p><strong>Ganancia:</strong> <span th:text="${operacion.gananciaReferido != null ? #numbers.formatDecimal(operacion.gananciaReferido, 1, 2) : '-'}"></span></p>
+                            <p><strong>Ganancia:</strong> <span th:text="${operacion.gananciaReferido != null ? #numbers.formatDecimal(operacion.gananciaReferido, 1, 'POINT', 2, 'COMMA') : '-'}"></span></p>
                         </div>
                         <div class="col-md-2">
                             <p><strong>Moneda:</strong> <span th:text="${operacion.monedaReferido ?: '-'}"></span></p>
@@ -101,7 +101,7 @@
                                                 <span th:if="${pago.tipoEntrega == 'DELIVERY'}">Delivery</span>
                                                 <span th:if="${pago.tipoEntrega == 'BANCO'}">Banco</span>
                                             </td>
-                                            <td th:text="${#numbers.formatDecimal(pago.valor, 1, 2)}"></td>
+                                            <td th:text="${#numbers.formatDecimal(pago.valor, 1, 'POINT', 2, 'COMMA')}"></td>
                                         </tr>
                                         <tr th:if="${#lists.isEmpty(operacion.pagosOrigen)}">
                                             <td colspan="3" class="text-center">No hay pagos registrados</td>
@@ -110,7 +110,7 @@
                                     <tfoot>
                                         <tr>
                                             <td colspan="2" class="text-end fw-bold">Total:</td>
-                                            <td th:text="${#numbers.formatDecimal(#aggregates.sum(operacion.pagosOrigen.![valor]), 1, 2)}"></td>
+                                            <td th:text="${#numbers.formatDecimal(#aggregates.sum(operacion.pagosOrigen.![valor]), 1, 'POINT', 2, 'COMMA')}"></td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -142,7 +142,7 @@
                                                 <span th:if="${pago.tipoEntrega == 'DELIVERY'}">Delivery</span>
                                                 <span th:if="${pago.tipoEntrega == 'BANCO'}">Banco</span>
                                             </td>
-                                            <td th:text="${#numbers.formatDecimal(pago.valor, 1, 2)}"></td>
+                                            <td th:text="${#numbers.formatDecimal(pago.valor, 1, 'POINT', 2, 'COMMA')}"></td>
                                         </tr>
                                         <tr th:if="${#lists.isEmpty(operacion.pagosConversion)}">
                                             <td colspan="3" class="text-center">No hay pagos registrados</td>
@@ -151,7 +151,7 @@
                                     <tfoot>
                                         <tr>
                                             <td colspan="2" class="text-end fw-bold">Total:</td>
-                                            <td th:text="${#numbers.formatDecimal(#aggregates.sum(operacion.pagosConversion.![valor]), 1, 2)}"></td>
+                                            <td th:text="${#numbers.formatDecimal(#aggregates.sum(operacion.pagosConversion.![valor]), 1, 'POINT', 2, 'COMMA')}"></td>
                                         </tr>
                                     </tfoot>
                                 </table>

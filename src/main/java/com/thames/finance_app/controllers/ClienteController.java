@@ -39,9 +39,10 @@ public class ClienteController {
 		return "clientes/lista";
 	}
 
-	@GetMapping("/{id}")
-	public String verCliente(@PathVariable Long id){
-		clienteService.obtenerPorID(id);
+	@GetMapping("/ver/{id}")
+	public String verCliente(@PathVariable Long id, Model model){
+		TitularResponse cliente = clienteService.obtenerPorID(id);
+		model.addAttribute("cliente", cliente);
 		return "clientes/ver";
 	}
 

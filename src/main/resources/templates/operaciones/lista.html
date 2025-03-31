@@ -97,8 +97,8 @@
                                         <span th:if="${operacion.tipo == 'VENTA'}" class="badge bg-primary">Venta</span>
                                     </td>
                                     <td th:text="${operacion.monedaOrigen}"></td>
-                                    <td th:text="${#numbers.formatDecimal(operacion.montoOrigen, 1, 2)}"></td>
-                                    <td th:text="${#numbers.formatDecimal(operacion.valorTipoCambio, 1, 4)}"></td>
+                                    <td th:text="${#numbers.formatDecimal(operacion.montoOrigen, 1, 'POINT', 2, 'COMMA')}"></td>
+                                    <td th:text="${#numbers.formatDecimal(operacion.valorTipoCambio, 1, 'POINT', 4, 'COMMA')}"></td>
                                     <td th:text="${operacion.monedaConversion}"></td>
                                     <td th:text="${operacion.nombreReferido ?: '-'}"></td>
                                     <td th:text="${#temporals.format(operacion.fechaCreacion, 'dd/MM/yyyy')}"></td>

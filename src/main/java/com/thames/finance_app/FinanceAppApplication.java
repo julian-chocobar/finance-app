@@ -149,18 +149,18 @@ public class FinanceAppApplication {
     	    	    Titular.builder().tipo(TipoTitular.REFERIDO).nombre("Sofia Martinez").email("sofia.mtz@gmail.com").telefono("+54 9 11 8901 2345").direccion("Santa Fe 852").build(),
     	    	    Titular.builder().tipo(TipoTitular.REFERIDO).nombre("Raul Castro").email("raul.castro@gmail.com").telefono("+54 9 11 9012 3456").direccion("Entre Rios 369").build(),
     	    	    Titular.builder().tipo(TipoTitular.REFERIDO).nombre("Valeria Nuñez").email("valeria.n@gmail.com").telefono("+54 9 11 0123 4567").direccion("Corrientes 741").build(),
-    	    	    Titular.builder().tipo(TipoTitular.REFERIDO).nombre("Esteban Vega").email("esteban.vega@gmail.com").telefono("+54 9 11 1234 5678").direccion("Tucuman 159").build(),
-    	    	    Titular.builder().tipo(TipoTitular.REFERIDO).nombre("Marina Rojas").email("marina.rojas@gmail.com").telefono("+54 9 11 2345 6789").direccion("Moreno 753").build(),
-    	    	    Titular.builder().tipo(TipoTitular.REFERIDO).nombre("Gustavo Farias").email("gustavo.f@gmail.com").telefono("+54 9 11 3456 7890").direccion("Catamarca 268").build(),
-    	    	    Titular.builder().tipo(TipoTitular.REFERIDO).nombre("Diana Salinas").email("diana.salinas@gmail.com").telefono("+54 9 11 4567 8901").direccion("9 de Julio 432").build(),
-    	    	    Titular.builder().tipo(TipoTitular.REFERIDO).nombre("Hernan Mendez").email("hernan.mendez@gmail.com").telefono("+54 9 11 5678 9012").direccion("Alsina 990").build(),
-    	    	    Titular.builder().tipo(TipoTitular.REFERIDO).nombre("Beatriz Suarez").email("beatriz.suarez@gmail.com").telefono("+54 9 11 6789 0123").direccion("Lavalle 876").build(),
-    	    	    Titular.builder().tipo(TipoTitular.REFERIDO).nombre("Oscar Medina").email("oscar.medina@gmail.com").telefono("+54 9 11 7890 1234").direccion("Urquiza 345").build(),
-    	    	    Titular.builder().tipo(TipoTitular.REFERIDO).nombre("Natalia Herrera").email("natalia.herrera@gmail.com").telefono("+54 9 11 8901 2345").direccion("Mendoza 258").build()
-//    	    	    Titular.builder().tipo(TipoTitular.REFERIDO).nombre("Ricardo Ponce").email("ricardo.ponce@gmail.com").telefono("+54 9 11 9012 3456").direccion("Rioja 785").build(),
-//    	    	    Titular.builder().tipo(TipoTitular.REFERIDO).nombre("Andrea Fernandez").email("andrea.fernandez@gmail.com").telefono("+54 9 11 0123 4567").direccion("Jujuy 632").build(),
-//    	    	    Titular.builder().tipo(TipoTitular.REFERIDO).nombre("Silvia Fernandez").email("andrea.fernandez@gmail.com").telefono("+54 9 11 0123 4567").direccion("Jujuy 632").build(),
-//    	    	    Titular.builder().tipo(TipoTitular.REFERIDO).nombre("Nestor Fernandez").email("andrea.fernandez@gmail.com").telefono("+54 9 11 0123 4567").direccion("Jujuy 632").build()
+    	    	    Titular.builder().tipo(TipoTitular.CLIENTE).nombre("Esteban Vega").email("esteban.vega@gmail.com").telefono("+54 9 11 1234 5678").direccion("Tucuman 159").build(),
+    	    	    Titular.builder().tipo(TipoTitular.CLIENTE).nombre("Marina Rojas").email("marina.rojas@gmail.com").telefono("+54 9 11 2345 6789").direccion("Moreno 753").build(),
+    	    	    Titular.builder().tipo(TipoTitular.CLIENTE).nombre("Gustavo Farias").email("gustavo.f@gmail.com").telefono("+54 9 11 3456 7890").direccion("Catamarca 268").build(),
+    	    	    Titular.builder().tipo(TipoTitular.CLIENTE).nombre("Diana Salinas").email("diana.salinas@gmail.com").telefono("+54 9 11 4567 8901").direccion("9 de Julio 432").build(),
+    	    	    Titular.builder().tipo(TipoTitular.CLIENTE).nombre("Hernan Mendez").email("hernan.mendez@gmail.com").telefono("+54 9 11 5678 9012").direccion("Alsina 990").build(),
+    	    	    Titular.builder().tipo(TipoTitular.CLIENTE).nombre("Beatriz Suarez").email("beatriz.suarez@gmail.com").telefono("+54 9 11 6789 0123").direccion("Lavalle 876").build(),
+    	    	    Titular.builder().tipo(TipoTitular.CLIENTE).nombre("Oscar Medina").email("oscar.medina@gmail.com").telefono("+54 9 11 7890 1234").direccion("Urquiza 345").build(),
+    	    	    Titular.builder().tipo(TipoTitular.CLIENTE).nombre("Natalia Herrera").email("natalia.herrera@gmail.com").telefono("+54 9 11 8901 2345").direccion("Mendoza 258").build(),
+    	    	    Titular.builder().tipo(TipoTitular.CLIENTE).nombre("Ricardo Ponce").email("ricardo.ponce@gmail.com").telefono("+54 9 11 9012 3456").direccion("Rioja 785").build(),
+    	    	    Titular.builder().tipo(TipoTitular.CLIENTE).nombre("Andrea Fernandez").email("andrea.fernandez@gmail.com").telefono("+54 9 11 0123 4567").direccion("Jujuy 632").build(),
+    	    	    Titular.builder().tipo(TipoTitular.CLIENTE).nombre("Silvia Fernandez").email("andrea.fernandez@gmail.com").telefono("+54 9 11 0123 4567").direccion("Jujuy 632").build(),
+    	    	    Titular.builder().tipo(TipoTitular.CLIENTE).nombre("Nestor Fernandez").email("andrea.fernandez@gmail.com").telefono("+54 9 11 0123 4567").direccion("Jujuy 632").build()
 
     	    	);
 
@@ -176,7 +176,7 @@ public class FinanceAppApplication {
     	    	}
 
 
-    	    	OperacionRequest operacionRequest = OperacionRequest.builder()
+    	    	OperacionRequest operacionRequest1 = OperacionRequest.builder()
     	    			.tipo(TipoOperacion.COMPRA)
     	    			.nombreCliente("Juan Suarez")
     	    			.monedaOrigen("USD")
@@ -184,21 +184,46 @@ public class FinanceAppApplication {
     	    			.valorTipoCambio(new BigDecimal("0.85"))
     	    			.monedaConversion("EUR")
     	    			.build();
-    	       operacionService.crearOperacion(operacionRequest);
-    	       operacionService.crearOperacion(operacionRequest);
-    	       operacionService.crearOperacion(operacionRequest);
-    	       operacionService.crearOperacion(operacionRequest);
-    	       operacionService.crearOperacion(operacionRequest);
-    	       operacionService.crearOperacion(operacionRequest);
-    	       operacionService.crearOperacion(operacionRequest);
-    	       operacionService.crearOperacion(operacionRequest);
-    	       operacionService.crearOperacion(operacionRequest);
-    	       operacionService.crearOperacion(operacionRequest);
-    	       operacionService.crearOperacion(operacionRequest);
-    	       operacionService.crearOperacion(operacionRequest);
-    	       operacionService.crearOperacion(operacionRequest);
-    	       operacionService.crearOperacion(operacionRequest);
-    	       operacionService.crearOperacion(operacionRequest);
+
+				OperacionRequest operacionRequest2 = OperacionRequest.builder()
+						.tipo(TipoOperacion.COMPRA)
+						.nombreCliente("Andrea Fernandez")
+						.monedaOrigen("USD")
+						.montoOrigen(new BigDecimal("5000"))
+						.valorTipoCambio(new BigDecimal("1205"))
+						.monedaConversion("ARS")
+						.build();
+
+				OperacionRequest operacionRequest3 = OperacionRequest.builder()
+						.tipo(TipoOperacion.VENTA)
+						.nombreCliente("Oscar Medina")
+						.monedaOrigen("ARS")
+						.montoOrigen(new BigDecimal("7450"))
+						.valorTipoCambio(new BigDecimal("1220"))
+						.monedaConversion("USD")
+						.build();
+		
+    	       operacionService.crearOperacion(operacionRequest1);
+    	       operacionService.crearOperacion(operacionRequest2);
+    	       operacionService.crearOperacion(operacionRequest3);
+    	       operacionService.crearOperacion(operacionRequest3);
+    	       operacionService.crearOperacion(operacionRequest3);
+    	       operacionService.crearOperacion(operacionRequest3);
+    	       operacionService.crearOperacion(operacionRequest3);
+    	       operacionService.crearOperacion(operacionRequest3);
+    	       operacionService.crearOperacion(operacionRequest3);
+    	       operacionService.crearOperacion(operacionRequest3);
+    	       operacionService.crearOperacion(operacionRequest1);
+    	       operacionService.crearOperacion(operacionRequest2);
+    	       operacionService.crearOperacion(operacionRequest1);
+    	       operacionService.crearOperacion(operacionRequest2);			   
+    	       operacionService.crearOperacion(operacionRequest1);
+    	       operacionService.crearOperacion(operacionRequest2);
+    	       operacionService.crearOperacion(operacionRequest3);
+    	       operacionService.crearOperacion(operacionRequest3);
+    	       operacionService.crearOperacion(operacionRequest3);
+    	       operacionService.crearOperacion(operacionRequest3);
+    	       operacionService.crearOperacion(operacionRequest3);
 
         };
 

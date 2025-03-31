@@ -35,13 +35,13 @@
                                 <tr>
                                     <th scope="row">Saldo Real</th>
                                     <td th:each="caja : ${cajas}" class="text-center">
-                                        <span th:text="${#numbers.formatDecimal(caja.saldoReal, 1, 2)}"></span>
+                                        <span th:text="${#numbers.formatDecimal(caja.saldoReal, 1, 'POINT', 2, 'COMMA')}"></span>
                                     </td>
                                 </tr>
                                 <tr>
                                     <th scope="row">Saldo Disponible</th>
                                     <td th:each="caja : ${cajas}" class="text-center">
-                                        <span th:text="${#numbers.formatDecimal(caja.saldoDisponible, 1, 2)}"></span>
+                                        <span th:text="${#numbers.formatDecimal(caja.saldoDisponible, 1, 'POINT', 2, 'COMMA')}"></span>
                                     </td>
                                 </tr>
                                 <tr>
@@ -231,8 +231,8 @@
                                         <span th:if="${movimiento.tipo == 'INGRESO'}" class="badge bg-success">Ingreso</span>
                                         <span th:if="${movimiento.tipo == 'EGRESO'}" class="badge bg-danger">Egreso</span>
                                     </td>
-                                    <td th:text="${#numbers.formatDecimal(movimiento.monto, 1, 2)}"></td>
-                                    <td th:text="${#numbers.formatDecimal(movimiento.montoEjecutado, 1, 2)}"></td>
+                                    <td th:text="${#numbers.formatDecimal(movimiento.monto, 1, 'POINT', 2, 'COMMA')}"></td>
+                                    <td th:text="${#numbers.formatDecimal(movimiento.montoEjecutado, 1, 'POINT', 2, 'COMMA')}"></td>
                                     <td>
                                         <a th:if="${movimiento.idOperacion}" th:href="@{/operaciones/{id}(id=${movimiento.idOperacion})}" 
                                            th:text="${movimiento.idOperacion}" class="link-primary"></a>

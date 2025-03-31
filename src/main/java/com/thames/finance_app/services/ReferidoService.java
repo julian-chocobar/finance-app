@@ -33,26 +33,20 @@ public class ReferidoService {
 	private final MonedaService monedaService;
 	private final TitularMapper titularMapper;
 
-	public Page<TitularResponse> obtenerTodosReferidos(Pageable pageable){
+	public Page<TitularResponse> obtenerTodos(Pageable pageable){
 		return  titularRepository.findByTipo(TipoTitular.REFERIDO, pageable)
 				.map(titularMapper::toResponse);
 	}
 
-    public Page<TitularResponse> buscarReferidosPorNombre(String nombre, Pageable pageable) {
+    public Page<TitularResponse> obtenerPorNombre(String nombre, Pageable pageable) {
         return titularRepository.findByNombreContainingIgnoreCaseAndTipo(nombre, TipoTitular.REFERIDO, pageable)
-                .map(titular -> TitularResponse.builder()
-                    .id(titular.getId())
-                    .nombre(titular.getNombre())
-                    .telefono(titular.getTelefono())
-                    .email(titular.getEmail())
-                    .direccion(titular.getDireccion()).build()
-                );
+                .map(titularMapper::toResponse);
 
     }
 
-	public TitularResponse obtenerReferidoPorID(Long id) {
+	public TitularResponse obtenerPorID(Long id) {
 		Titular referidos = titularRepository.findById(id)
-				.orElseThrow( () -> new EntityNotFoundException("Cliente con id: " + id + " no encontrado"));
+				.orElseThrow( () -> new EntityNotFoundException("Referido con id: " + id + " no encontrado"));
 		return titularMapper.toResponse(referidos);
 	}
 
@@ -82,9 +76,9 @@ public class ReferidoService {
 		return titularMapper.toResponse(savedCliente);
 	}
 
-	public void eliminar(Long id) {
+	public void eliminarReferido(Long id) {
 	    Titular referido = titularRepository.findById(id)
-	        .orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado"));
+	        .orElseThrow(() -> new EntityNotFoundException("Referido no encontrado"));
 
 	   if (operacionRepository.existsByCuentaCorrienteId(referido.getCuentaCorriente().getId())){
 		   throw new BusinessException("No se puede eliminar un referido con operaciones registradas.");
@@ -104,7 +98,7 @@ public class ReferidoService {
     }
 
     @Transactional
-	public TitularResponse actualizar(Long id, TitularRequest referidoRequest) {
+	public TitularResponse actualizarReferido(Long id, TitularRequest referidoRequest) {
 	    Titular referido = titularRepository.findById(id)
 		        .orElseThrow(() -> new EntityNotFoundException("Referido no encontrado"));
 

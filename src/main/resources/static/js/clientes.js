@@ -1,9 +1,11 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar tooltips de Bootstrap
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
+    // Inicializar tooltips de Bootstrap si bootstrap está disponible
+    if (typeof bootstrap !== 'undefined') {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    }
     
     // Validación de formularios
     const forms = document.querySelectorAll('.needs-validation');
@@ -18,15 +20,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }, false);
     });
     
-    // Configurar modal para eliminar referido
-    const btnEliminar = document.querySelectorAll('.btnEliminar');
-    if (btnEliminar.length > 0) {
-        btnEliminar.forEach(button => {
+    // Configurar modal para eliminar cliente - ESPECÍFICO PARA CLIENTES
+    const btnEliminarCliente = document.querySelectorAll('.btnEliminarCliente');
+    if (btnEliminarCliente.length > 0 && window.location.pathname.includes('/clientes')) {
+        btnEliminarCliente.forEach(button => {
             button.addEventListener('click', function() {
                 const id = this.getAttribute('data-id');
-                const formEliminar = document.getElementById('formEliminar');
-                const contextPath = document.querySelector('meta[name="context-path"]')?.getAttribute('content') || '';
-                formEliminar.action = contextPath + `/referidos/eliminar/${id}`;
+                const formEliminar = document.getElementById('formEliminarCliente');
+                
+                // Asegurarse de que la URL comience con /clientes/
+                formEliminar.action = '/clientes/eliminar/' + id;
+                
+                // Verificar si estamos en una página de clientes
+                console.log('Configurando eliminación de cliente: ' + formEliminar.action);
             });
         });
     }
