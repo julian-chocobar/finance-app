@@ -88,9 +88,11 @@ public class MonedaController {
 //-------------------------------------------------------------------------------    
 
     @GetMapping("/tipoCambio/crear")
-	public String mostrarFormularioCrearTipoCambio(@PathVariable String nombre, Model model) {
+	public String mostrarFormularioCrearTipoCambio(Model model) {
+        List<MonedaDTO> monedas = monedaService.listarTodasLasMonedas();
         TipoCambioDTO tipoCambio = new TipoCambioDTO();
         model.addAttribute("tipoCambio", tipoCambio);
+        model.addAttribute("monedas", monedas);
         return "monedas/tipoCambio/crear";
     }
 
@@ -100,20 +102,22 @@ public class MonedaController {
         return "redirect:/monedas";
     }
 
-    @GetMapping("/{nombre}/tipoCambio/editar")
+    @GetMapping("/tipoCambio/{id}/editar")
     public String mostrarFormularioEditarTipoCambio(@PathVariable Long id, Model model) {
+        List<MonedaDTO> monedas = monedaService.listarTodasLasMonedas();
         TipoCambioDTO tipoCambio = tipoCambioService.obtenerDTOPorId(id);
         model.addAttribute("tipoCambio", tipoCambio);
+        model.addAttribute("monedas", monedas);
         return "monedas/tipoCambio/editar";
     }
 
-    @PostMapping("/{id}/tipoCambio/actualizar")
+    @PostMapping("/tipoCambio/{id}/actualizar")
     public String actualizarTipoCambio(@PathVariable Long id, @ModelAttribute TipoCambioDTO tipoCambioDTO) {
         tipoCambioService.actualizarTipoCambio(tipoCambioDTO, id);
         return "redirect:/monedas";
     }
 
-    @PostMapping("/{id}/tipoCambio/eliminar")
+    @PostMapping("/tipoCambio/eliminar/{id}")
     public String eliminarTipoCambio(@PathVariable Long id) {
         tipoCambioService.eliminarTipoCambio(id);
         return "redirect:/monedas";

@@ -172,7 +172,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <form id="formEliminarTipoCambio" method="post">
+                            <form id="formEliminarTipoCambio" method="post" th:action="@{/monedas/tipoCambio/eliminar}">
                                 <button type="submit" class="btn btn-danger">Eliminar</button>
                             </form>
                         </div>
@@ -198,7 +198,7 @@
                 button.addEventListener("click", function () {
                     const id = this.getAttribute("data-id"),
                           form = document.getElementById("formEliminarTipoCambio");
-                    form.setAttribute("action", `/monedas/tipoCambio/${id}/eliminar`);
+                    form.setAttribute("action", `/monedas/tipoCambio/eliminar`);
                 });
             });
         });
